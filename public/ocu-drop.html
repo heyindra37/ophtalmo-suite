@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OcuDrop Scheduler – Penjadwal Obat Tetes Mata</title>
+<link rel="manifest" id="manifest-link">
+<meta name="theme-color" content="#0f172a">
+<!-- SheetJS for Excel export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --teal:#0d9488;--teal-d:#0f766e;--teal-l:#f0fdfa;
+  --navy:#0f172a;--slate:#475569;--muted:#94a3b8;
+  --bg:#f1f5f9;--card:#ffffff;--border:#e2e8f0;
+  --s-bg:#f0fdf4;--s-bd:#bbf7d0;--s-tx:#15803d;
+  --w-bg:#fffbeb;--w-bd:#fde68a;--w-tx:#92400e;
+  --d-bg:#fef2f2;--d-bd:#fecaca;--d-tx:#dc2626;
+  --fix-bg:#eef2ff;--fix-bd:#c7d2fe;--fix-tx:#3730a3;
+  --db-bg:#f5f3ff;--db-bd:#ddd6fe;--db-tx:#5b21b6;
+  --r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--navy);min-height:100vh}
+header{background:var(--navy);padding:13px 22px;display:flex;align-items:center;gap:12px}
+.logo{width:32px;height:32px;background:rgba(13,148,136,.22);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px}
+nav{background:var(--card);border-bottom:1px solid var(--border);display:flex;padding:0 14px;overflow-x:auto;gap:2px}
+nav button{border:none;background:none;padding:12px 13px;font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:var(--slate);white-space:nowrap;font-family:inherit;transition:color .12s,border-color .12s}
+nav button.active{color:var(--teal);border-bottom-color:var(--teal)}
+nav button.active-db{color:#7c3aed;border-bottom-color:#7c3aed}
+main{max-width:760px;margin:0 auto;padding:22px 16px}
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);padding:20px 22px;margin-bottom:14px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:16px;color:var(--navy)}
+label.fl{display:block;font-size:11px;font-weight:600;color:var(--slate);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+input[type=text],input[type=time],select,input[type=search]{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--navy);font-family:inherit;outline:none;transition:border-color .15s}
+input[type=time]{font-family:'Courier New',monospace;font-size:14px}
+input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.12)}
+.btn{border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-size:13px;font-weight:500;background:var(--card);color:var(--navy);cursor:pointer;font-family:inherit;transition:background .12s}
+.btn:hover{background:var(--bg)}
+.btn-p{background:var(--teal);color:#fff;border-color:var(--teal);font-weight:600}
+.btn-p:hover{background:var(--teal-d)}
+.btn-danger{color:#dc2626;border-color:#fecaca;background:var(--card)}
+.btn-danger:hover{background:var(--d-bg)}
+.btn-purple{background:#7c3aed;color:#fff;border-color:#7c3aed;font-weight:600}
+.btn-purple:hover{background:#6d28d9}
+.btn-green{background:#16a34a;color:#fff;border-color:#16a34a;font-weight:600}
+.btn-green:hover{background:#15803d}
+.notice{padding:10px 14px;border-radius:8px;font-size:13px;margin-top:12px}
+.notice.g{background:var(--s-bg);border:1px solid var(--s-bd);color:var(--s-tx)}
+.notice.y{background:var(--w-bg);border:1px solid var(--w-bd);color:var(--w-tx)}
+.notice.r{background:var(--d-bg);border:1px solid var(--d-bd);color:var(--d-tx)}
+.notice.b{background:var(--fix-bg);border:1px solid var(--fix-bd);color:var(--fix-tx)}
+.notice.v{background:var(--db-bg);border:1px solid var(--db-bd);color:var(--db-tx)}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.hidden{display:none!important}
+.flex-r{display:flex;gap:10px}
+
+/* Drug block */
+.drug-block{border-radius:var(--r);border:1px solid var(--border);margin-bottom:14px;overflow:hidden}
+.drug-header{display:grid;grid-template-columns:26px 1fr 130px 160px auto;gap:10px;align-items:center;padding:12px 14px;background:var(--bg)}
+.d-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
+.drug-footer{padding:10px 14px;border-top:1px solid var(--border);background:var(--card);display:flex;flex-direction:column;gap:10px}
+.mode-toggle{display:flex;border-radius:20px;border:1px solid var(--border);overflow:hidden;width:fit-content;background:var(--bg)}
+.mode-toggle button{border:none;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:var(--slate);transition:background .12s,color .12s;border-radius:0;white-space:nowrap}
+.mode-toggle button.on-auto{background:var(--teal);color:#fff}
+.mode-toggle button.on-fix{background:#4f46e5;color:#fff}
+.fix-times{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:var(--fix-bg);border:1px solid var(--fix-bd);border-radius:8px}
+.fix-time-wrap{display:flex;align-items:center;gap:6px}
+.fix-time-wrap input[type=time]{width:118px;padding:7px 10px;border-color:var(--fix-bd);background:#fff;font-family:'Courier New',monospace;font-size:14px}
+.q1h-badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:rgba(245,158,11,.15);color:#92400e;border:1px solid rgba(245,158,11,.35)}
+.fix-badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--fix-bg);color:var(--fix-tx);border:1px solid var(--fix-bd)}
+.chip{display:inline-block;font-family:'Courier New',monospace;font-size:11px;padding:2px 7px;border-radius:20px;margin:2px}
+.tl-row{display:flex;gap:14px;align-items:flex-start}
+.tl-time{min-width:52px;padding-top:8px;font-family:'Courier New',monospace;font-size:15px;font-weight:600;text-align:right}
+.tl-spine{display:flex;flex-direction:column;align-items:center;padding-top:11px}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:2px solid var(--card)}
+.tl-line{width:2px;flex-grow:1;min-height:16px;background:var(--border);margin-top:2px}
+.pill{display:flex;align-items:center;gap:7px;padding:5px 12px;border-radius:20px;border:1px solid transparent;margin:2px}
+.pill-eye{font-size:11px;background:white;padding:1px 7px;border-radius:12px;color:var(--slate)}
+.sum-card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);border-top-width:3px;padding:14px 16px}
+.pt-card{background:var(--card);border-radius:var(--r);border:2px solid var(--border);padding:28px;max-width:460px;margin:0 auto}
+.pt-card-hdr{text-align:center;padding-bottom:18px;margin-bottom:18px;border-bottom:2px dashed var(--border)}
+.sched-row{display:flex;gap:14px;align-items:flex-start;padding:10px 14px;background:var(--bg);border-radius:8px;margin-bottom:8px}
+.sched-t{font-family:'Courier New',monospace;font-size:17px;font-weight:700;min-width:54px;padding-top:2px}
+.emr-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-family:'Courier New',monospace;font-size:12px;line-height:1.75;white-space:pre-wrap;word-break:break-all;max-height:60vh;overflow-y:auto}
+.conflict-warn{font-size:11px;color:#b45309;background:#fef3c7;padding:3px 9px;border-radius:12px;border:1px solid #fde68a;display:inline-block;margin-left:6px}
+
+/* ── Database tab ── */
+.db-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.db-stat{background:var(--card);border-radius:var(--r);border:1px solid var(--border);padding:14px;text-align:center}
+.db-stat-n{font-size:26px;font-weight:600;color:var(--navy)}
+.db-stat-l{font-size:11px;color:var(--slate);margin-top:2px}
+.db-toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.db-toolbar input{max-width:260px}
+.rec-table{width:100%;border-collapse:collapse;font-size:13px}
+.rec-table th{text-align:left;padding:9px 12px;background:var(--bg);border-bottom:2px solid var(--border);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--slate);white-space:nowrap}
+.rec-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.rec-table tr:hover td{background:#fafbfc}
+.rec-table tr.sel td{background:var(--teal-l)}
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:12px;margin:1px;font-weight:500}
+.tag-teal{background:rgba(13,148,136,.12);color:#0f766e}
+.tag-blue{background:rgba(59,130,246,.12);color:#1e40af}
+.tag-fix{background:var(--fix-bg);color:var(--fix-tx)}
+.rec-actions{display:flex;gap:6px}
+.detail-panel{background:var(--db-bg);border:1px solid var(--db-bd);border-radius:var(--r);padding:16px;margin-bottom:14px;font-size:13px;line-height:1.7}
+
+.modal-back{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{background:var(--card);border-radius:var(--r);border:1px solid var(--border);max-width:420px;width:100%;padding:20px 22px;box-shadow:0 20px 50px rgba(0,0,0,.15)}
+.modal-box h3{font-size:15px;margin-bottom:10px;color:var(--navy)}
+.modal-box p{font-size:13px;color:var(--slate);line-height:1.55;margin-bottom:14px}
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.alt-badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:rgba(124,58,237,.12);color:#5b21b6;border:1px solid rgba(124,58,237,.35)}
+footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var(--muted);line-height:1.6;max-width:760px;margin:0 auto}
+
+@media print{
+  header,nav,.no-print{display:none!important}
+  body{background:#fff}
+  main{padding:0;max-width:100%}
+  #tab-setup,#tab-schedule,#tab-emr,#tab-db{display:none!important}
+  #tab-card{display:block!important}
+  .pt-card{border:1px solid #ccc;max-width:100%;border-radius:0}
+  footer.site-ft{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">💧</div>
+  <div style="flex:1">
+    <div style="color:#fff;font-size:15px;font-weight:600">OcuDrop Scheduler</div>
+    <div style="color:var(--muted);font-size:11px">Penjadwal Otomatis Obat Tetes Mata</div>
+  </div>
+  <div id="db-count-badge" style="background:rgba(139,92,246,.25);color:#c4b5fd;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:600;cursor:pointer" onclick="showTab('db')">
+    🗄 <span id="hdr-count">0</span> pasien tersimpan
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('setup')">📝 Input</button>
+  <button onclick="showTab('schedule')">⏰ Jadwal</button>
+  <button onclick="showTab('card')">🖨️ Kartu</button>
+  <button onclick="showTab('emr')">📋 EMR</button>
+  <button onclick="showTab('db')" style="color:#7c3aed;font-weight:600">🗄 Data Pasien</button>
+</nav>
+
+<main>
+  <!-- ════ TAB SETUP ════ -->
+  <div id="tab-setup">
+    <div class="card">
+      <div class="card-title">⚙️ Pengaturan Waktu</div>
+      <div class="g3">
+        <div><label class="fl">Nama Pasien</label><input type="text" id="pat-name" placeholder="Opsional (untuk disimpan ke database)"></div>
+        <div><label class="fl">Jam Bangun</label><input type="time" id="wake" value="06:00" oninput="onTimeChange()"></div>
+        <div><label class="fl">Jam Tidur</label><input type="time" id="sleep" value="21:00" oninput="onTimeChange()"></div>
+      </div>
+      <div id="span-notice" class="notice g">✓ Waktu aktif: <strong>15 jam 0 menit</strong> (06:00 – 21:00)</div>
+      <div class="g3" style="margin-top:14px">
+        <div>
+          <label class="fl">Jarak minimal antar obat (beda jenis)</label>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="number" id="min-gap" min="1" max="120" value="15" style="max-width:100px" oninput="onGapChange()" title="Menit antara meneteskan obat berbeda pada mata yang sama">
+            <span style="font-size:12px;color:var(--slate)">menit</span>
+          </div>
+        </div>
+        <div style="grid-column:span 2">
+          <label class="fl">Preset cepat</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button type="button" class="btn" style="padding:6px 10px;font-size:12px" onclick="setGapPreset(5)">5 m</button>
+            <button type="button" class="btn" style="padding:6px 10px;font-size:12px" onclick="setGapPreset(10)">10 m</button>
+            <button type="button" class="btn" style="padding:6px 10px;font-size:12px" onclick="setGapPreset(15)">15 m</button>
+            <button type="button" class="btn" style="padding:6px 10px;font-size:12px" onclick="setGapPreset(30)">30 m</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notice b" style="margin-bottom:14px;font-size:12px">
+      <strong>💡 Dua mode:</strong>
+      &nbsp;🔄 <strong>Otomatis</strong> — jam tetes dari waktu bangun÷frekuensi. &nbsp;
+      📌 <strong>Jam Tetap</strong> — untuk Timolol q12h, Latanoprost malam, Tropinamide, dll. &nbsp;
+      🔀 <strong>Selang-seling</strong> — dua obat bergantian tiap jam (mis. ulkus kornea). &nbsp;
+      Gunakan frekuensi <strong>q2h</strong> untuk kasus seperti trauma kimia (mis. Lyterres tiap 2 jam) bersama obat lain.
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+        <div class="card-title" style="margin-bottom:0">📑 Template Obat</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="tpl-name" placeholder="Nama template" style="max-width:180px">
+          <button type="button" class="btn btn-green" onclick="saveTemplate()">💾 Simpan template</button>
+        </div>
+      </div>
+      <div id="tpl-list" style="font-size:13px;margin-bottom:10px"></div>
+      <div class="notice g" style="font-size:12px;margin:0">Template disimpan di browser. Gunakan <strong>Salin ke .txt</strong> untuk menempel ke file teks.</div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:0">💊 Daftar Obat Tetes</div>
+        <button class="btn" onclick="addDrug()">+ Tambah Obat</button>
+      </div>
+      <div id="drug-list"></div>
+      <div class="flex-r" style="margin-top:4px">
+        <button class="btn btn-p" style="flex:3;padding:12px;font-size:14px" onclick="showTab('schedule')">✦ Buat Jadwal Otomatis →</button>
+        <button class="btn btn-green" style="flex:1;padding:12px" onclick="saveAndContinue()" title="Simpan ke database lalu lihat jadwal">💾 Simpan &amp; Buat Jadwal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ TAB SCHEDULE ════ -->
+  <div id="tab-schedule" class="hidden">
+    <div id="sum-grid" style="display:grid;gap:12px;margin-bottom:14px"></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:0">⏰ Timeline Harian
+          <span id="sched-pat" style="font-weight:400;color:var(--slate);font-size:13px"></span>
+        </div>
+        <button class="btn btn-green" onclick="saveRecord(true)" style="white-space:nowrap">💾 Simpan ke DB</button>
+      </div>
+      <div id="timeline"></div>
+      <div id="conflict-notice" class="hidden notice y" style="margin-top:12px;font-size:12px"></div>
+      <div id="conflict-resolve-wrap" class="hidden no-print" style="margin-top:12px">
+        <button type="button" class="btn btn-p" onclick="openConflictModal()">⚖️ Tentukan urutan tabrakan (jam tetap)</button>
+        <span id="resolution-hint" style="font-size:12px;color:var(--slate);margin-left:8px"></span>
+      </div>
+    </div>
+    <div class="flex-r no-print">
+      <button class="btn" onclick="showTab('setup')">← Edit</button>
+      <button class="btn btn-p" onclick="showTab('card')">Kartu Pasien →</button>
+      <button class="btn" onclick="showTab('emr')">Teks EMR</button>
+    </div>
+  </div>
+
+  <!-- ════ TAB CARD ════ -->
+  <div id="tab-card" class="hidden">
+    <div class="pt-card" id="print-area">
+      <div class="pt-card-hdr">
+        <div style="font-size:28px;margin-bottom:8px">💧</div>
+        <div style="font-size:18px;font-weight:700;letter-spacing:.4px">JADWAL OBAT TETES MATA</div>
+        <div id="card-date" style="font-size:12px;color:var(--slate);margin-top:4px"></div>
+        <div id="card-pat" style="font-size:15px;font-weight:600;color:var(--teal);margin-top:8px"></div>
+      </div>
+      <div id="card-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px"></div>
+      <div id="card-rows"></div>
+      <div class="notice y" style="margin-top:16px;font-size:12px">
+        ⚠️ <strong>Penting:</strong> Tunggu minimal <strong id="card-gap-txt">15 menit</strong> antara obat tetes berbeda (pada mata yang sama). Teteskan sesuai urutan yang tertera.
+      </div>
+    </div>
+    <div class="flex-r no-print" style="margin-top:14px;max-width:460px;margin-left:auto;margin-right:auto">
+      <button class="btn" onclick="showTab('schedule')">← Kembali</button>
+      <button class="btn btn-p" style="flex:2" onclick="window.print()">🖨️ Print / Save PDF</button>
+    </div>
+  </div>
+
+  <!-- ════ TAB EMR ════ -->
+  <div id="tab-emr" class="hidden">
+    <!-- Section 1: EMR Singkat -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div class="card-title" style="margin-bottom:0">📋 Output EMR <span style="font-size:12px;font-weight:400;color:var(--slate)">(singkat — untuk rekam medis)</span></div>
+      </div>
+      <div style="font-size:12px;color:var(--slate);margin-bottom:10px">Format: <code>[Nama obat], diteteskan di [mata], jam tetes: [jam]</code></div>
+      <div id="emr-short" class="emr-box" style="min-height:unset"></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:10px">
+        <button class="btn btn-p" onclick="copyEMR('short')">📋 Copy Output EMR</button>
+        <span id="copy-ok-short" class="hidden" style="font-size:13px;font-weight:600;color:var(--teal-d)">✓ Disalin!</span>
+      </div>
+    </div>
+    <!-- Section 2: Edukasi Lengkap -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div class="card-title" style="margin-bottom:0">📖 Output Edukasi <span style="font-size:12px;font-weight:400;color:var(--slate)">(lengkap — untuk pasien / lampiran)</span></div>
+      </div>
+      <div id="emr-long" class="emr-box"></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:10px">
+        <button class="btn btn-p" onclick="copyEMR('long')">📋 Copy Output Edukasi</button>
+        <span id="copy-ok-long" class="hidden" style="font-size:13px;font-weight:600;color:var(--teal-d)">✓ Disalin!</span>
+      </div>
+    </div>
+    <div class="flex-r no-print">
+      <button class="btn" onclick="showTab('setup')">← Edit</button>
+      <button class="btn btn-p" style="flex:2" onclick="showTab('card')">Kartu Pasien →</button>
+    </div>
+  </div>
+
+  <!-- ════ TAB DATABASE ════ -->
+  <div id="tab-db" class="hidden">
+    <!-- Stats -->
+    <div class="db-stats">
+      <div class="db-stat"><div class="db-stat-n" id="stat-total">0</div><div class="db-stat-l">Total Pasien</div></div>
+      <div class="db-stat"><div class="db-stat-n" id="stat-today">0</div><div class="db-stat-l">Hari Ini</div></div>
+      <div class="db-stat"><div class="db-stat-n" id="stat-drugs">0</div><div class="db-stat-l">Rata-rata Obat</div></div>
+      <div class="db-stat"><div class="db-stat-n" id="stat-fix">0</div><div class="db-stat-l">Pakai Jam Tetap</div></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="db-toolbar">
+      <input type="search" id="db-search" placeholder="🔍 Cari nama pasien / nama obat..." oninput="renderDB()">
+      <button class="btn btn-green" onclick="exportExcel()">📊 Export Excel (.xlsx)</button>
+      <button class="btn btn-purple" onclick="exportCSV()">📄 Export CSV</button>
+      <button class="btn" onclick="importFromFile()" title="Import dari file JSON backup">📥 Import</button>
+      <button class="btn" onclick="backupJSON()" title="Backup semua data ke file JSON">💾 Backup</button>
+      <span id="sel-count" class="hidden" style="font-size:12px;color:var(--slate);margin-left:4px"></span>
+    </div>
+
+    <!-- Selected actions -->
+    <div id="sel-toolbar" class="hidden flex-r" style="margin-bottom:12px;align-items:center">
+      <span id="sel-label" style="font-size:13px;color:var(--slate);flex:1"></span>
+      <button class="btn" onclick="loadSelectedRecord()">📂 Buka di Input</button>
+      <button class="btn btn-danger" onclick="deleteSelected()">🗑 Hapus Terpilih</button>
+    </div>
+
+    <!-- Table -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="overflow-x:auto">
+        <table class="rec-table" id="rec-table">
+          <thead>
+            <tr>
+              <th style="width:30px"><input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)"></th>
+              <th>No</th>
+              <th>Tanggal</th>
+              <th>Nama Pasien</th>
+              <th>Jam Aktif</th>
+              <th>Obat Tetes</th>
+              <th>Jadwal</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="rec-tbody"></tbody>
+        </table>
+      </div>
+      <div id="db-empty" class="hidden" style="padding:40px;text-align:center;color:var(--slate)">
+        <div style="font-size:36px;margin-bottom:12px">🗄</div>
+        <div style="font-size:14px;font-weight:500;margin-bottom:6px">Belum ada data tersimpan</div>
+        <div style="font-size:13px">Isi form Input Pasien, lalu klik <strong>"Simpan & Buat Jadwal"</strong></div>
+      </div>
+    </div>
+
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="doImport(this)">
+    <div style="margin-top:12px;font-size:12px;color:var(--muted);text-align:center">
+      Data disimpan di <strong>localStorage</strong> browser ini · tidak dikirim ke mana pun · aman dan privat
+    </div>
+  </div>
+</main>
+
+<footer class="site-ft no-print">
+  Aplikasi ini di develop oleh dr. Muhammad Indra Mahardika, SpM, M.Ked.Klin - RS Mata Solo
+</footer>
+
+<div id="modal-root" class="hidden modal-back" onclick="if(event.target===this)closeConflictModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <h3 id="modal-title">Tabrakan jadwal</h3>
+    <p id="modal-body"></p>
+    <div id="modal-choices" class="flex-r" style="flex-direction:column;align-items:stretch;gap:8px"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn" id="modal-cancel" onclick="closeConflictModal()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   CONSTANTS & HELPERS
+══════════════════════════════════════════════════ */
+const DB_KEY='ocudrop_v3';
+const TPL_KEY='ocudrop_templates_v1';
+const COLORS=[
+  {dot:'#0d9488',chip:'rgba(13,148,136,.14)',label:'#0f766e'},
+  {dot:'#3b82f6',chip:'rgba(59,130,246,.14)',label:'#1e40af'},
+  {dot:'#f59e0b',chip:'rgba(245,158,11,.14)',label:'#92400e'},
+  {dot:'#8b5cf6',chip:'rgba(139,92,246,.14)',label:'#5b21b6'},
+  {dot:'#ec4899',chip:'rgba(236,72,153,.14)',label:'#9d174d'},
+];
+const EYE_S={OD:'Kanan (OD)',OS:'Kiri (OS)',OU:'Kedua Mata'};
+const EYE_F={OD:'Mata Kanan',OS:'Mata Kiri',OU:'Kedua Mata'};
+const FREQ_OPTS=[
+  {v:-1,l:'Tiap jam selama bangun (q1h)'},
+  {v:12,l:'Tiap 2 jam selama bangun (q2h) — mis. Lyterres trauma kimia'},
+  {v:1, l:'1× / hari (q.d.)'},
+  {v:2, l:'2× / hari (b.i.d.)'},
+  {v:3, l:'3× / hari (t.i.d.)'},
+  {v:4, l:'4× / hari (q.i.d.)'},
+  {v:6, l:'6× / hari (q4h)'},
+  {v:8, l:'8× / hari (q3h)'},
+];
+const FREQ_LATIN={1:'q.d.',2:'b.i.d.',3:'t.i.d.',4:'q.i.d.',6:'q4h',8:'q3h',12:'q2h'};
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const toMin=t=>{const[h,m]=t.split(':').map(Number);return h*60+m;};
+const toTime=m=>`${String(Math.floor((m/60)%24)).padStart(2,'0')}:${String(Math.round(m)%60).toString().padStart(2,'0')}`;
+const nowDate=()=>new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'});
+const nowISO=()=>new Date().toISOString().slice(0,16);
+
+/* ══════════════════════════════════════════════════
+   APP STATE
+══════════════════════════════════════════════════ */
+let drugs=[{id:1,name:'Antibiotik Tetes',eye:'OD',freq:4,note:'',mode:'auto',fixTimes:['06:00'],altWith:null,altLeadId:null}];
+let uid=2;
+let selectedIds=new Set();
+/** @type {{pairKey:string,firstId:number,t:number}[]} */
+let conflictResolutions=[];
+let conflictModalQueue=[];
+let conflictModalResolve=null;
+
+function getMinGap(){
+  const n=parseInt($('min-gap').value,10);
+  return Number.isFinite(n)&&n>=1&&n<=120?n:15;
+}
+function setGapPreset(m){$('min-gap').value=String(m);onGapChange();}
+function onGapChange(){
+  const g=getMinGap();
+  const el=$('card-gap-txt');if(el)el.textContent=g+' menit';
+  renderDrugList();
+  if(!$('tab-schedule').classList.contains('hidden'))renderAll();
+}
+
+function getSpan(){const wm=toMin($('wake').value),sm=toMin($('sleep').value);return{wm,sm,span:sm-wm};}
+function resolveFreq(freq){
+  const{span}=getSpan();
+  if(freq===-1)return Math.max(1,Math.floor(span/60));
+  if(freq===12)return Math.max(1,Math.floor(span/120));
+  return freq;
+}
+/** Interval antar tetes target (menit) untuk tampilan & edukasi — q1h/q2h tetap 60/120, bukan span÷n */
+function intervalHintMinutes(freq,span,rf){
+  if(freq===-1)return 60;
+  if(freq===12)return 120;
+  return computeFriendlyInterval(span,rf);
+}
+function isCleanMinute(min){
+  const m=((Math.round(min)%60)+60)%60;
+  return m===0||m===15||m===30||m===45;
+}
+function nextCleanMinute(min){
+  const m=((Math.ceil(min)%60)+60)%60;
+  if(m===0||m===15||m===30||m===45)return Math.ceil(min);
+  const step=m<15?15-m:m<30?30-m:m<45?45-m:60-m;
+  return Math.ceil(min)+step;
+}
+function prevCleanMinute(min){
+  const v=Math.floor(min);
+  const m=((v%60)+60)%60;
+  if(m===0||m===15||m===30||m===45)return v;
+  const step=m<15?m:m<30?m-15:m<45?m-30:m-45;
+  return v-step;
+}
+function computeFriendlyInterval(span,doses){
+  if(span<=0||doses<=0)return 0;
+  if(doses===1)return Math.max(30,Math.floor(span/30)*30);
+  const maxFit=Math.floor(span/Math.max(1,doses-1));
+  const target=span/Math.max(1,doses);
+  const candidates=[];
+  for(let m=30;m<=720;m+=30){
+    if(m*(doses-1)<=span)candidates.push(m);
+  }
+  if(!candidates.length)return Math.max(30,Math.floor(maxFit/30)*30);
+  const preferred=candidates.find(m=>m>=target);
+  return preferred||candidates[candidates.length-1];
+}
+
+/* ══════════════════════════════════════════════════
+   LOCAL STORAGE DATABASE
+══════════════════════════════════════════════════ */
+function loadDB(){
+  try{return JSON.parse(localStorage.getItem(DB_KEY)||'[]');}catch{return[];}
+}
+function saveDB(data){localStorage.setItem(DB_KEY,JSON.stringify(data));}
+
+function saveRecord(showMsg=false){
+  const sched=buildSchedule();
+  const slots=groupByTime(sched);
+  const pat=$('pat-name').value.trim();
+  const{wm,sm,span}=getSpan();
+  const record={
+    id:'r'+Date.now(),
+    savedAt:nowISO(),
+    patientName:pat||'(tanpa nama)',
+    wake:$('wake').value,
+    sleep:$('sleep').value,
+    activeHours:Math.floor(span/60)+'j'+(span%60?span%60+'m':''),
+    drugs:drugs.map(d=>({
+      name:d.name,eye:d.eye,freq:d.freq,mode:d.mode,
+      resolvedFreq:resolveFreq(d.freq),
+      fixTimes:d.fixTimes.slice(),note:d.note,
+    })),
+    schedule:slots.map(sl=>({
+      time:sl.time,
+      items:sl.evs.map(ev=>({drugName:ev.d.name,eye:ev.d.eye,fixed:ev.fixed||false})),
+    })),
+    drugSnapshot:drugs.map((d,i)=>{
+      const evs=sched.filter(e=>e.d.id===d.id).map(e=>toTime(e.t));
+      return{...d,times:evs};
+    }),
+    rawState:{drugs:JSON.parse(JSON.stringify(drugs)),wake:$('wake').value,sleep:$('sleep').value,pat,minGap:getMinGap(),conflictResolutions:JSON.parse(JSON.stringify(conflictResolutions))},
+  };
+  const db=loadDB();
+  db.unshift(record);
+  saveDB(db);
+  updateDBBadge();
+  if(showMsg){
+    alert(`✅ Data pasien "${pat||'(tanpa nama)'}" berhasil disimpan!\n\nTotal data tersimpan: ${db.length} pasien.`);
+  }
+  return record;
+}
+
+function deleteRecord(id){
+  if(!confirm('Hapus record ini?'))return;
+  saveDB(loadDB().filter(r=>r.id!==id));
+  updateDBBadge();
+  renderDB();
+}
+
+function deleteSelected(){
+  if(selectedIds.size===0)return;
+  if(!confirm(`Hapus ${selectedIds.size} record yang dipilih?`))return;
+  saveDB(loadDB().filter(r=>!selectedIds.has(r.id)));
+  selectedIds.clear();
+  updateDBBadge();
+  renderDB();
+}
+
+function migrateDrug(d){
+  return{
+    id:d.id,name:d.name||'',eye:d.eye||'OU',freq:d.freq??4,note:d.note||'',
+    mode:d.mode||'auto',fixTimes:Array.isArray(d.fixTimes)?d.fixTimes.slice():['08:00'],
+    altWith:d.altWith??null,altLeadId:d.altLeadId??null,
+  };
+}
+function loadRecordToInput(rec){
+  const rs=rec.rawState;
+  if(!rs)return alert('Data lama tidak dapat dimuat ulang (format lama).');
+  $('pat-name').value=rs.pat||'';
+  $('wake').value=rs.wake||'06:00';
+  $('sleep').value=rs.sleep||'21:00';
+  if(rs.minGap!=null)$('min-gap').value=String(rs.minGap);
+  conflictResolutions=Array.isArray(rs.conflictResolutions)?rs.conflictResolutions.slice():[];
+  drugs=JSON.parse(JSON.stringify(rs.drugs)).map(migrateDrug);
+  uid=Math.max(...drugs.map(d=>d.id),0)+1;
+  renderDrugList();
+  onTimeChange();
+  onGapChange();
+  showTab('setup');
+}
+
+function loadSelectedRecord(){
+  const db=loadDB();
+  const first=db.find(r=>selectedIds.has(r.id));
+  if(first)loadRecordToInput(first);
+}
+
+function updateDBBadge(){
+  const n=loadDB().length;
+  $('hdr-count').textContent=n;
+}
+
+/* ══════════════════════════════════════════════════
+   EXPORT / IMPORT
+══════════════════════════════════════════════════ */
+function exportExcel(){
+  const db=loadDB();
+  if(!db.length)return alert('Belum ada data untuk diekspor.');
+  const wb=XLSX.utils.book_new();
+
+  /* Sheet 1: Ringkasan Pasien */
+  const sumRows=[['No','Tanggal Simpan','Nama Pasien','Jam Bangun','Jam Tidur','Jam Aktif','Jml Obat','Jml Obat Jam Tetap','Nama Obat (semua)','Jam Tetes (semua)']];
+  db.forEach((r,i)=>{
+    const fixCount=r.drugs.filter(d=>d.mode==='fix').length;
+    const drugNames=r.drugs.map(d=>d.name||'(tanpa nama)').join('; ');
+    const allTimes=r.schedule.map(s=>s.time).join(', ');
+    sumRows.push([i+1,r.savedAt.replace('T',' '),r.patientName,r.wake,r.sleep,r.activeHours,r.drugs.length,fixCount,drugNames,allTimes]);
+  });
+  const ws1=XLSX.utils.aoa_to_sheet(sumRows);
+  ws1['!cols']=[{wch:5},{wch:18},{wch:20},{wch:10},{wch:10},{wch:10},{wch:9},{wch:14},{wch:40},{wch:40}];
+  styleHeader(ws1,sumRows[0].length);
+  XLSX.utils.book_append_sheet(wb,ws1,'Ringkasan Pasien');
+
+  /* Sheet 2: Detail Per Obat */
+  const detRows=[['No','Tanggal','Nama Pasien','No Obat','Nama Obat','Mata','Frekuensi','Mode Jadwal','Jam Tetes (urut)','Catatan Obat']];
+  db.forEach((r,ri)=>{
+    r.drugs.forEach((d,di)=>{
+      const evTimes=(r.drugSnapshot&&r.drugSnapshot[di])?r.drugSnapshot[di].times.join(', '):'';
+      const freqLabel=d.freq===-1?`q1h (${d.resolvedFreq}×/hari)`:
+        d.freq===12?`q2h (${d.resolvedFreq}×/hari selama bangun)`:
+        (FREQ_LATIN[d.resolvedFreq]||d.resolvedFreq+'×/hari')+` (${d.resolvedFreq}×/hari)`;
+      const modeLab=d.mode==='fix'?'Jam Tetap':d.mode==='alternate'?'Selang-seling':'Otomatis';
+      detRows.push([ri+1,r.savedAt.replace('T',' '),r.patientName,di+1,d.name||'(tanpa nama)',EYE_F[d.eye],freqLabel,modeLab,evTimes,d.note||'']);
+    });
+  });
+  const ws2=XLSX.utils.aoa_to_sheet(detRows);
+  ws2['!cols']=[{wch:5},{wch:18},{wch:20},{wch:8},{wch:22},{wch:12},{wch:20},{wch:12},{wch:40},{wch:30}];
+  styleHeader(ws2,detRows[0].length);
+  XLSX.utils.book_append_sheet(wb,ws2,'Detail Per Obat');
+
+  /* Sheet 3: Timeline Per Pasien */
+  const tlRows=[['No','Tanggal','Nama Pasien','Jam','Obat & Mata']];
+  db.forEach((r,ri)=>{
+    r.schedule.forEach(sl=>{
+      const items=sl.items.map(it=>`${it.drugName} (${EYE_S[it.eye]||it.eye})`).join(' + ');
+      tlRows.push([ri+1,r.savedAt.replace('T',' '),r.patientName,sl.time,items]);
+    });
+  });
+  const ws3=XLSX.utils.aoa_to_sheet(tlRows);
+  ws3['!cols']=[{wch:5},{wch:18},{wch:20},{wch:8},{wch:50}];
+  styleHeader(ws3,tlRows[0].length);
+  XLSX.utils.book_append_sheet(wb,ws3,'Timeline');
+
+  XLSX.writeFile(wb,`OcuDrop_Data_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+function styleHeader(ws,ncols){
+  // Bold header row
+  for(let c=0;c<ncols;c++){
+    const addr=XLSX.utils.encode_cell({r:0,c});
+    if(!ws[addr])continue;
+    ws[addr].s={font:{bold:true},fill:{fgColor:{rgb:'0D9488'}},font:{bold:true,color:{rgb:'FFFFFF'}}};
+  }
+}
+
+function exportCSV(){
+  const db=loadDB();
+  if(!db.length)return alert('Belum ada data untuk diekspor.');
+  const rows=[['Tanggal','Nama Pasien','Jam Bangun','Jam Tidur','No Obat','Nama Obat','Mata','Frekuensi','Mode','Jam Tetes','Catatan']];
+  db.forEach(r=>{
+    r.drugs.forEach((d,di)=>{
+      const evTimes=(r.drugSnapshot&&r.drugSnapshot[di])?r.drugSnapshot[di].times.join(' | '):'';
+      const freqLabel=d.freq===-1?`q1h(${d.resolvedFreq}x)`:d.freq===12?`q2h(${d.resolvedFreq}x)`:d.resolvedFreq+'x/hari';
+      const modeLab2=d.mode==='fix'?'Jam Tetap':d.mode==='alternate'?'Selang-seling':'Otomatis';
+      rows.push([r.savedAt.replace('T',' '),r.patientName,r.wake,r.sleep,di+1,d.name,EYE_F[d.eye],freqLabel,modeLab2,evTimes,d.note||'']);
+    });
+  });
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`OcuDrop_Data_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function backupJSON(){
+  const db=loadDB();
+  const blob=new Blob([JSON.stringify({version:2,exportedAt:nowISO(),records:db},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`OcuDrop_Backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function importFromFile(){$('import-file').click();}
+function doImport(inp){
+  const f=inp.files[0];if(!f)return;
+  const fr=new FileReader();
+  fr.onload=e=>{
+    try{
+      const obj=JSON.parse(e.target.result);
+      const recs=Array.isArray(obj)?obj:(obj.records||[]);
+      if(!recs.length)return alert('File tidak berisi data yang valid.');
+      const db=loadDB();
+      let added=0;
+      recs.forEach(r=>{if(!db.find(x=>x.id===r.id)){db.push(r);added++;}});
+      saveDB(db);updateDBBadge();renderDB();
+      alert(`✅ Import selesai. ${added} record baru ditambahkan.`);
+    }catch{alert('❌ File tidak valid atau rusak.');}
+  };
+  fr.readAsText(f);
+  inp.value='';
+}
+
+/* ══════════════════════════════════════════════════
+   RENDER DATABASE TAB
+══════════════════════════════════════════════════ */
+function renderDB(){
+  const db=loadDB();
+  const q=($('db-search').value||'').toLowerCase();
+  const filtered=db.filter(r=>
+    r.patientName.toLowerCase().includes(q)||
+    r.drugs.some(d=>d.name.toLowerCase().includes(q))
+  );
+
+  // Stats
+  const today=new Date().toISOString().slice(0,10);
+  const todayCount=db.filter(r=>r.savedAt.startsWith(today)).length;
+  const avgDrugs=db.length?+(db.reduce((a,r)=>a+r.drugs.length,0)/db.length).toFixed(1):0;
+  const fixCount=db.filter(r=>r.drugs.some(d=>d.mode==='fix')).length;
+  $('stat-total').textContent=db.length;
+  $('stat-today').textContent=todayCount;
+  $('stat-drugs').textContent=avgDrugs;
+  $('stat-fix').textContent=fixCount;
+
+  const tbody=$('rec-tbody');
+  const empty=$('db-empty');
+  if(!filtered.length){tbody.innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+
+  tbody.innerHTML=filtered.map((r,i)=>{
+    const isSel=selectedIds.has(r.id);
+    const drugTags=r.drugs.map(d=>
+      `<span class="tag ${d.mode==='fix'?'tag-fix':'tag-teal'}">${esc(d.name||'Obat')} ${d.mode==='fix'?'📌':''}</span>`
+    ).join('');
+    const timeTags=r.schedule.slice(0,6).map(s=>`<span class="tag tag-blue">${s.time}</span>`).join('')
+      +(r.schedule.length>6?`<span style="font-size:11px;color:var(--slate)">+${r.schedule.length-6} lagi</span>`:'');
+    return `<tr class="${isSel?'sel':''}" onclick="toggleSel('${r.id}',this)">
+      <td onclick="event.stopPropagation()"><input type="checkbox" ${isSel?'checked':''} onchange="toggleSel('${r.id}',this.closest('tr'),this.checked)"></td>
+      <td style="color:var(--muted);font-size:12px">${db.indexOf(r)+1}</td>
+      <td style="white-space:nowrap;font-size:12px;color:var(--slate)">${r.savedAt.replace('T','<br>').slice(0,16)}</td>
+      <td style="font-weight:600;min-width:120px">${esc(r.patientName)}<br><span style="font-size:11px;font-weight:400;color:var(--slate)">${r.wake}–${r.sleep} (${r.activeHours})</span></td>
+      <td style="min-width:140px">${drugTags}</td>
+      <td style="min-width:180px">${timeTags}</td>
+      <td>
+        <div class="rec-actions">
+          <button class="btn" onclick="event.stopPropagation();loadRecordToInput(loadDB().find(x=>x.id==='${r.id}'))" style="padding:5px 10px;font-size:12px" title="Buka di form Input">📂</button>
+          <button class="btn btn-danger" onclick="event.stopPropagation();deleteRecord('${r.id}')" style="padding:5px 10px;font-size:12px" title="Hapus">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  updateSelToolbar();
+}
+
+function toggleSel(id,row,forceVal){
+  if(forceVal===undefined)forceVal=!selectedIds.has(id);
+  forceVal?selectedIds.add(id):selectedIds.delete(id);
+  if(row)row.classList.toggle('sel',forceVal);
+  // sync checkbox inside row
+  const chk=row?.querySelector('input[type=checkbox]');
+  if(chk)chk.checked=forceVal;
+  updateSelToolbar();
+}
+
+function toggleAll(checked){
+  const db=loadDB();
+  const q=($('db-search').value||'').toLowerCase();
+  const filtered=db.filter(r=>r.patientName.toLowerCase().includes(q)||r.drugs.some(d=>d.name.toLowerCase().includes(q)));
+  selectedIds=new Set(checked?filtered.map(r=>r.id):[]);
+  renderDB();
+}
+
+function updateSelToolbar(){
+  const n=selectedIds.size;
+  const st=$('sel-toolbar');
+  if(n>0){st.classList.remove('hidden');$('sel-label').textContent=`${n} record dipilih`;}
+  else st.classList.add('hidden');
+}
+
+/* ══════════════════════════════════════════════════
+   SCHEDULE ENGINE (same as before)
+══════════════════════════════════════════════════ */
+function defaultFixTimes(freq){
+  const f=resolveFreq(freq);
+  const{wm,sm,span}=getSpan();
+  if(f===1)return[toTime(wm)];
+  if(f===2)return['08:00','20:00'];
+  if(f===3)return['08:00','14:00','20:00'];
+  const arr=[];
+  for(let i=0;i<f;i++)arr.push(toTime(Math.round(wm+i*(span/Math.max(f,1)))));
+  return arr;
+}
+
+function pairKeyForRes(aid,bid,t){
+  const x=Math.min(aid,bid),y=Math.max(aid,bid);
+  return x+'-'+y+'-'+Math.round(t);
+}
+function getPairResolution(idA,idB,t){
+  const pk=pairKeyForRes(idA,idB,t);
+  const r=conflictResolutions.find(x=>x.pairKey===pk);
+  return r?r.firstId:null;
+}
+function setPairResolution(idA,idB,t,firstId){
+  const pk=pairKeyForRes(idA,idB,t);
+  const o={pairKey:pk,firstId,t:Math.round(t)};
+  const i=conflictResolutions.findIndex(x=>x.pairKey===pk);
+  if(i>=0)conflictResolutions[i]=o;else conflictResolutions.push(o);
+}
+
+/* Dua obat hanya perlu jarak minimal (preferensi user) jika mata yang ditetesi SAMA.
+   OD vs OS = boleh bersamaan (beda mata, tidak saling mengencerkan).
+   OU vs apapun = harus berjarak (karena OU mencakup kedua mata). */
+function eyesConflict(eyeA, eyeB){
+  if(eyeA==='OU'||eyeB==='OU')return true;  // salah satu OU → pasti overlap di satu mata
+  return eyeA===eyeB;                         // keduanya OD atau keduanya OS
+}
+
+function buildRawSlots(){
+  const{wm,sm,span}=getSpan();
+  const raw=[];
+  if(span<=0||!drugs.length)return raw;
+  const altDone=new Set();
+  const altWarn=[];
+  drugs.forEach((d,di)=>{
+    if(d.mode==='alternate'){
+      if(altDone.has(d.id))return;
+      const p=drugs.find(x=>x.id===d.altWith);
+      if(!p||p.mode!=='alternate'||p.altWith!==d.id){
+        altWarn.push(d.name||'Obat');
+        return;
+      }
+      altDone.add(d.id);altDone.add(p.id);
+      let lead=d,fol=p;
+      if(d.altLeadId===d.id){lead=d;fol=p;}
+      else if(d.altLeadId===p.id){lead=p;fol=d;}
+      else if(drugs.indexOf(d)<drugs.indexOf(p)){lead=d;fol=p;}else{lead=p;fol=d;}
+      const nSlots=Math.max(0,Math.floor(span/60));
+      for(let i=0;i<nSlots;i++){
+        const dr=i%2===0?lead:fol;
+        const idx=drugs.findIndex(x=>x.id===dr.id);
+        const t=wm+i*60;
+        raw.push({d:dr,di:idx,rt:t,fixed:false,alternate:true,conflict:false});
+      }
+      return;
+    }
+    const rf=resolveFreq(d.freq);
+    if(d.mode==='fix'){
+      for(let i=0;i<rf;i++){
+        const t=d.fixTimes[i]!=null?toMin(d.fixTimes[i]):wm+i*(span/Math.max(rf,1));
+        raw.push({d,di,rt:t,fixed:true,alternate:false,conflict:false});
+      }
+    }else if(d.mode==='auto'){
+      let rtList=[];
+      if(d.freq===-1){
+        for(let i=0;i<rf;i++)rtList.push(wm+i*60);
+      }else if(d.freq===12){
+        for(let i=0;i<rf;i++)rtList.push(wm+i*120);
+      }else{
+        const ivl=computeFriendlyInterval(span,rf);
+        for(let i=0;i<rf;i++)rtList.push(wm+i*ivl);
+      }
+      rtList.forEach(rt=>raw.push({d,di,rt,fixed:false,alternate:false,conflict:false}));
+    }
+  });
+  if(altWarn.length&&typeof window!=='undefined'&&!window._altWarned){
+    window._altWarned=true;
+    setTimeout(()=>{window._altWarned=false;},800);
+  }
+  return raw;
+}
+
+function compareCandidates(a,b,gap){
+  const dr=a.rt-b.rt;
+  if(Math.abs(dr)>=gap)return dr;
+  const res=getPairResolution(a.d.id,b.d.id,(a.rt+b.rt)/2);
+  if(res!=null){
+    if(a.d.id===res)return -1;
+    if(b.d.id===res)return 1;
+  }
+  if(a.fixed!==b.fixed)return a.fixed?-1:1;
+  return a.di-b.di;
+}
+
+function buildSchedule(){
+  const{wm,sm}=getSpan();
+  const gap=getMinGap();
+  const raw=buildRawSlots();
+  if(!raw.length)return[];
+  raw.forEach(e=>{e.conflict=false;});
+  raw.sort((a,b)=>compareCandidates(a,b,gap));
+  const out=[];
+  for(const ev of raw){
+    let t=Math.max(Math.round(ev.rt),wm);
+    if(!isCleanMinute(t)&&!ev.fixed)t=nextCleanMinute(t);
+    for(let it=0;it<160;it++){
+      let nt=t;
+      for(const p of out){
+        if(p.d.id===ev.d.id)continue;
+        if(!eyesConflict(p.d.eye,ev.d.eye))continue;
+        if(t<p.t+gap){
+          const cand=ev.fixed?(p.t+gap):nextCleanMinute(p.t+gap);
+          nt=Math.max(nt,cand);
+        }
+      }
+      if(nt===t)break;
+      t=nt;
+    }
+    if(!ev.fixed&&t>sm){
+      t=prevCleanMinute(sm);
+      for(let it=0;it<240;it++){
+        let clash=false;
+        for(const p of out){
+          if(p.d.id===ev.d.id)continue;
+          if(!eyesConflict(p.d.eye,ev.d.eye))continue;
+          if(Math.abs(p.t-t)<gap){clash=true;break;}
+        }
+        if(!clash)break;
+        t-=15;
+        if(t<wm){t=wm;break;}
+      }
+      if(t<wm)t=wm;
+    }
+    if(ev.fixed&&t>sm)ev.conflict=true;
+    if(ev.fixed&&Math.abs(t-Math.round(ev.rt))>2)ev.conflict=true;
+    out.push({...ev,t});
+  }
+  return out;
+}
+
+function enumerateUnresolvedConflicts(){
+  const gap=getMinGap();
+  const raw=buildRawSlots();
+  const seen=new Set();
+  const out=[];
+  for(let i=0;i<raw.length;i++){
+    for(let j=i+1;j<raw.length;j++){
+      const a=raw[i],b=raw[j];
+      if(!eyesConflict(a.d.eye,b.d.eye))continue;
+      if(Math.abs(a.rt-b.rt)>=gap)continue;
+      if(!a.fixed&&!b.fixed&&!a.alternate&&!b.alternate)continue;
+      const t=(a.rt+b.rt)/2;
+      const pk=pairKeyForRes(a.d.id,b.d.id,t);
+      if(seen.has(pk))continue;
+      if(getPairResolution(a.d.id,b.d.id,t))continue;
+      seen.add(pk);
+      out.push({a,b,t});
+    }
+  }
+  return out;
+}
+
+function openConflictModal(){
+  const list=enumerateUnresolvedConflicts();
+  if(!list.length){
+    alert('Tidak ada pasangan obat (jam tetap / tabrakan) yang masih memerlukan pilihan urutan, atau jadwal sudah cukup longgar.');
+    return;
+  }
+  conflictModalQueue=list;
+  $('modal-root').classList.remove('hidden');
+  runNextConflictModal();
+}
+
+function runNextConflictModal(){
+  const mc=$('modal-choices'),mb=$('modal-body'),mt=$('modal-title');
+  if(!conflictModalQueue.length){
+    closeConflictModal();
+    renderAll();
+    return;
+  }
+  const{a,b,t}=conflictModalQueue.shift();
+  const na=a.d.name||'Obat',nb=b.d.name||'Obat';
+  mt.textContent='Urutan meneteskan obat';
+  mb.innerHTML=`Pada sekitar jam <strong>${toTime(Math.round(t))}</strong>, <strong>${esc(na)}</strong> dan <strong>${esc(nb)}</strong> berpotensi terlalu rapat untuk mata yang sama (kurang dari ${getMinGap()} menit). Obat dengan jam tetap tidak digeser — pilih mana yang diteteskan <em>dahulu</em> agar jadwal obat lain mengikuti jarak ${getMinGap()} menit.`;
+  mc.innerHTML='';
+  const mkBtn=(id,label)=>{
+    const bt=document.createElement('button');
+    bt.className='btn btn-p';
+    bt.style.flex='1';
+    bt.textContent=label;
+    bt.onclick=()=>{
+      setPairResolution(a.d.id,b.d.id,t,id);
+      runNextConflictModal();
+    };
+    return bt;
+  };
+  mc.appendChild(mkBtn(a.d.id,'💧 '+na+' dulu'));
+  mc.appendChild(mkBtn(b.d.id,'💧 '+nb+' dulu'));
+}
+
+function closeConflictModal(abandon){
+  $('modal-root').classList.add('hidden');
+  if(abandon)conflictModalQueue=[];
+}
+
+function groupByTime(sched){
+  const m={};
+  sched.forEach(ev=>{if(!m[ev.t])m[ev.t]=[];m[ev.t].push(ev);});
+  return Object.entries(m).sort(([a],[b])=>+a-+b).map(([t,evs])=>({time:toTime(+t),evs}));
+}
+
+/* ══════════════════════════════════════════════════
+   TIME CHANGE & DRUG MANAGEMENT
+══════════════════════════════════════════════════ */
+function onTimeChange(){
+  const{wm,sm,span}=getSpan();
+  const el=$('span-notice');
+  if(span<=0){el.textContent='⚠ Jam tidur harus lebih dari jam bangun';el.className='notice r';return;}
+  const h=Math.floor(span/60),m=span%60;
+  el.innerHTML=`✓ Waktu aktif: <strong>${h} jam${m?' '+m+' menit':''}</strong> (${$('wake').value} – ${$('sleep').value})`;
+  el.className='notice g';
+  renderDrugList();
+}
+
+function addDrug(){
+  if(drugs.length>=8)return alert('Maksimal 8 obat tetes.');
+  drugs.push({id:uid++,name:'',eye:'OU',freq:4,note:'',mode:'auto',fixTimes:['06:00','12:00','18:00','21:00'],altWith:null,altLeadId:null});
+  renderDrugList();
+}
+function removeDrug(id){
+  if(drugs.length<=1)return;
+  const rem=drugs.find(d=>d.id===id);
+  if(rem&&rem.altWith){
+    const p=drugs.find(x=>x.id===rem.altWith);
+    if(p){p.altWith=null;if(p.mode==='alternate')p.mode='auto';}
+  }
+  drugs=drugs.filter(d=>d.id!==id);
+  renderDrugList();
+}
+function upDrug(id,k,v){const d=drugs.find(d=>d.id===id);if(d)d[k]=k==='freq'?+v:v;}
+function setAltPartner(id,pid){
+  const d=drugs.find(x=>x.id===id);
+  if(!d||d.mode!=='alternate')return;
+  const newPid=+pid;
+  const prev=d.altWith;
+  if(prev&&prev!==newPid){
+    const o=drugs.find(x=>x.id===prev);
+    if(o){o.altWith=null;if(o.mode==='alternate')o.mode='auto';}
+  }
+  if(newPid){
+    const np=drugs.find(x=>x.id===newPid);
+    if(np&&np.altWith&&np.altWith!==id){
+      const ox=drugs.find(x=>x.id===np.altWith);
+      if(ox){ox.altWith=null;if(ox.mode==='alternate')ox.mode='auto';}
+    }
+  }
+  d.altWith=newPid||null;
+  const p=drugs.find(x=>x.id===d.altWith);
+  if(p){p.mode='alternate';p.altWith=d.id;}
+  renderDrugList();
+}
+function setAltLead(id,leadId){
+  const d=drugs.find(x=>x.id===id);
+  if(!d||d.mode!=='alternate')return;
+  d.altLeadId=+leadId;
+  renderDrugList();
+}
+function setMode(id,mode){
+  const d=drugs.find(x=>x.id===id);
+  if(!d)return;
+  if(d.mode==='alternate'&&d.altWith){
+    const op=drugs.find(x=>x.id===d.altWith);
+    if(op){op.altWith=null;if(mode!=='alternate')op.mode='auto';}
+  }
+  d.mode=mode;
+  d.altWith=null;
+  d.altLeadId=null;
+  if(mode==='fix')d.fixTimes=defaultFixTimes(d.freq);
+  if(mode==='alternate'){
+    const others=drugs.filter(x=>x.id!==id);
+    if(!others.length){alert('Butuh minimal 2 obat untuk mode selang-seling tiap jam.');d.mode='auto';renderDrugList();return;}
+    if(!others.find(x=>x.id===d.altWith))d.altWith=others[0].id;
+    const p=drugs.find(x=>x.id===d.altWith);
+    if(p){p.mode='alternate';p.altWith=d.id;}
+    d.altLeadId=d.id;
+  }
+  renderDrugList();
+}
+function setFreq(id,val){
+  const d=drugs.find(x=>x.id===id);
+  if(!d||d.mode==='alternate')return;
+  d.freq=+val;
+  if(d.mode==='fix')d.fixTimes=defaultFixTimes(d.freq);
+  renderDrugList();
+}
+function setFixTime(id,idx,val){const d=drugs.find(d=>d.id===id);if(!d)return;while(d.fixTimes.length<=idx)d.fixTimes.push('08:00');d.fixTimes[idx]=val;}
+
+function loadTemplates(){try{return JSON.parse(localStorage.getItem(TPL_KEY)||'[]');}catch{return[];}}
+function saveTemplates(a){localStorage.setItem(TPL_KEY,JSON.stringify(a));}
+function saveTemplate(){
+  const name=($('tpl-name').value||'').trim();
+  if(!name)return alert('Isi nama template.');
+  const tpl={
+    id:'t'+Date.now(),
+    name,
+    minGap:getMinGap(),
+    wake:$('wake').value,
+    sleep:$('sleep').value,
+    drugs:drugs.map((d,i)=>({
+      name:d.name,eye:d.eye,freq:d.freq,note:d.note,mode:d.mode,
+      fixTimes:(d.fixTimes||[]).slice(),
+      altPartnerIdx:d.mode==='alternate'?drugs.findIndex(x=>x.id===d.altWith):-1,
+      altLeadId:d.altLeadId,
+    })),
+  };
+  const arr=loadTemplates();
+  arr.unshift(tpl);
+  saveTemplates(arr.slice(0,40));
+  $('tpl-name').value='';
+  renderTemplateList();
+}
+function applyTemplate(tid){
+  const t=loadTemplates().find(x=>x.id===tid);
+  if(!t||!t.drugs)return;
+  const saved=t.drugs;
+  drugs=saved.map((row,i)=>({
+    id:i+1,
+    name:row.name||'',
+    eye:row.eye||'OU',
+    freq:row.freq!=null?+row.freq:4,
+    note:row.note||'',
+    mode:row.mode||'auto',
+    fixTimes:(row.fixTimes&&row.fixTimes.length)?row.fixTimes.slice():['08:00'],
+    altWith:null,
+    altLeadId:row.altLeadId||null,
+  }));
+  uid=drugs.length+1;
+  saved.forEach((row,i)=>{
+    if(drugs[i].mode==='alternate'&&row.altPartnerIdx!=null&&row.altPartnerIdx>=0&&drugs[row.altPartnerIdx]){
+      drugs[i].altWith=drugs[row.altPartnerIdx].id;
+      const p=drugs[row.altPartnerIdx];
+      p.mode='alternate';
+      p.altWith=drugs[i].id;
+    }
+  });
+  if(t.minGap!=null)$('min-gap').value=String(t.minGap);
+  if(t.wake)$('wake').value=t.wake;
+  if(t.sleep)$('sleep').value=t.sleep;
+  renderDrugList();
+  onTimeChange();
+  onGapChange();
+}
+function copyTemplateTxt(tid){
+  const t=loadTemplates().find(x=>x.id===tid);
+  if(!t)return;
+  const g=t.minGap!=null?t.minGap:15;
+  const lines=[
+    `OcuDrop — Template: ${t.name}`,
+    `Disalin: ${new Date().toLocaleString('id-ID')}`,
+    `Jam bangun – tidur: ${t.wake||'-'} – ${t.sleep||'-'}`,
+    `Jarak antar obat berbeda: ${g} menit`,
+    '',
+    'Daftar obat:',
+    ...t.drugs.map((d,i)=>`${i+1}. ${d.name||'(nama)'} | ${d.eye||'OU'} | ${d.mode||'auto'} | freqCode:${d.freq}`),
+  ];
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>alert('✓ Template disalin ke clipboard — tempel ke Notepad lalu simpan sebagai .txt'));
+}
+function deleteTemplate(tid){
+  if(!confirm('Hapus template ini?'))return;
+  saveTemplates(loadTemplates().filter(x=>x.id!==tid));
+  renderTemplateList();
+}
+function renderTemplateList(){
+  const arr=loadTemplates();
+  const el=$('tpl-list');
+  if(!arr.length){el.innerHTML='<span style="color:var(--slate);font-size:12px">Belum ada template tersimpan.</span>';return;}
+  el.innerHTML=arr.map(t=>`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--border)">
+    <span style="font-weight:600">${esc(t.name)}</span>
+    <span style="font-size:11px;color:var(--muted)">${t.drugs?.length||0} obat · gap ${t.minGap!=null?t.minGap:15}m</span>
+    <button type="button" class="btn" style="padding:4px 10px;font-size:12px" onclick="applyTemplate('${t.id}')">Muat</button>
+    <button type="button" class="btn btn-p" style="padding:4px 10px;font-size:12px" onclick="copyTemplateTxt('${t.id}')">Salin ke .txt</button>
+    <button type="button" class="btn btn-danger" style="padding:4px 10px;font-size:12px" onclick="deleteTemplate('${t.id}')">Hapus</button>
+  </div>`).join('');
+}
+
+function renderDrugList(){
+  $('drug-list').innerHTML=drugs.map((d,idx)=>{
+    const c=COLORS[idx%5];
+    const rf=resolveFreq(d.freq);
+    const isQ1h=d.freq===-1,isQ2h=d.freq===12,isFix=d.mode==='fix',isAlt=d.mode==='alternate';
+    const{span}=getSpan();
+    const ivl=intervalHintMinutes(d.freq,span,rf);
+    while(d.fixTimes.length<rf)d.fixTimes.push('08:00');
+
+    const freqSel=`<select onchange="setFreq(${d.id},this.value)" ${isAlt?'disabled':''} style="padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:${isAlt?'#f1f5f9':'var(--card)'};color:var(--navy);font-family:inherit;outline:none;width:100%">
+      ${FREQ_OPTS.map(o=>`<option value="${o.v}" ${d.freq===o.v?'selected':''}>${o.l}</option>`).join('')}</select>`;
+    const eyeSel=`<select onchange="upDrug(${d.id},'eye',this.value)" style="padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--navy);font-family:inherit;outline:none">
+      ${['OD','OS','OU'].map(e=>`<option value="${e}" ${d.eye===e?'selected':''}>${e==='OD'?'👁 Kanan (OD)':e==='OS'?'👁 Kiri (OS)':'👁👁 Kedua Mata'}</option>`).join('')}</select>`;
+    const modeToggle=`<div class="mode-toggle" style="flex-wrap:wrap;max-width:100%">
+      <button class="${!isAlt&&!isFix?'on-auto':''}" onclick="setMode(${d.id},'auto')">🔄 Otomatis</button>
+      <button class="${isFix?'on-fix':''}" onclick="setMode(${d.id},'fix')">📌 Jam Tetap</button>
+      <button class="${isAlt?'on-auto':''}" style="${isAlt?'background:#7c3aed;color:#fff;border-color:#7c3aed':''}" onclick="setMode(${d.id},'alternate')">🔀 Selang-seling</button>
+    </div>`;
+    const partners=drugs.filter(x=>x.id!==d.id);
+    const altBlock=isAlt?`<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px">
+      <span style="font-size:12px;font-weight:600;color:#5b21b6">Pasangan selang-seling:</span>
+      <select onchange="setAltPartner(${d.id},this.value)" style="padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;max-width:220px">
+        ${partners.map(x=>`<option value="${x.id}" ${d.altWith===x.id?'selected':''}>${esc(x.name||'Obat')} (#${drugs.indexOf(x)+1})</option>`).join('')}
+      </select>
+      <span style="font-size:12px;color:var(--slate)">Mulai jam bangun:</span>
+      <select onchange="setAltLead(${d.id},this.value)" style="padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px">
+        <option value="${d.id}" ${d.altLeadId===d.id?'selected':''}>${esc(d.name||'Obat ini')}</option>
+        ${d.altWith?`<option value="${d.altWith}" ${d.altLeadId===d.altWith?'selected':''}>${esc((drugs.find(x=>x.id===d.altWith)||{}).name||'Pasangan')}</option>`:''}
+      </select>
+    </div>`:'';
+    let infoNote='';
+    if(isAlt)infoNote=`<span class="alt-badge">🔀 Tiap jam bergantian · ~${Math.floor(span/60)||0} slot</span>`;
+    else if(!isFix){
+      if(isQ1h)infoNote=`<span class="q1h-badge">⚡ q1h – ${rf}× tetes/hari</span>`;
+      else if(isQ2h)infoNote=`<span class="q1h-badge">⏱ q2h – ${rf}× selama bangun</span>`;
+      else if(span>0)infoNote=`<span style="font-size:12px;color:var(--slate)">Interval: tiap ~${ivl>=60?Math.floor(ivl/60)+'j '+(ivl%60?ivl%60+'m':''):ivl+'m'}</span>`;
+    }
+    const fixBlock=isFix?`<div class="fix-times"><span style="font-size:12px;font-weight:600;color:var(--fix-tx);margin-right:4px">📌 Jam tetap:</span>
+      ${Array.from({length:rf},(_,i)=>`<div class="fix-time-wrap"><span style="font-size:11px;font-weight:600;color:var(--fix-tx);min-width:18px">T${i+1}</span>
+        <input type="time" value="${d.fixTimes[i]||'08:00'}" onchange="setFixTime(${d.id},${i},this.value)"
+          style="width:118px;padding:7px 10px;border-color:var(--fix-bd);background:#fff;font-family:'Courier New',monospace;font-size:14px"></div>`).join('')}</div>`:'';
+
+    return `<div class="drug-block" style="border-color:${c.dot}40">
+      <div class="drug-header" style="background:${c.dot}0d">
+        <div class="d-num" style="background:${c.dot}">${idx+1}</div>
+        <input type="text" value="${esc(d.name)}" placeholder="Nama obat tetes ${idx+1}" oninput="upDrug(${d.id},'name',this.value)" style="font-size:14px;background:var(--card)">
+        ${eyeSel}${freqSel}
+        ${drugs.length>1?`<button class="btn btn-danger" onclick="removeDrug(${d.id})" style="padding:5px 10px">✕</button>`:'<div></div>'}
+      </div>
+      <div class="drug-footer">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">${modeToggle}${infoNote}</div>
+        ${altBlock}
+        ${fixBlock}
+        <input type="text" value="${esc(d.note)}" placeholder="Catatan khusus (contoh: kocok sebelum digunakan, simpan di kulkas...)"
+          oninput="upDrug(${d.id},'note',this.value)" style="font-size:12px;background:#f8fafc;color:var(--slate);padding:7px 11px">
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   RENDER OUTPUT TABS
+══════════════════════════════════════════════════ */
+function saveAndContinue(){saveRecord(true);showTab('schedule');}
+
+function showTab(id){
+  ['setup','schedule','card','emr','db'].forEach((t,i)=>{
+    $('tab-'+t).classList.toggle('hidden',t!==id);
+    const btn=document.querySelectorAll('nav button')[i];
+    btn.classList.remove('active','active-db');
+    if(t===id)btn.classList.add(t==='db'?'active-db':'active');
+  });
+  if(id==='db'){renderDB();return;}
+  if(id!=='setup')renderAll();
+}
+
+function renderAll(){
+  const sched=buildSchedule();
+  const slots=groupByTime(sched);
+  const{wm,sm,span}=getSpan();
+  const pat=$('pat-name').value.trim();
+  const conflicts=sched.filter(e=>e.conflict);
+
+  // Summary grid
+  const sg=$('sum-grid');
+  sg.style.gridTemplateColumns=`repeat(${Math.min(drugs.length,3)},1fr)`;
+  sg.innerHTML=drugs.map((d,idx)=>{
+    const c=COLORS[idx%5];
+    const rf=resolveFreq(d.freq);
+    const evs=sched.filter(e=>e.d.id===d.id);
+    const ivl=intervalHintMinutes(d.freq,span,rf);
+    const ivlStr=ivl>=60?`${Math.floor(ivl/60)}j${ivl%60?' '+ivl%60+'m':''}`:ivl+'m';
+    const isFix=d.mode==='fix',isQ1h=d.freq===-1,isQ2h=d.freq===12,isAlt=d.mode==='alternate';
+    const freqLine=isAlt?'<span class="alt-badge">🔀 Selang-seling tiap jam</span>':
+      (isFix?'<span class="fix-badge">📌 Jam Tetap</span>':isQ1h?'<span class="q1h-badge">⚡ q1h</span>':isQ2h?'<span class="q1h-badge">⏱ q2h</span>':rf+'× / hari · tiap ~'+ivlStr);
+    return `<div class="sum-card" style="border-top-color:${c.dot}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${c.dot};flex-shrink:0"></div>
+        <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.name)||'Obat '+(idx+1)}</div>
+      </div>
+      <div style="font-size:12px;color:var(--slate)">${EYE_F[d.eye]}</div>
+      <div style="font-size:12px;color:var(--slate);margin-top:2px">${freqLine}</div>
+      <div style="margin-top:8px">${evs.map(ev=>`<span class="chip" style="background:${c.chip};color:${c.label}">${toTime(ev.t)}</span>`).join('')}</div>
+    </div>`;
+  }).join('');
+
+  // Timeline
+  $('sched-pat').textContent=pat?' · '+pat:'';
+  $('timeline').innerHTML=slots.map((slot,si)=>`
+    <div class="tl-row">
+      <div class="tl-time">${slot.time}</div>
+      <div class="tl-spine">
+        <div class="tl-dot" style="background:${COLORS[slot.evs[0].di%5].dot}"></div>
+        ${si<slots.length-1?'<div class="tl-line"></div>':''}
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 16px;flex:1">
+        ${slot.evs.map(ev=>{const c=COLORS[ev.di%5];return`<div class="pill" style="background:${c.chip};border-color:${c.dot}30">
+          <span style="font-size:13px;font-weight:600;color:${c.label}">💧 ${esc(ev.d.name)||'Obat '+(ev.di+1)}</span>
+          <span class="pill-eye">${EYE_F[ev.d.eye]}</span>
+          ${ev.fixed?'<span class="fix-badge" style="font-size:10px;padding:1px 6px">📌</span>':''}
+          ${ev.conflict?`<span class="conflict-warn">⚠ jarak &lt;${getMinGap()}m</span>`:''}
+          ${ev.d.note?`<span style="font-size:10px;color:var(--slate);font-style:italic">${esc(ev.d.note)}</span>`:''}
+        </div>`;}).join('')}
+      </div>
+    </div>`).join('');
+
+  const nUn=enumerateUnresolvedConflicts().length;
+  const cn=$('conflict-notice');
+  const crw=$('conflict-resolve-wrap');
+  const rh=$('resolution-hint');
+  if(conflicts.length||nUn){
+    cn.classList.remove('hidden');
+    const parts=[];
+    if(conflicts.length)parts.push(`<strong>${conflicts.length}</strong> jadwal membutuhkan perhatian (jarak &lt; ${getMinGap()} menit pada mata yang sama).`);
+    if(nUn)parts.push(`Ada <strong>${nUn}</strong> pasangan obat yang bisa diatur urutan tetesnya.`);
+    cn.innerHTML='⚠️ '+parts.join(' ')+(nUn?' Klik tombol di bawah untuk memilih obat mana dulu.':'');
+  }else cn.classList.add('hidden');
+  if(nUn){crw.classList.remove('hidden');rh.textContent=`${nUn} pasangan belum dipilih urutannya.`;}
+  else{crw.classList.add('hidden');rh.textContent='';}
+
+  // Patient card
+  $('card-date').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  $('card-pat').textContent=pat;
+  $('card-legend').innerHTML=drugs.map((d,idx)=>{const c=COLORS[idx%5];return`<div style="display:flex;align-items:center;gap:6px;background:${c.chip};border-radius:20px;padding:3px 10px">
+    <div style="width:8px;height:8px;border-radius:50%;background:${c.dot}"></div>
+    <span style="font-size:12px;font-weight:600;color:${c.label}">${esc(d.name)||'Obat '+(idx+1)}</span>
+    <span style="font-size:11px;color:var(--slate)">(${EYE_S[d.eye]})</span>
+    ${d.mode==='fix'?'<span class="fix-badge" style="font-size:10px;padding:1px 6px">📌</span>':''}
+    ${d.mode==='alternate'?'<span class="alt-badge" style="font-size:10px;padding:1px 6px">🔀</span>':''}
+  </div>`;}).join('');
+  $('card-rows').innerHTML=slots.map(slot=>`<div class="sched-row">
+    <div class="sched-t">${slot.time}</div>
+    <div style="flex:1">${slot.evs.map(ev=>{const c=COLORS[ev.di%5];return`<div style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:3px">
+      <span style="color:${c.dot}">💧</span>
+      <span style="font-weight:600">${esc(ev.d.name)||'Obat '+(ev.di+1)}</span>
+      <span style="font-size:11px;color:var(--slate)">${EYE_F[ev.d.eye]}</span>
+      ${ev.d.note?`<span style="font-size:11px;color:var(--slate);font-style:italic">– ${esc(ev.d.note)}</span>`:''}
+    </div>`;}).join('')}</div>
+  </div>`).join('');
+
+  // EMR text – dua versi
+  const emrShort=genEMRShort(sched);
+  const emrLong=genEMRLong(sched,slots,pat,span);
+  $('emr-short').textContent=emrShort;
+  $('emr-long').textContent=emrLong;
+}
+
+/* ── Output EMR Singkat: 1 baris per obat ── */
+function genEMRShort(sched){
+  return drugs.map(d=>{
+    const evs=sched.filter(e=>e.d.id===d.id).map(e=>toTime(e.t));
+    return `${d.name||'Obat'}, diteteskan di ${EYE_F[d.eye]}, jam tetes: ${evs.join(', ')}`;
+  }).join('\n');
+}
+
+/* ── Output Edukasi Lengkap ── */
+function genEMRLong(sched,slots,pat,span){
+  const wake=$('wake').value,slp=$('sleep').value;
+  const date=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  const lines=['=== JADWAL OBAT TETES MATA ===',
+    ...(pat?['Pasien : '+pat]:[]),'Tanggal: '+date,
+    `Jam aktif: ${wake} – ${slp} (${Math.floor(span/60)} jam)`,
+    `Min. jarak antar obat: ${getMinGap()} menit`,'',
+    'RESEP & JADWAL PER OBAT:',
+    ...drugs.flatMap((d,i)=>{
+      const rf=resolveFreq(d.freq);
+      const evs=sched.filter(e=>e.d.id===d.id).map(e=>toTime(e.t));
+      const ivl=intervalHintMinutes(d.freq,span,rf);
+      const isFix=d.mode==='fix',isAlt=d.mode==='alternate';
+      let freqLabel;
+      if(isAlt)freqLabel='Selang-seling tiap jam dengan obat pasangan (ulkus kornea, dll.)';
+      else if(d.freq===-1)freqLabel=`q1h (tiap jam, ${rf}×/hari)`;
+      else if(d.freq===12)freqLabel=`q2h (tiap 2 jam, ${rf}× selama bangun)`;
+      else freqLabel=(FREQ_LATIN[rf]||rf+'×/hari')+` (${rf}×/hari)`;
+      return[`${i+1}. ${d.name||'Obat '+(i+1)} – ${EYE_F[d.eye]}`,
+        `   Frekuensi: ${freqLabel}`,
+        `   Mode     : ${isFix?'JAM TETAP (ditentukan dokter)':isAlt?'Selang-seling jam':'Otomatis (dihitung dari jam bangun/tidur)'}`,
+        ...(isFix||isAlt?[]:[`   Interval : tiap ~${ivl} menit (~${(ivl/60).toFixed(1)} jam)`]),
+        `   Jam tetes: ${evs.join(', ')}`,
+        ...(d.note?[`   Catatan  : ${d.note}`]:[]),];
+    }),'','TIMELINE HARIAN:',
+    ...slots.map(sl=>`  ${sl.time}  →  ${sl.evs.map(ev=>(ev.d.name||'Obat '+(ev.di+1))+' ('+EYE_S[ev.d.eye]+')').join(' + ')}`),
+    '','⚠ Tunggu min. '+getMinGap()+' menit antara obat tetes berbeda (pada mata yang sama).',
+    '⚠ Tetes sesuai urutan yang tertera di jadwal.',];
+  return lines.join('\n');
+}
+
+function copyEMR(which){
+  const txt=which==='short'?$('emr-short').textContent:$('emr-long').textContent;
+  const okId=which==='short'?'copy-ok-short':'copy-ok-long';
+  navigator.clipboard.writeText(txt).then(()=>{
+    $(okId).classList.remove('hidden');
+    setTimeout(()=>$(okId).classList.add('hidden'),2500);
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+renderDrugList();
+onTimeChange();
+onGapChange();
+renderTemplateList();
+updateDBBadge();
+
+// PWA manifest
+const mf={name:'OcuDrop Scheduler',short_name:'OcuDrop',start_url:'.',display:'standalone',
+  background_color:'#0f172a',theme_color:'#0f172a',
+  icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💧</text></svg>',sizes:'any',type:'image/svg+xml'}]};
+$('manifest-link').href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/json'}));
+</script>
+</body>
+</html>
