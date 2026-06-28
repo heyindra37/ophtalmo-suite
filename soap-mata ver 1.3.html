@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOAP Mata — Asisten Rekam Medis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#eef2f7;--bg2:#e4eaf2;
+  --sf:#fff;--sf2:#f8fafc;--sf3:#f1f5f9;
+  --bd:#e2e8f0;--bd2:#cbd5e1;
+  --t1:#0f172a;--t2:#334155;--t3:#64748b;--t4:#94a3b8;
+  --pr:#1565a8;--pr-d:#0f4d82;--pr-l:#e8f3fb;--pr-bg:#f0f7fc;
+  --gn:#15803d;--gn-bg:#ecfdf5;--gn-bd:#86efac;
+  --am:#b45309;--am-bg:#fffbeb;--am-bd:#fcd34d;
+  --rd:#be123c;--rd-bg:#fff1f2;--rd-bd:#fecdd3;
+  --out-bg:#0f172a;--out-t:#e2e8f0;
+  --r:12px;--rs:8px;
+  --shd:0 1px 2px rgba(15,23,42,.06),0 4px 12px rgba(15,23,42,.04);
+  --shd-lg:0 8px 24px rgba(15,23,42,.08);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',system-ui,-apple-system,sans-serif;
+  background:linear-gradient(160deg,var(--bg) 0%,#f8fafc 50%,var(--bg2) 100%);
+  color:var(--t1);font-size:15px;line-height:1.55;min-height:100vh;
+  -webkit-font-smoothing:antialiased
+}
+.wrap{max-width:1520px;margin:0 auto;padding:16px 20px 36px}
+header{
+  margin-bottom:18px;padding:20px 24px;
+  background:linear-gradient(135deg,var(--pr-d) 0%,var(--pr) 45%,#2b8fd4 100%);
+  color:#fff;border-radius:var(--r);box-shadow:var(--shd-lg);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap
+}
+header .brand{display:flex;align-items:center;gap:14px;text-align:left}
+header .logo{
+  width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;font-size:1.35rem;
+  backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.2)
+}
+header h1{font-size:1.3rem;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+header p{font-size:.8rem;opacity:.88;max-width:420px;line-height:1.45}
+header .tag{
+  font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(255,255,255,.12);padding:6px 12px;border-radius:100px;
+  border:1px solid rgba(255,255,255,.2);white-space:nowrap
+}
+.app-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(300px,380px);
+  gap:14px;align-items:start
+}
+#soapForm{display:flex;flex-direction:column;gap:12px;min-width:0}
+.form-stack .col-scroll{max-height:none}
+.out-col{display:flex;flex-direction:column;gap:12px;position:sticky;top:12px;max-height:calc(100vh - 24px)}
+.out-col .soap-out-col{position:relative;top:0;max-height:none;flex:1;min-height:0}
+.out-col .soap-pre{min-height:160px;max-height:calc(50vh - 100px)}
+.col-subj,.col-obj{min-width:0}
+.col-scroll{overflow-y:visible;padding-right:2px}
+.col-panel{
+  background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);
+  box-shadow:var(--shd);overflow:hidden
+}
+.col-head{
+  font-size:.92rem;font-weight:700;color:#fff;letter-spacing:.03em;
+  padding:12px 16px;display:flex;align-items:center;gap:8px
+}
+.col-head::before{content:'';width:4px;height:18px;border-radius:2px;background:rgba(255,255,255,.5)}
+.col-subj .col-head{background:linear-gradient(90deg,var(--pr-d),var(--pr))}
+.col-obj .col-head{background:linear-gradient(90deg,#1a6b9e,#2b8fd4)}
+.col-scroll{padding:14px 14px 16px;background:var(--sf2)}
+.col-subj .col-scroll .card,.col-obj .col-scroll .card{margin-bottom:12px}
+.col-subj .col-scroll .card:last-child,.col-obj .col-scroll .card:last-child{margin-bottom:0}
+.soap-out-col{display:flex;flex-direction:column;min-width:0}
+.soap-out-col .card{margin-bottom:0;flex:1;display:flex;flex-direction:column;min-height:0}
+.soap-out-col .card-h{font-size:.88rem;padding:10px 12px}
+.soap-out-col .card-b{flex:1;display:flex;flex-direction:column;min-height:0;padding:10px}
+.out-col .card{border-radius:var(--r);box-shadow:var(--shd);border:1px solid var(--bd);overflow:hidden}
+.out-s .card-h{background:linear-gradient(90deg,var(--pr-d),#1e7ab5);color:#fff}
+.out-o .card-h{background:linear-gradient(90deg,#1a6b9e,#3d9ed4);color:#fff}
+.card{
+  background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);
+  margin-bottom:0;box-shadow:0 1px 2px rgba(15,23,42,.04)
+}
+.card-h{
+  padding:12px 16px;border-bottom:1px solid var(--bd);
+  font-weight:600;color:var(--pr-d);font-size:.88rem;
+  display:flex;align-items:center;gap:8px;background:var(--sf)
+}
+.card-h::before{
+  content:'';width:3px;height:14px;border-radius:2px;background:var(--pr);flex-shrink:0
+}
+.card-b{padding:16px}
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.lbl{display:block;font-weight:600;font-size:.88rem;margin-bottom:6px;color:var(--t1)}
+.lbl .req{color:var(--rd)}
+.hint{font-size:.78rem;color:var(--t3);margin-top:4px}
+input[type=text],input[type=number],textarea,select{
+  width:100%;padding:10px 12px;border:1px solid var(--bd2);border-radius:var(--rs);
+  font:inherit;background:var(--sf);transition:border .15s,box-shadow .15s
+}
+input::placeholder,textarea::placeholder{color:var(--t4)}
+input:hover,textarea:hover,select:hover{border-color:var(--bd2)}
+input:focus,textarea:focus,select:focus{
+  outline:none;border-color:var(--pr);box-shadow:0 0 0 3px rgba(21,101,168,.12)
+}
+textarea{min-height:76px;resize:vertical;line-height:1.5}
+.radio-grp,.chk-grp{display:flex;flex-wrap:wrap;gap:8px}
+.radio-grp label,.chk-grp label{
+  display:flex;align-items:center;gap:7px;cursor:pointer;font-size:.86rem;
+  padding:8px 14px;border-radius:100px;border:1px solid var(--bd);
+  background:var(--sf);transition:all .15s;user-select:none
+}
+.radio-grp label:hover,.chk-grp label:hover{border-color:var(--pr);background:var(--pr-l)}
+.radio-grp label:has(input:checked),.chk-grp label:has(input:checked){
+  background:var(--pr);border-color:var(--pr);color:#fff;font-weight:600;
+  box-shadow:0 2px 8px rgba(21,101,168,.25)
+}
+.radio-grp input,.chk-grp input{accent-color:var(--pr)}
+.radio-grp label:has(input:checked) input,
+.chk-grp label:has(input:checked) input{filter:brightness(1.1)}
+.toggle-row{display:flex;align-items:center;gap:12px}
+.toggle{position:relative;width:48px;height:26px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle span{position:absolute;inset:0;background:var(--bd2);border-radius:13px;cursor:pointer;transition:.2s}
+.toggle span::before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:var(--shd)}
+.toggle input:checked+span{background:var(--pr)}
+.toggle input:checked+span::before{transform:translateX(22px)}
+.cond{display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--bd)}
+.cond.show{display:block}
+.badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:.75rem;font-weight:700;margin-left:8px;vertical-align:middle}
+.badge-rd{background:var(--rd-bg);color:var(--rd);border:1px solid var(--rd-bd)}
+.badge-am{background:var(--am-bg);color:var(--am);border:1px solid var(--am-bd)}
+.inline-warn{margin-top:8px;padding:10px 12px;border-radius:var(--rs);font-size:.85rem}
+.warn-am{background:var(--am-bg);border:1px solid var(--am-bd);color:#92400e}
+.sub-sect{margin-top:14px;padding:12px;background:var(--sf2);border-radius:var(--rs);border:1px solid var(--bd)}
+.sub-sect h4{font-size:.85rem;color:var(--pr-d);margin-bottom:10px}
+.milestone-row{display:grid;grid-template-columns:1fr 100px auto;gap:10px;align-items:center;margin-bottom:8px}
+.milestone-row label{font-size:.88rem}
+.form-toolbar{margin-bottom:12px}
+.btn-reset{
+  width:100%;padding:12px 16px;background:var(--sf);color:var(--rd);
+  border:2px solid var(--rd-bd);border-radius:var(--rs);font-size:.9rem;font-weight:700;
+  cursor:pointer;transition:all .15s
+}
+.btn-reset:hover{background:var(--rd-bg)}
+.norm-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.btn-norm{
+  padding:11px 10px;background:linear-gradient(180deg,#1a9b4a,#15803d);
+  color:#fff;border:none;border-radius:var(--rs);font-size:.82rem;font-weight:700;
+  cursor:pointer;transition:transform .15s,box-shadow .15s;
+  box-shadow:0 2px 8px rgba(21,128,61,.25);letter-spacing:.01em
+}
+.btn-norm:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(21,128,61,.3)}
+.btn-norm:active{transform:translateY(0)}
+.btn-norm.btn-od{background:linear-gradient(180deg,#1d6fa5,#155a87);box-shadow:0 2px 8px rgba(21,101,168,.25)}
+.btn-norm.btn-os{background:linear-gradient(180deg,#2980b9,#1d6fa5);box-shadow:0 2px 8px rgba(41,128,185,.25)}
+.visus-asisten-hint{font-size:.78rem;color:var(--t3);margin-top:6px}
+#blockVisusTio.visus-skip{opacity:.55;pointer-events:none;filter:grayscale(.15)}
+#blockVisusTio.visus-skip .card{position:relative}
+#blockVisusTio.visus-skip::after{
+  content:'Visus & TIO — diisi asisten (tidak masuk output O)';
+  display:block;margin-top:8px;padding:8px 10px;font-size:.78rem;font-weight:600;
+  color:var(--pr-d);background:var(--pr-l);border-radius:var(--rs);text-align:center
+}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.col2-h{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;
+  font-weight:700;text-align:center;color:#fff;font-size:.78rem;
+  letter-spacing:.04em;text-transform:uppercase
+}
+.col2-h span{
+  padding:6px 10px;border-radius:var(--rs);
+  background:linear-gradient(180deg,var(--pr),var(--pr-d))
+}
+.eye-col{border:1px solid var(--bd);border-radius:var(--rs);padding:12px;background:var(--sf2)}
+.eye-col h5{text-align:center;margin-bottom:10px;color:var(--pr);font-size:.85rem}
+.visus-block{margin-bottom:14px}
+.visus-block:last-child{margin-bottom:0}
+.visus-block .lbl{margin-bottom:8px}
+.subj-reorder{display:flex;flex-direction:column}
+.subj-reorder > .field{margin-bottom:16px}
+.subj-reorder.mode-baru [data-block="usia"]{order:1}
+.subj-reorder.mode-baru [data-block="keluhan"]{order:2}
+.subj-reorder.mode-baru [data-block="sejak"]{order:3}
+.subj-reorder.mode-kontrol [data-block="diagnosis"],
+.subj-reorder.mode-lama [data-block="diagnosis"]{order:1}
+.subj-reorder.mode-kontrol [data-block="keluhan"],
+.subj-reorder.mode-lama [data-block="keluhan"]{order:2}
+.subj-reorder.mode-kontrol [data-block="usia"],
+.subj-reorder.mode-lama [data-block="usia"]{order:3}
+.subj-reorder.mode-kontrol [data-block="sejak"],
+.subj-reorder.mode-lama [data-block="sejak"]{order:4}
+.tbl-ant{width:100%;border-collapse:collapse;font-size:.88rem}
+.tbl-ant th,.tbl-ant td{padding:8px 10px;border:1px solid var(--bd);text-align:left;vertical-align:middle}
+.tbl-ant th{background:var(--pr-bg);color:var(--pr-d);font-weight:600}
+.tbl-ant .eye{text-align:center;font-weight:600;color:var(--pr);width:22%}
+.seg-row select{margin-bottom:4px;font-size:.82rem}
+.seg-row input{font-size:.82rem}
+.post-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.post-grid > .sub-sect{margin-top:0}
+.post-item{display:grid;grid-template-columns:minmax(72px,92px) 1fr;gap:10px;align-items:start}
+.sistemik-list{display:flex;flex-direction:column;gap:12px}
+.sistemik-item{padding:10px 12px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs)}
+.sistemik-item > label{font-weight:600;font-size:.86rem;display:flex;align-items:center;gap:8px;cursor:pointer}
+.sistemik-detail{margin-top:10px;padding-top:10px;border-top:1px dashed var(--bd)}
+.sistemik-detail .field{margin-bottom:10px}
+.sistemik-detail .field:last-child{margin-bottom:0}
+.seg-field .seg-opts{margin-bottom:6px}
+.seg-field .seg-extras{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+.seg-ket-lbl{font-size:.78rem;display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--t2);white-space:nowrap}
+.seg-ket-input{display:none;max-width:150px;padding:6px 8px;font-size:.82rem}
+.seg-ket-input.show{display:inline-block}
+.seg-field input[placeholder="Override manual"]{max-width:160px;font-size:.82rem;padding:6px 8px}
+.lensa-katarak-detail{margin-top:8px;padding:8px;background:var(--pr-l);border-radius:var(--rs);border:1px solid var(--pr-bg)}
+.lensa-katarak-detail .lbl{font-size:.78rem;margin-bottom:6px}
+.onh-block{margin-top:4px}
+.onh-row{display:grid;grid-template-columns:72px 1fr;gap:8px;align-items:center;margin-bottom:8px}
+.onh-row:last-of-type{margin-bottom:10px}
+.onh-cd-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.onh-cd-row input[type=range]{flex:1;min-width:100px;accent-color:var(--pr)}
+.onh-cd-val{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--pr-d);min-width:2.5em}
+.btn-onh-normal{
+  padding:6px 12px;font-size:.76rem;font-weight:700;border:1px solid var(--pr);
+  background:var(--pr-l);color:var(--pr-d);border-radius:var(--rs);cursor:pointer
+}
+.btn-onh-normal:hover{background:var(--pr);color:#fff}
+.tbl-ant .seg-field{min-width:140px}
+@media(max-width:960px){
+  .app-layout{grid-template-columns:1fr}
+  .out-col{position:relative;max-height:none}
+}
+@media(max-width:700px){
+  .col2,.col2-h{grid-template-columns:1fr}
+  .milestone-row{grid-template-columns:1fr}
+  .post-grid{grid-template-columns:1fr}
+  .post-item{grid-template-columns:1fr}
+  .norm-row{grid-template-columns:1fr}
+}
+.btn-copy{
+  width:100%;padding:11px 16px;font-size:.86rem;font-weight:600;border:none;
+  border-radius:var(--rs);cursor:pointer;transition:all .15s;
+  background:var(--sf);color:var(--pr);border:2px solid var(--pr);
+  margin-top:10px;flex-shrink:0
+}
+.btn-copy:hover{background:var(--pr-l)}
+.btn-copy.ok{background:var(--gn);border-color:var(--gn);color:#fff}
+.soap-pre{
+  flex:1;min-height:200px;max-height:calc(50vh - 90px);overflow-y:auto;
+  width:100%;padding:14px 16px;font-family:'IBM Plex Mono',ui-monospace,Consolas,monospace;
+  font-size:.8rem;line-height:1.6;background:var(--out-bg);color:var(--out-t);
+  border:none;border-radius:var(--rs);white-space:pre-wrap;
+  scrollbar-width:thin;scrollbar-color:var(--t3) transparent
+}
+.soap-pre::-webkit-scrollbar{width:6px}
+.soap-pre::-webkit-scrollbar-thumb{background:var(--t3);border-radius:3px}
+.save-hint{
+  text-align:center;font-size:.75rem;color:var(--t3);margin-top:14px;
+  padding:8px 12px;background:var(--sf);border-radius:var(--rs);border:1px dashed var(--bd)
+}
+.col-scroll::-webkit-scrollbar{width:6px}
+.col-scroll::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+.field-jenis .radio-grp label{font-size:.84rem;padding:9px 16px}
+#blockDiagnosis.show{background:var(--pr-l);border:1px solid var(--pr-bg);border-radius:var(--rs);padding:12px!important;margin-top:0!important;border-top:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">👁</div>
+      <div>
+        <h1>SOAP Mata</h1>
+        <p>Asisten rekam medis mata — input kiri, narasi S &amp; O kanan terupdate otomatis.</p>
+      </div>
+    </div>
+    <span class="tag">Offline · Local only</span>
+  </header>
+
+  <div class="app-layout">
+  <form id="soapForm" class="form-stack" novalidate>
+    <div class="form-toolbar">
+      <button type="button" class="btn-reset" id="btnResetPasien">Hapus data untuk pasien baru</button>
+    </div>
+
+    <div class="col-subj col-panel">
+      <div class="col-head">Subjektif</div>
+      <div class="col-scroll">
+    <section id="section-subj">
+      <div class="card">
+        <div class="card-h">Data Subjektif</div>
+        <div class="card-b">
+          <div class="field field-jenis">
+            <span class="lbl">Jenis kunjungan <span class="req">*</span></span>
+            <div class="radio-grp" id="jenisKunjunganGrp">
+              <label><input type="radio" name="jenisKunjungan" value="Pasien baru" required> Pasien baru</label>
+              <label><input type="radio" name="jenisKunjungan" value="Pasien kontrol"> Pasien kontrol</label>
+              <label><input type="radio" name="jenisKunjungan" value="Pasien lama tidak kontrol"> Pasien lama tidak kontrol</label>
+            </div>
+          </div>
+
+          <div id="subjReorder" class="subj-reorder mode-baru">
+          <div id="blockDiagnosis" class="field cond" data-block="diagnosis">
+            <label class="lbl" for="diagnosis">Diagnosis <span class="req">*</span></label>
+            <input type="text" id="diagnosis" name="diagnosis" placeholder="Diagnosis sebelumnya / kunjungan terakhir">
+          </div>
+
+          <div class="field" data-block="usia">
+            <span class="lbl">Kelompok usia <span class="req">*</span></span>
+            <div class="radio-grp" id="kelompokUsia">
+              <label><input type="radio" name="kelompokUsia" value="Balita" required> Balita</label>
+              <label><input type="radio" name="kelompokUsia" value="Anak-anak/Remaja"> Anak-anak/Remaja</label>
+              <label><input type="radio" name="kelompokUsia" value="Dewasa Muda"> Dewasa Muda</label>
+              <label><input type="radio" name="kelompokUsia" value="40-60 Tahun"> 40-60 Tahun</label>
+              <label><input type="radio" name="kelompokUsia" value="Lansia"> Lansia</label>
+            </div>
+          </div>
+
+          <div class="field" data-block="keluhan">
+            <label class="lbl" for="keluhanUtama" id="lblKeluhanUtama">Keluhan utama <span class="req">*</span></label>
+            <textarea id="keluhanUtama" name="keluhanUtama" placeholder="Tulis keluhan utama pasien..." required></textarea>
+          </div>
+
+          <div class="field" data-block="sejak">
+            <label class="lbl" for="sejakKapan">Sejak kapan <span class="req" id="sejakReq">*</span></label>
+            <input type="text" id="sejakKapan" name="sejakKapan" placeholder="Contoh: 3 hari, 2 minggu, 6 bulan..." required>
+          </div>
+          </div>
+
+          <div class="field">
+            <div class="toggle-row">
+              <span class="lbl" style="margin:0">Apakah ada keluhan lain?</span>
+              <label class="toggle"><input type="checkbox" id="keluhanLainToggle" name="keluhanLainToggle"><span></span></label>
+            </div>
+            <div id="keluhanLainCond" class="cond">
+              <div class="chk-grp" id="keluhanLainList">
+                <label><input type="checkbox" value="Merah"> Merah</label>
+                <label><input type="checkbox" value="Silau"> Silau</label>
+                <label><input type="checkbox" value="Berair"> Berair</label>
+                <label><input type="checkbox" value="Nyeri"> Nyeri</label>
+                <label><input type="checkbox" value="Gatal"> Gatal</label>
+                <label><input type="checkbox" value="Belekan"> Belekan</label>
+                <label><input type="checkbox" value="Buram"> Buram</label>
+                <label><input type="checkbox" value="Dobel"> Dobel</label>
+                <label><input type="checkbox" value="Juling"> Juling</label>
+                <label><input type="checkbox" value="Kotoran mata berlebih"> Kotoran mata berlebih</label>
+              </div>
+              <div class="field" style="margin-top:10px">
+                <label class="lbl" for="keluhanLainManual">Keluhan lain (tulis manual)</label>
+                <textarea id="keluhanLainManual" name="keluhanLainManual" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="lbl">Apakah sudah diobati?</span>
+            <div class="radio-grp">
+              <label><input type="radio" name="sudahDiobati" value="Ya"> Ya</label>
+              <label><input type="radio" name="sudahDiobati" value="Tidak" checked> Tidak</label>
+            </div>
+            <div id="diobatiCond" class="cond">
+              <div class="field">
+                <label class="lbl" for="obatApa">Kalau sudah, dengan apa?</label>
+                <div id="obatEmrGrp" class="radio-grp cond" style="margin-bottom:8px">
+                  <label><input type="checkbox" id="obatSesuaiEmr" name="obatSesuaiEmr"> Sesuai EMR</label>
+                </div>
+                <textarea id="obatApa" name="obatApa" rows="2"></textarea>
+              </div>
+              <div class="field">
+                <span class="lbl">Apakah ada perbaikan dengan pengobatan?</span>
+                <div class="radio-grp">
+                  <label><input type="radio" name="perbaikanObat" value="Ya"> Ya</label>
+                  <label><input type="radio" name="perbaikanObat" value="Tidak"> Tidak</label>
+                  <label><input type="radio" name="perbaikanObat" value="Sebagian"> Sebagian</label>
+                  <label><input type="radio" name="perbaikanObat" value="Memburuk"> Memburuk</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="toggle-row">
+              <span class="lbl" style="margin:0">Apakah ada penyakit sistemik?</span>
+              <label class="toggle"><input type="checkbox" id="sistemikToggle"><span></span></label>
+            </div>
+            <div id="sistemikCond" class="cond">
+              <div id="sistemikList" class="sistemik-list"></div>
+              <div class="field" style="margin-top:10px">
+                <label class="lbl" for="sistemikManual">Penyakit lain (tulis manual)</label>
+                <textarea id="sistemikManual" name="sistemikManual" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="toggle-row">
+              <span class="lbl" style="margin:0">Riwayat penyakit mata dalam keluarga</span>
+              <label class="toggle"><input type="checkbox" id="keluargaToggle"><span></span></label>
+            </div>
+            <div id="keluargaCond" class="cond">
+              <div class="chk-grp" id="keluargaList">
+                <label><input type="checkbox" value="Glaukoma"> Glaukoma</label>
+                <label><input type="checkbox" value="Katarak"> Katarak</label>
+                <label><input type="checkbox" value="Retinitis Pigmentosa"> Retinitis Pigmentosa</label>
+                <label><input type="checkbox" value="Ambliopia"> Ambliopia</label>
+                <label><input type="checkbox" value="Strabismus (Juling)"> Strabismus (Juling)</label>
+                <label><input type="checkbox" value="Degenerasi Makula"> Degenerasi Makula</label>
+                <label><input type="checkbox" value="Miopia Tinggi"> Miopia Tinggi</label>
+              </div>
+              <div class="field" style="margin-top:10px">
+                <label class="lbl" for="keluargaManual">Lainnya (tulis manual)</label>
+                <textarea id="keluargaManual" name="keluargaManual" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="lbl">Pernah pakai kacamata sebelumnya?</span>
+            <div class="radio-grp">
+              <label><input type="radio" name="kacamataDulu" value="Ya"> Ya</label>
+              <label><input type="radio" name="kacamataDulu" value="Tidak" checked> Tidak</label>
+            </div>
+            <div id="kacamataDuluCond" class="cond">
+              <div class="field">
+                <label class="lbl" for="ukuranKacamata">Ukuran kacamata:</label>
+                <textarea id="ukuranKacamata" name="ukuranKacamata" rows="2" placeholder="Tulis ukuran kacamata..."></textarea>
+              </div>
+              <div class="field">
+                <span class="lbl">Apakah kacamata lama masih nyaman?</span>
+                <div class="radio-grp">
+                  <label><input type="radio" name="kacamataNyaman" value="Ya"> Ya</label>
+                  <label><input type="radio" name="kacamataNyaman" value="Tidak"> Tidak</label>
+                </div>
+              </div>
+            </div>
+            <div class="field" style="margin-top:10px">
+              <label class="chk-grp" style="display:inline-flex;border:none;background:transparent;padding:0">
+                <input type="checkbox" id="kacamataKeOutput" name="kacamataKeOutput"> Masukkan informasi ini ke output SOAP
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="toggle-row">
+              <span class="lbl" style="margin:0">Apakah ada riwayat penggunaan contact lens?</span>
+              <label class="toggle"><input type="checkbox" id="contactLensToggle" name="contactLensToggle"><span></span></label>
+            </div>
+            <div id="contactLensCond" class="cond">
+              <div class="field">
+                <label class="lbl" for="clLamaPakai">Sudah berapa lama dipakai?</label>
+                <input type="text" id="clLamaPakai" name="clLamaPakai" placeholder="Contoh: 2 tahun, 6 bulan...">
+              </div>
+              <div class="field">
+                <label class="lbl" for="clTerakhirLepas">Kapan terakhir dilepas?</label>
+                <input type="text" id="clTerakhirLepas" name="clTerakhirLepas" placeholder="Contoh: kemarin, 1 minggu lalu...">
+              </div>
+            </div>
+            <div class="field" style="margin-top:10px">
+              <label class="chk-grp" style="display:inline-flex;border:none;background:transparent;padding:0">
+                <input type="checkbox" id="contactLensKeOutput" name="contactLensKeOutput"> Masukkan informasi ini ke output SOAP
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="toggle-row">
+              <span class="lbl" style="margin:0">Riwayat operasi mata</span>
+              <label class="toggle"><input type="checkbox" id="operasiToggle"><span></span></label>
+            </div>
+            <div id="operasiCond" class="cond">
+              <label class="lbl" for="operasiApa">Operasi apa?</label>
+              <textarea id="operasiApa" name="operasiApa" rows="2"></textarea>
+            </div>
+          </div>
+
+          <!-- 40-60 -->
+          <div id="trigger4060" class="cond sub-sect">
+            <h4>Kacamata yang digunakan saat ini</h4>
+            <div class="radio-grp">
+              <label><input type="radio" name="kacamataSaatIni" value="Jauh"> Jauh</label>
+              <label><input type="radio" name="kacamataSaatIni" value="Dekat/Baca"> Dekat/Baca</label>
+              <label><input type="radio" name="kacamataSaatIni" value="Jauh dan Dekat"> Jauh dan Dekat</label>
+              <label><input type="radio" name="kacamataSaatIni" value="Belum pernah pakai kacamata"> Belum pernah pakai kacamata</label>
+            </div>
+          </div>
+
+          <!-- Balita -->
+          <div id="triggerBalita" class="cond sub-sect">
+            <h4>Data Kelahiran (Balita)</h4>
+            <div class="field">
+              <label class="lbl" for="usiaKelahiran">Usia kelahiran (minggu)</label>
+              <input type="number" id="usiaKelahiran" name="usiaKelahiran" min="20" max="45" placeholder="37">
+              <span id="badgePrematur"></span>
+            </div>
+            <div class="field">
+              <label class="lbl" for="bbLahir">Berat badan lahir (gram)</label>
+              <input type="number" id="bbLahir" name="bbLahir" min="500" max="6000" placeholder="2500">
+              <span id="badgeBblr"></span>
+            </div>
+            <div class="field">
+              <span class="lbl">Apakah langsung menangis saat lahir?</span>
+              <div class="radio-grp">
+                <label><input type="radio" name="menangisLahir" value="Ya"> Ya</label>
+                <label><input type="radio" name="menangisLahir" value="Tidak"> Tidak</label>
+              </div>
+            </div>
+            <div class="field">
+              <span class="lbl">Apakah sempat dirawat di PICU/ICU Bayi?</span>
+              <div class="radio-grp">
+                <label><input type="radio" name="picu" value="Ya"> Ya</label>
+                <label><input type="radio" name="picu" value="Tidak"> Tidak</label>
+              </div>
+            </div>
+
+            <h4 style="margin-top:16px">Screening Tumbuh Kembang</h4>
+            <p class="hint">Usia dalam bulan. Rentang normal: Tengkurap 3–5, Duduk 6–9, Berdiri 9–12, Berjalan 12–15, Bicara 10–14.</p>
+            <div class="milestone-row">
+              <label for="msTengkurap">Tengkurap</label>
+              <input type="number" id="msTengkurap" name="msTengkurap" min="0" max="24" placeholder="bulan">
+              <span class="ms-norm hint">normal 3–5 bln</span>
+            </div>
+            <div class="milestone-row">
+              <label for="msDuduk">Duduk</label>
+              <input type="number" id="msDuduk" name="msDuduk" min="0" max="24" placeholder="bulan">
+              <span class="ms-norm hint">normal 6–9 bln</span>
+            </div>
+            <div class="milestone-row">
+              <label for="msBerdiri">Berdiri</label>
+              <input type="number" id="msBerdiri" name="msBerdiri" min="0" max="24" placeholder="bulan">
+              <span class="ms-norm hint">normal 9–12 bln</span>
+            </div>
+            <div class="milestone-row">
+              <label for="msBerjalan">Berjalan</label>
+              <input type="number" id="msBerjalan" name="msBerjalan" min="0" max="24" placeholder="bulan">
+              <span class="ms-norm hint">normal 12–15 bln</span>
+            </div>
+            <div class="milestone-row">
+              <label for="msBicara">Bicara (kata bermakna pertama)</label>
+              <input type="number" id="msBicara" name="msBicara" min="0" max="36" placeholder="bulan">
+              <span class="ms-norm hint">normal 10–14 bln</span>
+            </div>
+            <div id="milestoneWarn"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+      </div>
+    </div>
+
+    <div class="col-obj col-panel">
+      <div class="col-head">Objektif</div>
+      <div class="col-scroll">
+    <section id="section-obj">
+      <div class="norm-row">
+        <button type="button" class="btn-norm" id="btnOdsNormal">ODS normal</button>
+        <button type="button" class="btn-norm btn-od" id="btnOdNormal">OD normal</button>
+        <button type="button" class="btn-norm btn-os" id="btnOsNormal">OS normal</button>
+      </div>
+
+      <div class="field toggle-row" style="margin-bottom:12px">
+        <div>
+          <span class="lbl" style="margin:0">Pemeriksaan visus dikerjakan oleh asisten</span>
+          <p class="visus-asisten-hint">Aktif: visus &amp; TIO tidak wajib dan tidak masuk narasi O (termasuk saat ODS normal).</p>
+        </div>
+        <label class="toggle"><input type="checkbox" id="visusAsistenToggle" name="visusAsistenToggle"><span></span></label>
+      </div>
+
+      <div id="blockVisusTio">
+      <div class="card">
+        <div class="card-h">Visus</div>
+        <div class="card-b">
+          <div class="col2-h"><span>OD (Kanan)</span><span>OS (Kiri)</span></div>
+
+          <div class="visus-block">
+            <span class="lbl">Visus Naturalis</span>
+            <div class="col2">
+              <input type="text" id="visusNatOD" name="visusNatOD" placeholder="Contoh: 0.5 atau 4/60 atau LP(+)">
+              <input type="text" id="visusNatOS" name="visusNatOS" placeholder="Contoh: 0.5 atau 4/60 atau LP(+)">
+            </div>
+          </div>
+          <div class="visus-block">
+            <span class="lbl">BCVA</span>
+            <div class="col2">
+              <input type="text" id="bcvaOD" name="bcvaOD" placeholder="Contoh: s-7.00 c-4.00x20->0.9 f3ph(-)">
+              <input type="text" id="bcvaOS" name="bcvaOS" placeholder="Contoh: s-7.00 c-4.00x20->0.9 f3ph(-)">
+            </div>
+          </div>
+          <div class="visus-block">
+            <span class="lbl">Spectacles</span>
+            <div class="col2">
+              <input type="text" id="spectaclesOD" name="spectaclesOD" placeholder="Contoh: s-3.75 c-4.00x5->0.05">
+              <input type="text" id="spectaclesOS" name="spectaclesOS" placeholder="Contoh: s-3.75 c-4.00x5->0.05">
+            </div>
+          </div>
+          <div class="visus-block">
+            <span class="lbl">Binocular</span>
+            <div class="col2">
+              <input type="text" id="binocularOD" name="binocularOD" placeholder="Contoh: 0.9 f3 nyaman">
+              <input type="text" id="binocularOS" name="binocularOS" placeholder="Contoh: 0.9 f3 nyaman">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">TIO (mmHg)</div>
+        <div class="card-b">
+          <div class="col2">
+            <div class="field"><label class="lbl" for="tioOD">TIO OD</label><input type="number" id="tioOD" name="tioOD" step="0.1" placeholder="mmHg"></div>
+            <div class="field"><label class="lbl" for="tioOS">TIO OS</label><input type="number" id="tioOS" name="tioOS" step="0.1" placeholder="mmHg"></div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">Segmen Anterior</div>
+        <div class="card-b" style="overflow-x:auto">
+          <table class="tbl-ant" id="tblAnterior"></table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">Segmen Posterior</div>
+        <div class="card-b post-grid" id="segPosterior"></div>
+        <div class="card-b" style="padding-top:0">
+          <label class="lbl" for="lainLain">Lain-lain</label>
+          <textarea id="lainLain" name="lainLain" rows="2" placeholder="Temuan tambahan..."></textarea>
+        </div>
+      </div>
+    </section>
+      </div>
+    </div>
+  </form>
+
+  <div class="out-col">
+    <aside class="soap-out-col out-s" aria-label="Output Subjektif">
+      <div class="card">
+        <div class="card-h">S — Subjektif</div>
+        <div class="card-b">
+          <pre id="soapOutS" class="soap-pre" aria-live="polite"></pre>
+          <button type="button" class="btn-copy" id="btnCopyS">⎘ Salin Subjektif</button>
+        </div>
+      </div>
+    </aside>
+
+    <aside class="soap-out-col out-o" aria-label="Output Objektif">
+      <div class="card">
+        <div class="card-h">O — Objektif</div>
+        <div class="card-b">
+          <pre id="soapOutO" class="soap-pre" aria-live="polite"></pre>
+          <button type="button" class="btn-copy" id="btnCopyO">⎘ Salin Objektif</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+  </div>
+
+  <p class="save-hint">Data tersimpan otomatis di peramban (localStorage). Tidak dikirim ke server.</p>
+</div>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'soapMata_v2';
+
+  const SISTEMIK_ITEMS = [
+    { id: 'dm', label: 'Diabetes Mellitus', operasi: false },
+    { id: 'ht', label: 'Hipertensi', operasi: false },
+    { id: 'kol', label: 'Kolesterol Tinggi', operasi: false },
+    { id: 'tiroid', label: 'Penyakit Tiroid', operasi: true },
+    { id: 'jantung', label: 'Penyakit Jantung', operasi: true },
+    { id: 'ginjal', label: 'Penyakit Ginjal', operasi: true },
+    { id: 'autoimun', label: 'Autoimun', operasi: false }
+  ];
+
+  const LENSA_KATARAK_GRADES = ['Katarak grade 1', 'Katarak grade 2', 'Katarak grade 3', 'Katarak grade 4'];
+  const LENSA_KATARAK_SUB = ['PSC', 'Posterior polar', 'Cortical', 'Nuclear'];
+
+  const ANTERIOR = {
+    palpebra: { label: 'Palpebra', normal: 'Normal', opts: ['Normal', 'Edema', 'Hiperemi', 'Lesi', 'Ptosis', 'Hordeolum', 'Chalazion'] },
+    conjunctiva: { label: 'Konjungtiva', normal: 'Tidak hiperemi', opts: ['Hiperemi ringan', 'Hiperemi sedang', 'Hiperemi berat', 'Injeksi sklera (+)', 'Pterygium'] },
+    kornea: { label: 'Kornea', normal: 'Jernih', opts: ['Jernih', 'Keruh', 'Edema', 'Ulkus', 'Sikatrik'] },
+    bmd: { label: 'BMD', normal: 'Dalam', opts: ['Dalam', 'Dangkal'] },
+    iris: { label: 'Iris', normal: 'Radier', opts: ['Radier', 'Atrofi', 'Sinekia', 'Iridodonesis'] },
+    pupil: { label: 'Pupil', normal: 'Bulat, isokor, sentral, diameter 3 mm, RC (+)', opts: ['Bulat, isokor, sentral, diameter 3 mm, RC (+)', 'Midriasis', 'Miosis', 'Irregular', 'Tidak isokor', 'RC (-)'] },
+    lensa: { label: 'Lensa', normal: 'Jernih', opts: ['Jernih', ...LENSA_KATARAK_GRADES] }
+  };
+
+  const POSTERIOR_PARTS = {
+    vitreous: { label: 'Vitreous', normal: 'Jernih', opts: ['Jernih', 'detail sulit dievaluasi'] },
+    macula: { label: 'Makula', normal: 'Macula reflex (+)', opts: ['Macula reflex (+)', 'Macula reflex menurun', 'Tampak edema'] },
+    retina: { label: 'Retina', normal: 'Tidak ada perdarahan maupun eksudat', opts: ['Tidak ada perdarahan maupun eksudat', 'detail sulit dievaluasi'] }
+  };
+
+  const ONH_DEFAULTS = { batas: 'Tegas', warna: 'Normal', elevasi: 'Tidak ada', cd: 0.4 };
+  const ONH_OPTS = {
+    batas: ['Tegas', 'Kabur', 'Kabur sebagian'],
+    warna: ['Normal', 'Hiperemi'],
+    elevasi: ['Ada', 'Tidak ada']
+  };
+
+  const FUNDUS_OPTS = [
+    'Fundus reflex (+)',
+    'Fundus reflex (+) detail sulit dievaluasi',
+    'Fundus reflex (-)'
+  ];
+
+  const PERBAIKAN_OBAT_TEXT = {
+    Ya: 'membaik dengan pengobatan',
+    Tidak: 'tidak membaik dengan pengobatan',
+    Sebagian: 'membaik sebagian dengan pengobatan',
+    Memburuk: 'memburuk dengan pengobatan'
+  };
+
+  const MILESTONES = [
+    { id: 'msTengkurap', name: 'Tengkurap', max: 5 },
+    { id: 'msDuduk', name: 'Duduk', max: 9 },
+    { id: 'msBerdiri', name: 'Berdiri', max: 12 },
+    { id: 'msBerjalan', name: 'Berjalan', max: 15 },
+    { id: 'msBicara', name: 'Bicara', max: 14 }
+  ];
+
+  let saveTimer = null;
+  let refreshTimer = null;
+
+  function $(sel, ctx) { return (ctx || document).querySelector(sel); }
+  function $$(sel, ctx) { return [...(ctx || document).querySelectorAll(sel)]; }
+
+  function isBalita() {
+    const r = $('input[name="kelompokUsia"]:checked');
+    return r && r.value === 'Balita';
+  }
+
+  function is4060() {
+    const r = $('input[name="kelompokUsia"]:checked');
+    return r && r.value === '40-60 Tahun';
+  }
+
+  function getJenisKunjungan() {
+    return $('input[name="jenisKunjungan"]:checked')?.value || '';
+  }
+
+  function isPasienBaru() { return getJenisKunjungan() === 'Pasien baru'; }
+  function isPasienKontrol() { return getJenisKunjungan() === 'Pasien kontrol'; }
+  function isPasienLama() { return getJenisKunjungan() === 'Pasien lama tidak kontrol'; }
+
+  function isVisusAsisten() {
+    return !!$('#visusAsistenToggle')?.checked;
+  }
+
+  function updateVisusAsistenMode() {
+    const block = $('#blockVisusTio');
+    if (block) block.classList.toggle('visus-skip', isVisusAsisten());
+  }
+
+  const VISUS_IDS = ['visusNatOD','visusNatOS','bcvaOD','bcvaOS','spectaclesOD','spectaclesOS','binocularOD','binocularOS'];
+
+  function clearVisusFields(eye) {
+    const suffix = eye === 'od' ? 'OD' : eye === 'os' ? 'OS' : null;
+    VISUS_IDS.forEach(id => {
+      if (!suffix || id.endsWith(suffix)) {
+        const el = $('#' + id);
+        if (el) el.value = '';
+      }
+    });
+  }
+
+  function clearTioFields(eye) {
+    if (eye === 'od' || !eye) { const e = $('#tioOD'); if (e) e.value = ''; }
+    if (eye === 'os' || !eye) { const e = $('#tioOS'); if (e) e.value = ''; }
+  }
+
+  function segCheckName(key, eye) { return `ant_${key}_${eye}[]`; }
+  function postCheckName(part, eye) { return `${part}_${eye}[]`; }
+
+  function toggleSegKet(key, eye) {
+    const on = $(`.seg-ket-toggle[data-key="${key}"][data-eye="${eye}"]`)?.checked;
+    const inp = $(`input[name="ant_${key}_${eye}_ket"]`);
+    if (inp) {
+      inp.classList.toggle('show', !!on);
+      if (!on) inp.value = '';
+    }
+  }
+
+  function updateLensaKatarakDetail(eye) {
+    const block = $(`#lensaKatarak_${eye}`);
+    if (!block) return;
+    const hasGrade = LENSA_KATARAK_GRADES.some(g =>
+      $(`input[name="${segCheckName('lensa', eye)}"][value="${g}"]`)?.checked
+    );
+    block.classList.toggle('show', hasGrade);
+    if (!hasGrade) $$(`input[name="lensa_sub_${eye}[]"]`).forEach(c => { c.checked = false; });
+  }
+
+  function setOnhNormal(eye) {
+    const b = $(`#onh_batas_${eye}`);
+    const w = $(`#onh_warna_${eye}`);
+    const e = $(`#onh_elevasi_${eye}`);
+    const cd = $(`#onh_cd_${eye}`);
+    if (b) b.value = ONH_DEFAULTS.batas;
+    if (w) w.value = ONH_DEFAULTS.warna;
+    if (e) e.value = ONH_DEFAULTS.elevasi;
+    if (cd) {
+      cd.value = Math.round(ONH_DEFAULTS.cd * 10);
+      updateOnhCdDisplay(eye);
+    }
+    const man = $(`input[name="onh_${eye}_manual"]`);
+    if (man) man.value = '';
+    const ketT = $(`.post-ket-toggle[data-part="onh"][data-eye="${eye}"]`);
+    const ketI = $(`input[name="onh_${eye}_ket"]`);
+    if (ketT) ketT.checked = false;
+    if (ketI) { ketI.value = ''; ketI.classList.remove('show'); }
+  }
+
+  function updateOnhCdDisplay(eye) {
+    const cd = $(`#onh_cd_${eye}`);
+    const lbl = $(`#onh_cd_val_${eye}`);
+    if (cd && lbl) lbl.textContent = (parseInt(cd.value, 10) / 10).toFixed(1);
+  }
+
+  function setSegFieldNormal(key, eye) {
+    const cfg = ANTERIOR[key];
+    $$(`input[name="${segCheckName(key, eye)}"]`).forEach(c => {
+      c.checked = cfg.opts.includes(cfg.normal) && c.value === cfg.normal;
+    });
+    const man = $(`input[name="ant_${key}_${eye}_manual"]`);
+    if (man) man.value = '';
+    const ketT = $(`.seg-ket-toggle[data-key="${key}"][data-eye="${eye}"]`);
+    if (ketT) ketT.checked = false;
+    toggleSegKet(key, eye);
+    if (key === 'lensa') updateLensaKatarakDetail(eye);
+  }
+
+  function setPostFieldNormal(part, eye) {
+    const cfg = POSTERIOR_PARTS[part];
+    $$(`input[name="${postCheckName(part, eye)}"]`).forEach(c => {
+      c.checked = cfg.opts.includes(cfg.normal) && c.value === cfg.normal;
+    });
+    const man = $(`input[name="${part}_${eye}_manual"]`);
+    if (man) man.value = '';
+    const ketT = $(`.post-ket-toggle[data-part="${part}"][data-eye="${eye}"]`);
+    if (ketT) ketT.checked = false;
+    const ketI = $(`input[name="${part}_${eye}_ket"]`);
+    if (ketI) { ketI.value = ''; ketI.classList.remove('show'); }
+  }
+
+  function setFundusNormal(eye) {
+    $$(`input[name="fundus_${eye}[]"]`).forEach(c => {
+      c.checked = c.value === 'Fundus reflex (+)';
+    });
+    const man = $(`input[name="fundus_${eye}_manual"]`);
+    if (man) man.value = '';
+    const ketT = $(`.post-ket-toggle[data-part="fundus"][data-eye="${eye}"]`);
+    if (ketT) ketT.checked = false;
+    const ketI = $(`input[name="fundus_${eye}_ket"]`);
+    if (ketI) { ketI.value = ''; ketI.classList.remove('show'); }
+  }
+
+  function setSegmentNormalForEye(eye) {
+    Object.keys(ANTERIOR).forEach(key => setSegFieldNormal(key, eye));
+    setFundusNormal(eye);
+    Object.keys(POSTERIOR_PARTS).forEach(part => {
+      if (part !== 'onh') setPostFieldNormal(part, eye);
+    });
+    setOnhNormal(eye);
+  }
+
+  function setOdsNormal() {
+    if (!isVisusAsisten()) {
+      clearVisusFields('od');
+      clearVisusFields('os');
+    }
+    clearTioFields();
+    setSegmentNormalForEye('od');
+    setSegmentNormalForEye('os');
+    $('#lainLain').value = '';
+    queueSave();
+    queueRefreshSOAP();
+  }
+
+  function setOdNormal() {
+    if (!isVisusAsisten()) clearVisusFields('od');
+    setSegmentNormalForEye('od');
+    queueSave();
+    queueRefreshSOAP();
+  }
+
+  function setOsNormal() {
+    if (!isVisusAsisten()) clearVisusFields('os');
+    setSegmentNormalForEye('os');
+    queueSave();
+    queueRefreshSOAP();
+  }
+
+  function resetForNewPatient() {
+    if (!confirm('Hapus semua data Subjektif dan Objektif untuk pasien baru?')) return;
+
+    $$('#soapForm input[type="text"], #soapForm input[type="number"], #soapForm textarea').forEach(el => {
+      el.value = '';
+    });
+    $$('#soapForm input[type="checkbox"]').forEach(el => { el.checked = false; });
+    $$('#soapForm input[type="radio"]').forEach(el => { el.checked = false; });
+
+    const tidak = $('input[name="sudahDiobati"][value="Tidak"]');
+    if (tidak) tidak.checked = true;
+    const kacTidak = $('input[name="kacamataDulu"][value="Tidak"]');
+    if (kacTidak) kacTidak.checked = true;
+
+    toggleCond('#keluhanLainToggle', '#keluhanLainCond');
+    toggleCond('#sistemikToggle', '#sistemikCond');
+    toggleCond('#keluargaToggle', '#keluargaCond');
+    toggleCond('#operasiToggle', '#operasiCond');
+    toggleCond('#contactLensToggle', '#contactLensCond');
+    SISTEMIK_ITEMS.forEach(item => {
+      const chk = $(`.sistemik-chk[data-id="${item.id}"]`);
+      if (chk) chk.checked = false;
+      const det = $(`#sistemikDetail_${item.id}`);
+      if (det) det.classList.remove('show');
+      const sejak = $(`#sistemik_${item.id}_sejak`);
+      if (sejak) sejak.value = '';
+      $$(`input[name="sistemik_${item.id}_diobati"]`).forEach(r => { r.checked = false; });
+      if (item.operasi) $$(`input[name="sistemik_${item.id}_operasi"]`).forEach(r => { r.checked = false; });
+    });
+    $('#diobatiCond').classList.remove('show');
+    $('#obatSesuaiEmr').checked = false;
+    updateObatApaMode();
+    updateKacamataDuluCond();
+
+    updateJenisKunjungan();
+    updateAgeTriggers();
+    updateVisusAsistenMode();
+
+    setOdsNormal();
+
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    queueSave();
+    refreshSOAP();
+  }
+
+  function updateJenisKunjungan() {
+    const jenis = getJenisKunjungan();
+    const wrap = $('#subjReorder');
+    const diag = $('#blockDiagnosis');
+    const sejak = $('#sejakKapan');
+    const sejakReq = $('#sejakReq');
+    const lblKeluhan = $('#lblKeluhanUtama');
+
+    wrap.classList.remove('mode-baru', 'mode-kontrol', 'mode-lama');
+    if (isPasienKontrol()) wrap.classList.add('mode-kontrol');
+    else if (isPasienLama()) wrap.classList.add('mode-lama');
+    else wrap.classList.add('mode-baru');
+
+    const showDiag = isPasienKontrol() || isPasienLama();
+    diag.classList.toggle('show', showDiag);
+
+    if (lblKeluhan) {
+      lblKeluhan.innerHTML = (showDiag
+        ? 'Keluhan / yang dirasakan sekarang'
+        : 'Keluhan utama') + ' <span class="req">*</span>';
+    }
+
+    if (sejak) {
+      const wajibSejak = isPasienBaru();
+      sejak.required = wajibSejak;
+      if (sejakReq) sejakReq.style.display = wajibSejak ? '' : 'none';
+    }
+
+    updateObatEmrVisibility();
+  }
+
+  function updateObatEmrVisibility() {
+    const grp = $('#obatEmrGrp');
+    const emr = $('#obatSesuaiEmr');
+    if (!grp) return;
+    const show = isPasienKontrol();
+    grp.classList.toggle('show', show);
+    if (!show && emr) {
+      emr.checked = false;
+      updateObatApaMode();
+    }
+  }
+
+  function updateObatApaMode() {
+    const emr = $('#obatSesuaiEmr');
+    const ta = $('#obatApa');
+    if (!ta) return;
+    const emrOn = emr && emr.checked;
+    ta.disabled = emrOn;
+    ta.style.display = emrOn ? 'none' : '';
+  }
+
+  function updateKacamataDuluCond() {
+    const ya = $('input[name="kacamataDulu"]:checked')?.value === 'Ya';
+    const cond = $('#kacamataDuluCond');
+    if (cond) cond.classList.toggle('show', ya);
+  }
+
+  function renderSegExtras(prefix, key, eye, isLensa) {
+    const p = prefix === 'ant' ? 'ant' : prefix;
+    const nameBase = prefix === 'ant' ? `ant_${key}_${eye}` : `${key}_${eye}`;
+    const ketCls = prefix === 'ant' ? 'seg-ket-toggle' : 'post-ket-toggle';
+    const dataAttr = prefix === 'ant' ? `data-key="${key}"` : `data-part="${key}"`;
+    let html = `<div class="seg-extras">
+      <label class="seg-ket-lbl"><input type="checkbox" class="${ketCls}" ${dataAttr} data-eye="${eye}"> Keterangan tambahan</label>
+      <input type="text" class="seg-ket-input" name="${nameBase}_ket" placeholder="Keterangan...">
+      <input type="text" name="${nameBase}_manual" placeholder="Override manual">`;
+    if (isLensa) {
+      html += `</div><div class="lensa-katarak-detail cond" id="lensaKatarak_${eye}">
+        <span class="lbl">Subtipe katarak (bila grade 1–4)</span>
+        <div class="chk-grp">${LENSA_KATARAK_SUB.map(s =>
+          `<label><input type="checkbox" name="lensa_sub_${eye}[]" value="${s}"> ${s}</label>`
+        ).join('')}</div></div>`;
+    } else {
+      html += '</div>';
+    }
+    return html;
+  }
+
+  function renderMultiOpts(name, opts) {
+    return `<div class="chk-grp seg-opts">${opts.map(o =>
+      `<label><input type="checkbox" name="${name}" value="${o.replace(/"/g, '&quot;')}"> ${o}</label>`
+    ).join('')}</div>`;
+  }
+
+  function renderSegCell(key, eye) {
+    const cfg = ANTERIOR[key];
+    return `<div class="seg-field" data-key="${key}" data-eye="${eye}">
+      ${renderMultiOpts(segCheckName(key, eye), cfg.opts)}
+      ${renderSegExtras('ant', key, eye, key === 'lensa')}
+    </div>`;
+  }
+
+  function renderPostMulti(part, eye) {
+    const cfg = POSTERIOR_PARTS[part];
+    return `<div class="seg-field" data-part="${part}" data-eye="${eye}">
+      ${renderMultiOpts(postCheckName(part, eye), cfg.opts)}
+      ${renderSegExtras(part, part, eye, false)}
+    </div>`;
+  }
+
+  function renderOnhBlock(eye) {
+    const U = eye.toUpperCase();
+    return `<div class="onh-block" data-eye="${eye}">
+      <div class="onh-row"><label>Batas</label>
+        <select id="onh_batas_${eye}" name="onh_batas_${eye}">${ONH_OPTS.batas.map(o => `<option>${o}</option>`).join('')}</select></div>
+      <div class="onh-row"><label>Warna</label>
+        <select id="onh_warna_${eye}" name="onh_warna_${eye}">${ONH_OPTS.warna.map(o => `<option>${o}</option>`).join('')}</select></div>
+      <div class="onh-row"><label>Elevasi</label>
+        <select id="onh_elevasi_${eye}" name="onh_elevasi_${eye}">${ONH_OPTS.elevasi.map(o => `<option>${o}</option>`).join('')}</select></div>
+      <div class="onh-row onh-cd-row"><label>C/D ratio</label>
+        <input type="range" id="onh_cd_${eye}" name="onh_cd_${eye}" min="0" max="10" step="1" value="4">
+        <span class="onh-cd-val" id="onh_cd_val_${eye}">0.4</span></div>
+      <button type="button" class="btn-onh-normal" data-eye="${eye}">Isi Normal ONH ${U}</button>
+      <div class="seg-extras" style="margin-top:8px">
+        <label class="seg-ket-lbl"><input type="checkbox" class="post-ket-toggle" data-part="onh" data-eye="${eye}"> Keterangan tambahan</label>
+        <input type="text" class="seg-ket-input" name="onh_${eye}_ket" placeholder="Keterangan...">
+        <input type="text" name="onh_${eye}_manual" placeholder="Override manual">
+      </div>
+    </div>`;
+  }
+
+  function buildSistemikList() {
+    const wrap = $('#sistemikList');
+    wrap.innerHTML = SISTEMIK_ITEMS.map(item => {
+      const opHtml = item.operasi ? `
+        <div class="field">
+          <span class="lbl">Apakah sudah dioperasi?</span>
+          <div class="radio-grp">
+            <label><input type="radio" name="sistemik_${item.id}_operasi" value="Ya"> Ya</label>
+            <label><input type="radio" name="sistemik_${item.id}_operasi" value="Tidak"> Tidak</label>
+          </div>
+        </div>` : '';
+      return `<div class="sistemik-item" data-id="${item.id}">
+        <label><input type="checkbox" class="sistemik-chk" value="${item.label}" data-id="${item.id}"> ${item.label}</label>
+        <div class="sistemik-detail cond" id="sistemikDetail_${item.id}">
+          <div class="field">
+            <label class="lbl" for="sistemik_${item.id}_sejak">Sejak kapan?</label>
+            <input type="text" id="sistemik_${item.id}_sejak" name="sistemik_${item.id}_sejak" placeholder="Contoh: 5 tahun, 2 bulan...">
+          </div>
+          <div class="field">
+            <span class="lbl">Apakah sudah diobati?</span>
+            <div class="radio-grp">
+              <label><input type="radio" name="sistemik_${item.id}_diobati" value="Ya"> Ya</label>
+              <label><input type="radio" name="sistemik_${item.id}_diobati" value="Tidak"> Tidak</label>
+            </div>
+          </div>${opHtml}
+        </div>
+      </div>`;
+    }).join('');
+
+    $$('.sistemik-chk').forEach(chk => {
+      chk.addEventListener('change', () => {
+        const id = chk.dataset.id;
+        $(`#sistemikDetail_${id}`)?.classList.toggle('show', chk.checked);
+        queueSave();
+        queueRefreshSOAP();
+      });
+    });
+  }
+
+  function bindSegFieldEvents() {
+    $$('.seg-ket-toggle').forEach(t => {
+      t.addEventListener('change', () => {
+        toggleSegKet(t.dataset.key, t.dataset.eye);
+        queueSave();
+        queueRefreshSOAP();
+      });
+    });
+    $$('.post-ket-toggle').forEach(t => {
+      t.addEventListener('change', () => {
+        const part = t.dataset.part;
+        const eye = t.dataset.eye;
+        const inp = $(`input[name="${part}_${eye}_ket"]`);
+        if (inp) {
+          inp.classList.toggle('show', t.checked);
+          if (!t.checked) inp.value = '';
+        }
+        queueSave();
+        queueRefreshSOAP();
+      });
+    });
+    ['od', 'os'].forEach(eye => {
+      $$(`input[name="${segCheckName('lensa', eye)}"]`).forEach(c => {
+        c.addEventListener('change', () => { updateLensaKatarakDetail(eye); queueRefreshSOAP(); });
+      });
+      const cd = $(`#onh_cd_${eye}`);
+      if (cd) cd.addEventListener('input', () => { updateOnhCdDisplay(eye); queueRefreshSOAP(); });
+      $(`.btn-onh-normal[data-eye="${eye}"]`)?.addEventListener('click', () => {
+        setOnhNormal(eye);
+        queueSave();
+        queueRefreshSOAP();
+      });
+      $$(`input[name="fundus_${eye}[]"]`).forEach(c => {
+        c.addEventListener('change', () => applyFundusLogic(eye));
+      });
+    });
+  }
+
+  function buildAnteriorTable() {
+    const tbl = $('#tblAnterior');
+    let html = '<thead><tr><th>Pemeriksaan</th><th class="eye">OD</th><th class="eye">OS</th></tr></thead><tbody>';
+    for (const [key, cfg] of Object.entries(ANTERIOR)) {
+      html += `<tr data-key="${key}">
+        <td>${cfg.label}</td>
+        <td class="seg-row">${renderSegCell(key, 'od')}</td>
+        <td class="seg-row">${renderSegCell(key, 'os')}</td>
+      </tr>`;
+    }
+    html += '</tbody>';
+    tbl.innerHTML = html;
+  }
+
+  function buildPosterior() {
+    const wrap = $('#segPosterior');
+    let html = '';
+    ['od', 'os'].forEach(eye => {
+      const U = eye.toUpperCase();
+      html += `<div class="sub-sect"><h4>Mata ${U}</h4>`;
+      html += `<div class="post-item"><label>Fundus reflex ${U}</label>
+        <div class="seg-field">${renderMultiOpts(`fundus_${eye}[]`, FUNDUS_OPTS)}
+        <div class="seg-extras">
+          <label class="seg-ket-lbl"><input type="checkbox" class="post-ket-toggle" data-part="fundus" data-eye="${eye}"> Keterangan tambahan</label>
+          <input type="text" class="seg-ket-input" name="fundus_${eye}_ket" placeholder="Keterangan...">
+          <input type="text" name="fundus_${eye}_manual" placeholder="Override manual">
+        </div></div></div>`;
+      html += `<div class="post-item"><label>Vitreous ${U}</label>${renderPostMulti('vitreous', eye)}</div>`;
+      html += `<div class="post-item"><label>ONH ${U}</label>${renderOnhBlock(eye)}</div>`;
+      html += `<div class="post-item"><label>Makula ${U}</label>${renderPostMulti('macula', eye)}</div>`;
+      html += `<div class="post-item"><label>Retina ${U}</label>${renderPostMulti('retina', eye)}</div>`;
+      html += '</div>';
+    });
+    wrap.innerHTML = html;
+    ['od', 'os'].forEach(eye => {
+      updateOnhCdDisplay(eye);
+      updateLensaKatarakDetail(eye);
+    });
+  }
+
+  function applyFundusLogic(eye) {
+    const checked = $$(`input[name="fundus_${eye}[]"]:checked`).map(c => c.value);
+    const sulit = checked.some(v => v.includes('detail sulit') || v.includes('(-)'));
+    if (sulit) {
+      ['vitreous', 'macula', 'retina'].forEach(part => {
+        $$(`input[name="${postCheckName(part, eye)}"]`).forEach(c => {
+          c.checked = c.value === 'detail sulit dievaluasi';
+        });
+      });
+    }
+    queueSave();
+  }
+
+  function updateAgeTriggers() {
+    $('#triggerBalita').classList.toggle('show', isBalita());
+    $('#trigger4060').classList.toggle('show', is4060());
+    checkBalitaWarnings();
+    queueSave();
+    queueRefreshSOAP();
+  }
+
+  function toggleCond(checkId, condId) {
+    const on = $(checkId).checked;
+    $(condId).classList.toggle('show', on);
+  }
+
+  function checkBalitaWarnings() {
+    const prem = $('#badgePrematur');
+    const bblr = $('#badgeBblr');
+    const mw = $('#milestoneWarn');
+    prem.innerHTML = '';
+    bblr.innerHTML = '';
+    mw.innerHTML = '';
+    if (!isBalita()) return;
+
+    const minggu = parseFloat($('#usiaKelahiran').value);
+    if (!isNaN(minggu) && minggu < 37) {
+      prem.innerHTML = '<span class="badge badge-rd">PREMATUR</span>';
+    }
+    const bb = parseFloat($('#bbLahir').value);
+    if (!isNaN(bb) && bb < 2500) {
+      bblr.innerHTML = '<span class="badge badge-rd">BBLR</span>';
+    }
+
+    const late = [];
+    MILESTONES.forEach(m => {
+      const v = parseFloat($('#' + m.id).value);
+      if (!isNaN(v) && v > m.max) late.push(m.name + ' (usia ' + v + ' bln, normal ≤' + m.max + ' bln)');
+    });
+    if (late.length) {
+      mw.innerHTML = '<div class="inline-warn warn-am"><span class="badge badge-am">⚠ CURIGA GANGGUAN PERKEMBANGAN</span><br>' +
+        'Milestone terlambat: ' + late.join('; ') + '</div>';
+    }
+  }
+
+  function getCheckedValues(name) {
+    return $$(`input[name="${name}"]:checked`).map(c => c.value);
+  }
+
+  function applyKeterangan(parts, ketOn, ketText) {
+    if (!parts.length) return parts;
+    const out = [...parts];
+    if (ketOn && ketText) out[out.length - 1] = out[out.length - 1] + ' ' + ketText;
+    return out;
+  }
+
+  function getAntValue(key, eye) {
+    const manual = $(`input[name="ant_${key}_${eye}_manual"]`);
+    if (manual?.value.trim()) return manual.value.trim();
+    let parts = getCheckedValues(segCheckName(key, eye));
+    if (!parts.length) return ANTERIOR[key].normal;
+    if (key === 'lensa') {
+      const hasGrade = parts.some(p => LENSA_KATARAK_GRADES.includes(p));
+      if (hasGrade) {
+        const subs = getCheckedValues(`lensa_sub_${eye}[]`);
+        parts = parts.concat(subs);
+      }
+    }
+    const ketOn = $(`.seg-ket-toggle[data-key="${key}"][data-eye="${eye}"]`)?.checked;
+    const ketText = $(`input[name="ant_${key}_${eye}_ket"]`)?.value.trim() || '';
+    return applyKeterangan(parts, ketOn, ketText).join(', ');
+  }
+
+  function getPostMultiValue(part, eye) {
+    const manual = $(`input[name="${part}_${eye}_manual"]`);
+    if (manual?.value.trim()) return manual.value.trim();
+    let parts = getCheckedValues(postCheckName(part, eye));
+    if (!parts.length) return POSTERIOR_PARTS[part].normal;
+    const ketOn = $(`.post-ket-toggle[data-part="${part}"][data-eye="${eye}"]`)?.checked;
+    const ketText = $(`input[name="${part}_${eye}_ket"]`)?.value.trim() || '';
+    return applyKeterangan(parts, ketOn, ketText).join(', ');
+  }
+
+  function getFundusValue(eye) {
+    const manual = $(`input[name="fundus_${eye}_manual"]`);
+    if (manual?.value.trim()) return manual.value.trim();
+    let parts = getCheckedValues(`fundus_${eye}[]`);
+    if (!parts.length) return 'Fundus reflex (+)';
+    const ketOn = $(`.post-ket-toggle[data-part="fundus"][data-eye="${eye}"]`)?.checked;
+    const ketText = $(`input[name="fundus_${eye}_ket"]`)?.value.trim() || '';
+    return applyKeterangan(parts, ketOn, ketText).join(', ');
+  }
+
+  function formatOnhOutput(eye) {
+    const manual = $(`input[name="onh_${eye}_manual"]`);
+    if (manual?.value.trim()) return manual.value.trim();
+    const batas = $(`#onh_batas_${eye}`)?.value || ONH_DEFAULTS.batas;
+    const warna = $(`#onh_warna_${eye}`)?.value || ONH_DEFAULTS.warna;
+    const elevasi = $(`#onh_elevasi_${eye}`)?.value || ONH_DEFAULTS.elevasi;
+    const cd = $(`#onh_cd_val_${eye}`)?.textContent || ONH_DEFAULTS.cd.toFixed(1);
+    let line = `ONH batas ${batas.toLowerCase()}, warna ${warna.toLowerCase()}`;
+    line += elevasi === 'Tidak ada' ? ', tidak ada elevasi' : ', ada elevasi';
+    line += `, C/D ratio ${cd}`;
+    const ketOn = $(`.post-ket-toggle[data-part="onh"][data-eye="${eye}"]`)?.checked;
+    const ketText = $(`input[name="onh_${eye}_ket"]`)?.value.trim();
+    if (ketOn && ketText) line += ' ' + ketText;
+    return line;
+  }
+
+  function buildSistemikOutputLines() {
+    const lines = [];
+    SISTEMIK_ITEMS.forEach(item => {
+      const chk = $(`.sistemik-chk[data-id="${item.id}"]`);
+      if (!chk?.checked) return;
+      const sejak = $(`#sistemik_${item.id}_sejak`)?.value.trim();
+      const diobati = $(`input[name="sistemik_${item.id}_diobati"]:checked`)?.value;
+      let line = item.label;
+      if (sejak) line += ` sejak ${sejak}`;
+      if (diobati === 'Ya') line += ', sudah diobati';
+      else if (diobati === 'Tidak') line += ', belum diobati';
+      if (item.operasi) {
+        const operasi = $(`input[name="sistemik_${item.id}_operasi"]:checked`)?.value;
+        if (operasi === 'Ya') line += ', sudah dioperasi';
+        else if (operasi === 'Tidak') line += ', belum dioperasi';
+      }
+      lines.push(line);
+    });
+    const man = $('#sistemikManual').value.trim();
+    if (man) lines.push(man);
+    return lines;
+  }
+
+  function visusVal(id) {
+    const el = $(id);
+    return el ? el.value.trim() : '';
+  }
+
+  function formatVisusPair(label, od, os) {
+    if (!od && !os) return null;
+    if (od && os && od === os) return `${label} OD/OS ${od}.`;
+    const bits = [];
+    if (od) bits.push(`OD ${od}`);
+    if (os) bits.push(`OS ${os}`);
+    return `${label} ${bits.join(', ')}.`;
+  }
+
+  function formatBinocularLine(od, os) {
+    if (!od && !os) return null;
+    if (od && os && od === os) return `Binocular: kedua mata ${od}.`;
+    const bits = [];
+    if (od) bits.push(`OD ${od}`);
+    if (os) bits.push(`OS ${os}`);
+    return `Binocular ${bits.join(', ')}.`;
+  }
+
+  function buildVisusLines() {
+    if (isVisusAsisten()) return [];
+    const lines = [];
+    const nat = formatVisusPair('Visus naturalis', visusVal('#visusNatOD'), visusVal('#visusNatOS'));
+    const bcva = formatVisusPair('BCVA', visusVal('#bcvaOD'), visusVal('#bcvaOS'));
+    const bin = formatBinocularLine(visusVal('#binocularOD'), visusVal('#binocularOS'));
+    const spec = formatVisusPair('Spectacles', visusVal('#spectaclesOD'), visusVal('#spectaclesOS'));
+    if (nat) lines.push(nat);
+    if (bcva) lines.push(bcva);
+    if (bin) lines.push(bin);
+    if (spec) lines.push(spec);
+    return lines;
+  }
+
+  function pairPhrase(label, od, os) {
+    if (od === os) return `${label} OD/OS ${od}`;
+    return `${label} OD ${od}, OS ${os}`;
+  }
+
+  function collectFormData() {
+    const data = { version: 1 };
+    const form = $('#soapForm');
+    const fd = new FormData(form);
+    for (const [k, v] of fd.entries()) data[k] = v;
+
+    data.keluhanLainToggle = $('#keluhanLainToggle').checked;
+    data.sistemikToggle = $('#sistemikToggle').checked;
+    data.keluargaToggle = $('#keluargaToggle').checked;
+    data.operasiToggle = $('#operasiToggle').checked;
+    data.contactLensToggle = $('#contactLensToggle').checked;
+    data.visusAsistenToggle = $('#visusAsistenToggle').checked;
+    data.obatSesuaiEmr = $('#obatSesuaiEmr').checked;
+    data.kacamataKeOutput = $('#kacamataKeOutput').checked;
+    data.contactLensKeOutput = $('#contactLensKeOutput').checked;
+
+    data.keluhanLainChecks = $$('#keluhanLainList input:checked').map(c => c.value);
+    data.sistemikChecks = $$('.sistemik-chk:checked').map(c => c.value);
+    data.keluargaChecks = $$('#keluargaList input:checked').map(c => c.value);
+
+    data.sistemikDetail = {};
+    SISTEMIK_ITEMS.forEach(item => {
+      data.sistemikDetail[item.id] = {
+        checked: !!$(`.sistemik-chk[data-id="${item.id}"]`)?.checked,
+        sejak: $(`#sistemik_${item.id}_sejak`)?.value || '',
+        diobati: $(`input[name="sistemik_${item.id}_diobati"]:checked`)?.value || '',
+        operasi: item.operasi ? ($(`input[name="sistemik_${item.id}_operasi"]:checked`)?.value || '') : ''
+      };
+    });
+
+    ['od', 'os'].forEach(eye => {
+      data['fundus_' + eye] = getCheckedValues(`fundus_${eye}[]`);
+      data['fundus_' + eye + '_ketOn'] = !!$(`.post-ket-toggle[data-part="fundus"][data-eye="${eye}"]`)?.checked;
+      data['fundus_' + eye + '_ket'] = $(`input[name="fundus_${eye}_ket"]`)?.value || '';
+      data['fundus_' + eye + '_manual'] = $(`input[name="fundus_${eye}_manual"]`)?.value || '';
+      ['vitreous', 'macula', 'retina'].forEach(part => {
+        data[part + '_' + eye] = getCheckedValues(postCheckName(part, eye));
+        data[part + '_' + eye + '_ketOn'] = !!$(`.post-ket-toggle[data-part="${part}"][data-eye="${eye}"]`)?.checked;
+        data[part + '_' + eye + '_ket'] = $(`input[name="${part}_${eye}_ket"]`)?.value || '';
+        data[part + '_' + eye + '_manual'] = $(`input[name="${part}_${eye}_manual"]`)?.value || '';
+      });
+      data['lensa_sub_' + eye] = getCheckedValues(`lensa_sub_${eye}[]`);
+      data['onh_' + eye] = {
+        batas: $(`#onh_batas_${eye}`)?.value,
+        warna: $(`#onh_warna_${eye}`)?.value,
+        elevasi: $(`#onh_elevasi_${eye}`)?.value,
+        cd: $(`#onh_cd_${eye}`)?.value,
+        ketOn: !!$(`.post-ket-toggle[data-part="onh"][data-eye="${eye}"]`)?.checked,
+        ket: $(`input[name="onh_${eye}_ket"]`)?.value || '',
+        manual: $(`input[name="onh_${eye}_manual"]`)?.value || ''
+      };
+    });
+
+    Object.keys(ANTERIOR).forEach(key => {
+      ['od', 'os'].forEach(eye => {
+        data[`ant_${key}_${eye}`] = getCheckedValues(segCheckName(key, eye));
+        data[`ant_${key}_${eye}_ketOn`] = !!$(`.seg-ket-toggle[data-key="${key}"][data-eye="${eye}"]`)?.checked;
+        data[`ant_${key}_${eye}_ket`] = $(`input[name="ant_${key}_${eye}_ket"]`)?.value || '';
+        data[`ant_${key}_${eye}_manual`] = $(`input[name="ant_${key}_${eye}_manual"]`)?.value || '';
+      });
+    });
+
+    data.lainLain = $('#lainLain').value;
+    return data;
+  }
+
+  function restoreFormData(data) {
+    if (!data) return;
+    if (data.visusBcvaOD && !data.bcvaOD) data.bcvaOD = data.visusBcvaOD;
+    if (data.visusBcvaOS && !data.bcvaOS) data.bcvaOS = data.visusBcvaOS;
+    if (data.jenisKunjungan) {
+      const jr = $(`input[name="jenisKunjungan"][value="${data.jenisKunjungan}"]`);
+      if (jr) jr.checked = true;
+    }
+    if (data.kelompokUsia) {
+      const r = $(`input[name="kelompokUsia"][value="${data.kelompokUsia}"]`);
+      if (r) r.checked = true;
+    }
+    ['diagnosis','keluhanUtama','sejakKapan','keluhanLainManual','obatApa','ukuranKacamata','clLamaPakai','clTerakhirLepas',
+     'sistemikManual','keluargaManual','operasiApa',
+     'usiaKelahiran','bbLahir','msTengkurap','msDuduk','msBerdiri','msBerjalan','msBicara','tioOD','tioOS','lainLain',
+     'visusNatOD','visusNatOS','bcvaOD','bcvaOS','spectaclesOD','spectaclesOS','binocularOD','binocularOS'].forEach(id => {
+      const el = $('#' + id);
+      if (el && data[id] != null) el.value = data[id];
+    });
+
+    $('#keluhanLainToggle').checked = !!data.keluhanLainToggle;
+    $('#sistemikToggle').checked = !!data.sistemikToggle;
+    $('#keluargaToggle').checked = !!data.keluargaToggle;
+    $('#operasiToggle').checked = !!data.operasiToggle;
+    $('#contactLensToggle').checked = !!data.contactLensToggle;
+    $('#visusAsistenToggle').checked = !!data.visusAsistenToggle;
+    $('#obatSesuaiEmr').checked = !!data.obatSesuaiEmr;
+    $('#kacamataKeOutput').checked = !!data.kacamataKeOutput;
+    $('#contactLensKeOutput').checked = !!data.contactLensKeOutput;
+    updateVisusAsistenMode();
+    updateObatEmrVisibility();
+    updateObatApaMode();
+    toggleCond('#keluhanLainToggle', '#keluhanLainCond');
+    toggleCond('#sistemikToggle', '#sistemikCond');
+    toggleCond('#keluargaToggle', '#keluargaCond');
+    toggleCond('#operasiToggle', '#operasiCond');
+    toggleCond('#contactLensToggle', '#contactLensCond');
+
+    ['sudahDiobati','perbaikanObat','kacamataDulu','kacamataNyaman','kacamataSaatIni','menangisLahir','picu'].forEach(name => {
+      if (data[name]) {
+        const r = $(`input[name="${name}"][value="${data[name]}"]`);
+        if (r) r.checked = true;
+      }
+    });
+    $('#diobatiCond').classList.toggle('show', data.sudahDiobati === 'Ya');
+    updateKacamataDuluCond();
+
+    if (data.keluhanLainChecks) {
+      $$('#keluhanLainList input').forEach(c => { c.checked = data.keluhanLainChecks.includes(c.value); });
+    }
+    if (data.sistemikDetail) {
+      SISTEMIK_ITEMS.forEach(item => {
+        const d = data.sistemikDetail[item.id];
+        if (!d) return;
+        const chk = $(`.sistemik-chk[data-id="${item.id}"]`);
+        if (chk) chk.checked = !!d.checked;
+        $(`#sistemikDetail_${item.id}`)?.classList.toggle('show', !!d.checked);
+        const sejakEl = $(`#sistemik_${item.id}_sejak`);
+        if (sejakEl && d.sejak != null) sejakEl.value = d.sejak;
+        if (d.diobati) {
+          const r = $(`input[name="sistemik_${item.id}_diobati"][value="${d.diobati}"]`);
+          if (r) r.checked = true;
+        }
+        if (item.operasi && d.operasi) {
+          const r = $(`input[name="sistemik_${item.id}_operasi"][value="${d.operasi}"]`);
+          if (r) r.checked = true;
+        }
+      });
+    } else if (data.sistemikChecks) {
+      data.sistemikChecks.forEach(label => {
+        const chk = $$(`.sistemik-chk`).find(c => c.value === label);
+        if (chk) {
+          chk.checked = true;
+          $(`#sistemikDetail_${chk.dataset.id}`)?.classList.add('show');
+        }
+      });
+    }
+    if (data.keluargaChecks) {
+      $$('#keluargaList input').forEach(c => { c.checked = data.keluargaChecks.includes(c.value); });
+    }
+
+    function restoreChecks(name, values) {
+      const arr = Array.isArray(values) ? values : (values ? [values] : []);
+      $$(`input[name="${name}"]`).forEach(c => { c.checked = arr.includes(c.value); });
+    }
+
+    Object.keys(ANTERIOR).forEach(key => {
+      ['od', 'os'].forEach(eye => {
+        const saved = data[`ant_${key}_${eye}`];
+        if (saved != null) restoreChecks(segCheckName(key, eye), saved);
+        const man = $(`input[name="ant_${key}_${eye}_manual"]`);
+        if (man && data[`ant_${key}_${eye}_manual`]) man.value = data[`ant_${key}_${eye}_manual`];
+        const ketT = $(`.seg-ket-toggle[data-key="${key}"][data-eye="${eye}"]`);
+        if (ketT) ketT.checked = !!data[`ant_${key}_${eye}_ketOn`];
+        const ketI = $(`input[name="ant_${key}_${eye}_ket"]`);
+        if (ketI) {
+          if (data[`ant_${key}_${eye}_ket`]) ketI.value = data[`ant_${key}_${eye}_ket`];
+          ketI.classList.toggle('show', !!data[`ant_${key}_${eye}_ketOn`]);
+        }
+        if (key === 'lensa') updateLensaKatarakDetail(eye);
+      });
+    });
+
+    ['od', 'os'].forEach(eye => {
+      if (data['lensa_sub_' + eye]) restoreChecks(`lensa_sub_${eye}[]`, data['lensa_sub_' + eye]);
+      if (data['fundus_' + eye] != null) restoreChecks(`fundus_${eye}[]`, data['fundus_' + eye]);
+      const fMan = $(`input[name="fundus_${eye}_manual"]`);
+      if (fMan && data['fundus_' + eye + '_manual']) fMan.value = data['fundus_' + eye + '_manual'];
+      const fKt = $(`.post-ket-toggle[data-part="fundus"][data-eye="${eye}"]`);
+      if (fKt) fKt.checked = !!data['fundus_' + eye + '_ketOn'];
+      const fKi = $(`input[name="fundus_${eye}_ket"]`);
+      if (fKi) {
+        if (data['fundus_' + eye + '_ket']) fKi.value = data['fundus_' + eye + '_ket'];
+        fKi.classList.toggle('show', !!data['fundus_' + eye + '_ketOn']);
+      }
+      ['vitreous', 'macula', 'retina'].forEach(part => {
+        if (data[part + '_' + eye] != null) restoreChecks(postCheckName(part, eye), data[part + '_' + eye]);
+        const man = $(`input[name="${part}_${eye}_manual"]`);
+        if (man && data[part + '_' + eye + '_manual']) man.value = data[part + '_' + eye + '_manual'];
+        const ketT = $(`.post-ket-toggle[data-part="${part}"][data-eye="${eye}"]`);
+        if (ketT) ketT.checked = !!data[part + '_' + eye + '_ketOn'];
+        const ketI = $(`input[name="${part}_${eye}_ket"]`);
+        if (ketI) {
+          if (data[part + '_' + eye + '_ket']) ketI.value = data[part + '_' + eye + '_ket'];
+          ketI.classList.toggle('show', !!data[part + '_' + eye + '_ketOn']);
+        }
+      });
+      const onh = data['onh_' + eye];
+      if (onh && typeof onh === 'object') {
+        if (onh.batas) $(`#onh_batas_${eye}`).value = onh.batas;
+        if (onh.warna) $(`#onh_warna_${eye}`).value = onh.warna;
+        if (onh.elevasi) $(`#onh_elevasi_${eye}`).value = onh.elevasi;
+        if (onh.cd != null) $(`#onh_cd_${eye}`).value = onh.cd;
+        const ketT = $(`.post-ket-toggle[data-part="onh"][data-eye="${eye}"]`);
+        if (ketT) ketT.checked = !!onh.ketOn;
+        const ketI = $(`input[name="onh_${eye}_ket"]`);
+        if (ketI) {
+          if (onh.ket) ketI.value = onh.ket;
+          ketI.classList.toggle('show', !!onh.ketOn);
+        }
+        const oMan = $(`input[name="onh_${eye}_manual"]`);
+        if (oMan && onh.manual) oMan.value = onh.manual;
+        updateOnhCdDisplay(eye);
+      }
+    });
+
+    updateJenisKunjungan();
+    updateAgeTriggers();
+
+    setTimeout(() => {
+      checkBalitaWarnings();
+      refreshSOAP();
+    }, 50);
+  }
+
+  function queueSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(collectFormData())); } catch (e) {}
+    }, 400);
+  }
+
+  function loadStorage() {
+    try {
+      let raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) raw = localStorage.getItem('soapMata_v1');
+      if (raw) restoreFormData(JSON.parse(raw));
+    } catch (e) {}
+  }
+
+  function queueRefreshSOAP() {
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(refreshSOAP, 120);
+  }
+
+  function subjectiveIncompleteHint() {
+    if (!getJenisKunjungan()) return 'Pilih jenis kunjungan.';
+    if (!$('input[name="kelompokUsia"]:checked')) return 'Pilih kelompok usia.';
+    if (!$('#keluhanUtama').value.trim()) return 'Isi keluhan.';
+    if ((isPasienKontrol() || isPasienLama()) && !$('#diagnosis').value.trim()) return 'Isi diagnosis.';
+    if (isPasienBaru() && !$('#sejakKapan').value.trim()) return 'Isi sejak kapan (pasien baru).';
+    return null;
+  }
+
+  function refreshSOAP() {
+    const subj = buildSubjective();
+    const obj = buildObjective();
+    const hint = subjectiveIncompleteHint();
+    $('#soapOutS').textContent = subj ? subj : (hint ? '(' + hint + ')' : '—');
+    $('#soapOutO').textContent = obj || '—';
+  }
+
+  function buildSubjective() {
+    if (subjectiveIncompleteHint()) return null;
+
+    const keluhan = $('#keluhanUtama').value.trim();
+    const sejak = $('#sejakKapan').value.trim();
+    const diagnosis = $('#diagnosis').value.trim();
+    const jenis = getJenisKunjungan();
+
+    let s;
+    if (isPasienBaru()) {
+      s = `Pasien baru datang dengan keluhan ${keluhan}`;
+      if (sejak) s += ` sejak ${sejak}`;
+      s += '.';
+    } else if (isPasienKontrol()) {
+      s = `Pasien kontrol dengan diagnosis ${diagnosis}. Keluhan saat ini ${keluhan}`;
+      if (sejak) s += ` sejak ${sejak}`;
+      s += '.';
+    } else {
+      s = `Pasien lama tidak kontrol, dengan diagnosis sebelumnya adalah ${diagnosis}. Keluhan saat ini ${keluhan}`;
+      if (sejak) s += ` sejak ${sejak}`;
+      s += '.';
+    }
+
+    if ($('#keluhanLainToggle').checked) {
+      const checks = $$('#keluhanLainList input:checked').map(c => c.value);
+      const manual = $('#keluhanLainManual').value.trim();
+      const parts = [...checks];
+      if (manual) parts.push(manual);
+      if (parts.length) s += ` Disertai keluhan ${parts.join(', ')}.`;
+    }
+
+    const diobati = $('input[name="sudahDiobati"]:checked')?.value;
+    if (diobati === 'Ya') {
+      const perbaikan = $('input[name="perbaikanObat"]:checked')?.value;
+      if (isPasienKontrol() && $('#obatSesuaiEmr').checked) {
+        s += ' Pasien sudah pernah berobat sesuai EMR';
+      } else {
+        const obat = $('#obatApa').value.trim();
+        s += ` Pasien sudah pernah berobat${obat ? ' dengan ' + obat : ''}`;
+      }
+      if (perbaikan && PERBAIKAN_OBAT_TEXT[perbaikan]) {
+        s += `, ${PERBAIKAN_OBAT_TEXT[perbaikan]}`;
+      }
+      s += '.';
+    } else {
+      s += ' Pasien belum pernah berobat sebelumnya.';
+    }
+
+    if ($('#sistemikToggle').checked) {
+      const sysLines = buildSistemikOutputLines();
+      if (sysLines.length) s += ` Riwayat penyakit sistemik: ${sysLines.join('; ')}.`;
+    }
+
+    if ($('#keluargaToggle').checked) {
+      const fam = [...$$('#keluargaList input:checked').map(c => c.value)];
+      const man = $('#keluargaManual').value.trim();
+      if (man) fam.push(man);
+      if (fam.length) s += ` Riwayat penyakit mata dalam keluarga: ${fam.join(', ')}.`;
+    }
+
+    if ($('#kacamataKeOutput').checked) {
+      const kacDulu = $('input[name="kacamataDulu"]:checked')?.value;
+      if (kacDulu === 'Ya') {
+        s += ' Pernah menggunakan kacamata sebelumnya.';
+        const ukuran = $('#ukuranKacamata').value.trim();
+        const nyaman = $('input[name="kacamataNyaman"]:checked')?.value;
+        if (ukuran) s += ` Ukuran kacamata: ${ukuran}.`;
+        if (nyaman === 'Ya') s += ' Kacamata lama masih nyaman.';
+        else if (nyaman === 'Tidak') s += ' Kacamata lama tidak nyaman.';
+      } else {
+        s += ' Tidak pernah menggunakan kacamata sebelumnya.';
+      }
+    }
+
+    if ($('#contactLensKeOutput').checked && $('#contactLensToggle').checked) {
+      const lama = $('#clLamaPakai').value.trim();
+      const lepas = $('#clTerakhirLepas').value.trim();
+      s += ' Ada riwayat penggunaan contact lens.';
+      if (lama) s += ` Sudah dipakai ${lama}.`;
+      if (lepas) s += ` Terakhir dilepas ${lepas}.`;
+    }
+
+    if (is4060()) {
+      const kacNow = $('input[name="kacamataSaatIni"]:checked')?.value;
+      if (kacNow) s += ` Kacamata yang digunakan saat ini: ${kacNow}.`;
+    }
+
+    if ($('#operasiToggle').checked) {
+      const op = $('#operasiApa').value.trim();
+      if (op) s += ` Riwayat operasi mata: ${op}.`;
+    }
+
+    return s;
+  }
+
+  function buildObjective() {
+    const lines = [...buildVisusLines()];
+
+    if (!isVisusAsisten()) {
+      const tioOD = $('#tioOD').value.trim();
+      const tioOS = $('#tioOS').value.trim();
+      if (tioOD || tioOS) {
+        if (tioOD && tioOS && tioOD === tioOS) {
+          lines.push(`TIO OD/OS ${tioOD} mmHg.`);
+        } else {
+          const bits = [];
+          if (tioOD) bits.push(`TIO OD ${tioOD} mmHg`);
+          if (tioOS) bits.push(`TIO OS ${tioOS} mmHg`);
+          lines.push(bits.join(', ') + '.');
+        }
+      }
+    }
+
+    const antParts = [];
+    Object.entries(ANTERIOR).forEach(([key, cfg]) => {
+      const od = getAntValue(key, 'od');
+      const os = getAntValue(key, 'os');
+      const label = cfg.label;
+      antParts.push(pairPhrase(label, od, os));
+    });
+    lines.push(antParts.join('. ') + '.');
+
+    ['od', 'os'].forEach(eye => {
+      const U = eye.toUpperCase();
+      const fr = getFundusValue(eye);
+      const vit = getPostMultiValue('vitreous', eye);
+      const onh = formatOnhOutput(eye);
+      const mac = getPostMultiValue('macula', eye);
+      const ret = getPostMultiValue('retina', eye);
+      lines.push(`Fundus ${U}: ${fr}, vitreous ${vit}, ${onh}, ${mac}, ${ret}.`);
+    });
+
+    const lain = $('#lainLain').value.trim();
+    if (lain) lines.push(lain + '.');
+
+    return lines.join('\n\n');
+  }
+
+  async function copyOut(preId, btnId, emptyMsg) {
+    const text = $(preId).textContent.trim();
+    if (!text || text.startsWith('(Lengkapi')) {
+      alert(emptyMsg);
+      return;
+    }
+    const btn = $(btnId);
+    const label = btn.textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      btn.classList.add('ok');
+      btn.textContent = '✓ Tersalin';
+      setTimeout(() => { btn.classList.remove('ok'); btn.textContent = label; }, 2000);
+    } catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      alert('Teks disalin.');
+    }
+  }
+
+  // Init
+  buildSistemikList();
+  buildAnteriorTable();
+  buildPosterior();
+  bindSegFieldEvents();
+  $('#keluhanLainToggle').addEventListener('change', () => { toggleCond('#keluhanLainToggle', '#keluhanLainCond'); queueSave(); queueRefreshSOAP(); });
+  $('#sistemikToggle').addEventListener('change', () => { toggleCond('#sistemikToggle', '#sistemikCond'); queueSave(); queueRefreshSOAP(); });
+  $('#keluargaToggle').addEventListener('change', () => { toggleCond('#keluargaToggle', '#keluargaCond'); queueSave(); queueRefreshSOAP(); });
+  $('#operasiToggle').addEventListener('change', () => { toggleCond('#operasiToggle', '#operasiCond'); queueSave(); queueRefreshSOAP(); });
+  $('#contactLensToggle').addEventListener('change', () => { toggleCond('#contactLensToggle', '#contactLensCond'); queueSave(); queueRefreshSOAP(); });
+  $('#obatSesuaiEmr')?.addEventListener('change', () => { updateObatApaMode(); queueSave(); queueRefreshSOAP(); });
+  $('#kacamataKeOutput')?.addEventListener('change', () => { queueSave(); queueRefreshSOAP(); });
+  $('#contactLensKeOutput')?.addEventListener('change', () => { queueSave(); queueRefreshSOAP(); });
+
+  $$('input[name="kacamataDulu"]').forEach(r => {
+    r.addEventListener('change', () => { updateKacamataDuluCond(); queueSave(); queueRefreshSOAP(); });
+  });
+
+  $$('input[name="sudahDiobati"]').forEach(r => {
+    r.addEventListener('change', () => {
+      $('#diobatiCond').classList.toggle('show', r.value === 'Ya' && r.checked);
+      queueSave();
+      queueRefreshSOAP();
+    });
+  });
+
+  $$('input[name="jenisKunjungan"]').forEach(r => r.addEventListener('change', () => { updateJenisKunjungan(); queueSave(); queueRefreshSOAP(); }));
+
+  $$('input[name="kelompokUsia"]').forEach(r => r.addEventListener('change', () => { updateAgeTriggers(); queueRefreshSOAP(); }));
+
+  ['usiaKelahiran','bbLahir','msTengkurap','msDuduk','msBerdiri','msBerjalan','msBicara'].forEach(id => {
+    $('#' + id)?.addEventListener('input', checkBalitaWarnings);
+  });
+
+  $('#btnResetPasien').addEventListener('click', resetForNewPatient);
+  $('#btnOdsNormal').addEventListener('click', setOdsNormal);
+  $('#btnOdNormal').addEventListener('click', setOdNormal);
+  $('#btnOsNormal').addEventListener('click', setOsNormal);
+  $('#visusAsistenToggle').addEventListener('change', () => {
+    updateVisusAsistenMode();
+    queueSave();
+    queueRefreshSOAP();
+  });
+  $('#btnCopyS').addEventListener('click', () => copyOut('#soapOutS', '#btnCopyS', 'Belum ada narasi subjektif.'));
+  $('#btnCopyO').addEventListener('click', () => copyOut('#soapOutO', '#btnCopyO', 'Belum ada narasi objektif.'));
+
+  $('#soapForm').addEventListener('input', () => { queueSave(); queueRefreshSOAP(); });
+  $('#soapForm').addEventListener('change', () => { queueSave(); queueRefreshSOAP(); });
+
+  loadStorage();
+  if (!localStorage.getItem(STORAGE_KEY) && !localStorage.getItem('soapMata_v1')) setOdsNormal();
+  updateJenisKunjungan();
+  updateObatApaMode();
+  updateKacamataDuluCond();
+  updateAgeTriggers();
+  updateVisusAsistenMode();
+  refreshSOAP();
+})();
+</script>
+</body>
+</html>
