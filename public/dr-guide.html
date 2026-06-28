@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DR Management Guide — Panduan Tatalaksana Diabetic Retinopathy</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080e1a;--bg2:#0d1526;--bg3:#121e35;--bg4:#1a2845;
+  --border:#1f3356;--border2:#243b65;
+  --text1:#e8f0fe;--text2:#9fb3d4;--text3:#617694;
+  --teal:#36d9c8;--teal2:#1fb8a8;
+  --amber:#f0b429;--coral:#f07060;--green:#3ecf8e;
+  --violet:#8b80f8;--sky:#60b8f0;--red:#f04040;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text1);min-height:100vh;padding:0 0 60px;}
+
+/* HEADER */
+.site-header{position:relative;padding:48px 32px 40px;text-align:center;overflow:hidden;}
+.site-header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 100% at 50% -10%,rgba(54,217,200,.10) 0%,transparent 70%);pointer-events:none;}
+.site-header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:340px;height:1px;background:linear-gradient(90deg,transparent,var(--teal),transparent);}
+.header-badge{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;padding:5px 14px;border:1px solid rgba(54,217,200,.25);border-radius:100px;background:rgba(54,217,200,.05);}
+.site-header h1{font-family:'Fraunces',serif;font-size:clamp(2rem,4.5vw,3rem);font-weight:600;line-height:1.1;margin-bottom:8px;letter-spacing:-.02em;}
+.site-header h1 em{font-style:italic;color:var(--teal);}
+.site-header p{font-size:.95rem;color:var(--text2);font-weight:300;letter-spacing:.02em;}
+
+/* NAV TABS */
+.tab-nav{display:flex;gap:4px;padding:0 32px;margin-bottom:28px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;padding:12px 18px;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:500;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:6px;white-space:nowrap;margin-bottom:-1px;}
+.tab-btn:hover{color:var(--text2);}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal);font-weight:600;}
+
+/* SECTIONS */
+.section{display:none;padding:0 32px;}
+.section.active{display:block;animation:fadein .3s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:26px 28px;margin-bottom:22px;}
+.card:hover{border-color:var(--border2);}
+.card-title{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:600;margin-bottom:4px;letter-spacing:-.01em;}
+.card-sub{font-size:.78rem;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.04em;text-transform:uppercase;margin-bottom:18px;}
+
+/* SECTION LABEL */
+.section-label{font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:3px;text-transform:uppercase;color:var(--teal);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+
+/* TABLES */
+.data-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.84rem;overflow:hidden;border-radius:10px;border:1px solid var(--border);}
+.data-table th{padding:11px 14px;font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;font-weight:500;background:var(--bg3);color:var(--text3);border-bottom:1px solid var(--border);text-align:left;}
+.data-table td{padding:13px 14px;vertical-align:top;border-bottom:1px solid var(--border);color:var(--text2);line-height:1.55;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:rgba(54,217,200,.03);}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:100px;font-size:.74rem;font-weight:600;font-family:'DM Mono',monospace;}
+.b-green{background:rgba(62,207,142,.12);color:var(--green);border:1px solid rgba(62,207,142,.25);}
+.b-sky{background:rgba(96,184,240,.12);color:var(--sky);border:1px solid rgba(96,184,240,.25);}
+.b-amber{background:rgba(240,180,41,.12);color:var(--amber);border:1px solid rgba(240,180,41,.25);}
+.b-coral{background:rgba(240,112,96,.12);color:var(--coral);border:1px solid rgba(240,112,96,.25);}
+.b-violet{background:rgba(139,128,248,.12);color:var(--violet);border:1px solid rgba(139,128,248,.25);}
+.b-teal{background:rgba(54,217,200,.10);color:var(--teal);border:1px solid rgba(54,217,200,.25);}
+.b-red{background:rgba(240,64,64,.12);color:var(--red);border:1px solid rgba(240,64,64,.25);}
+
+/* ALERTS */
+.alert{display:flex;gap:11px;padding:13px 16px;border-radius:9px;margin-bottom:12px;font-size:.855rem;line-height:1.55;}
+.alert-icon{font-size:1rem;flex-shrink:0;margin-top:1px;}
+.alert-teal{background:rgba(54,217,200,.06);border:1px solid rgba(54,217,200,.2);color:var(--text2);}
+.alert-amber{background:rgba(240,180,41,.06);border:1px solid rgba(240,180,41,.2);color:var(--text2);}
+.alert-coral{background:rgba(240,112,96,.06);border:1px solid rgba(240,112,96,.2);color:var(--text2);}
+.alert-green{background:rgba(62,207,142,.06);border:1px solid rgba(62,207,142,.2);color:var(--text2);}
+
+/* VAL COLORS */
+.v1{color:var(--text1);font-weight:500;}
+.vg{color:var(--green);}
+.va{color:var(--amber);}
+.vc{color:var(--coral);}
+.vs{color:var(--sky);}
+.vv{color:var(--violet);}
+.vt{color:var(--teal);}
+
+/* DIVIDER */
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:22px 0;}
+
+/* LASER PARAM CARD */
+.laser-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px;}
+.lp-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.lp-label{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+.lp-value{font-family:'Fraunces',serif;font-size:1.55rem;font-weight:600;line-height:1;color:var(--teal);}
+.lp-unit{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--text3);margin-top:3px;}
+.lp-note{font-size:.78rem;color:var(--text2);margin-top:8px;line-height:1.45;}
+
+/* DECISION FLOW */
+.decision-flow{display:flex;flex-direction:column;gap:0;}
+.df-step{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 18px;position:relative;}
+.df-connector{width:2px;height:20px;background:var(--border2);margin:0 auto;}
+.df-arrow{text-align:center;color:var(--text3);font-size:.75rem;line-height:1;margin:-4px 0;}
+.df-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.df-branch{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 18px;}
+.df-branch.yes{border-color:rgba(62,207,142,.3);}
+.df-branch.no{border-color:rgba(240,112,96,.3);}
+.df-branch-label{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.df-branch.yes .df-branch-label{color:var(--green);}
+.df-branch.no .df-branch-label{color:var(--coral);}
+
+/* LESION CARDS GRID */
+.lesion-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:14px;}
+.lesion-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .25s,transform .25s;}
+.lesion-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+.lesion-card-illus{background:#100205;display:flex;align-items:center;justify-content:center;padding:8px;}
+.lesion-card-body{padding:14px 16px;}
+.lesion-card-title{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;margin-bottom:4px;}
+.lesion-card-sub{font-size:.74rem;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;}
+.lesion-fact{display:flex;gap:8px;margin-bottom:5px;font-size:.82rem;}
+.lesion-fact-k{color:var(--text3);min-width:70px;flex-shrink:0;}
+.lesion-fact-v{color:var(--text2);}
+
+/* SEQUENCE CARDS */
+.seq-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+@media(max-width:640px){.seq-row{grid-template-columns:1fr;}.df-row{grid-template-columns:1fr;}}
+.seq-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+.seq-card.inj-first{border-top:3px solid var(--teal);}
+.seq-card.las-first{border-top:3px solid var(--amber);}
+.seq-card-title{font-size:.88rem;font-weight:600;margin-bottom:10px;}
+.seq-card.inj-first .seq-card-title{color:var(--teal);}
+.seq-card.las-first .seq-card-title{color:var(--amber);}
+.seq-item{font-size:.82rem;color:var(--text2);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;}
+.seq-item:last-child{border-bottom:none;}
+.seq-item::before{content:'▸';color:var(--text3);flex-shrink:0;}
+
+/* BURN GRADE VISUAL */
+.burn-row{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap;}
+.burn-box{text-align:center;flex:1;min-width:90px;}
+.burn-circle{width:52px;height:52px;border-radius:50%;margin:0 auto 8px;border:1.5px solid var(--border);}
+.burn-label{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.burn-grade{font-size:.75rem;color:var(--text2);margin-top:3px;}
+
+/* ANNOTATION SVG wrapper */
+.svg-wrap{overflow-x:auto;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px;margin-bottom:16px;}
+
+/* TABS INSIDE SECTION */
+.inner-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
+.inner-tab{padding:7px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text3);font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.inner-tab:hover{border-color:var(--border2);color:var(--text2);}
+.inner-tab.active{background:rgba(54,217,200,.08);border-color:rgba(54,217,200,.4);color:var(--teal);font-weight:600;}
+.inner-section{display:none;}
+.inner-section.active{display:block;}
+
+/* STEP MARKER */
+.step-marker{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-family:'DM Mono',monospace;font-size:.72rem;font-weight:500;flex-shrink:0;}
+.sm-teal{background:rgba(54,217,200,.15);color:var(--teal);border:1px solid rgba(54,217,200,.3);}
+.sm-amber{background:rgba(240,180,41,.15);color:var(--amber);border:1px solid rgba(240,180,41,.3);}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .section{padding:0 16px;}
+  .tab-nav{padding:0 16px;}
+  .site-header{padding:32px 18px 28px;}
+  .card{padding:18px 16px;}
+  .data-table{font-size:.75rem;}
+  .data-table th,.data-table td{padding:9px 10px;}
+  .laser-grid{grid-template-columns:repeat(2,1fr);}
+}
+
+footer{margin-top:56px;padding:24px 32px;border-top:1px solid var(--border);text-align:center;}
+.footer-name{font-family:'Fraunces',serif;font-size:1rem;color:var(--teal);font-weight:600;margin-bottom:6px;}
+.footer-disc{font-size:.77rem;color:var(--text3);max-width:580px;margin:0 auto;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-badge">🩺 Clinical Reference</div>
+  <h1>Panduan <em>Diabetic Retinopathy</em></h1>
+  <p>Diagnosis · Laser · Anti-VEGF · Sekuens Terapi · Identifikasi Lesi</p>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('t1')"><span>📊</span> Staging & DME</button>
+  <button class="tab-btn" onclick="showTab('t2')"><span>⚖️</span> Laser vs Injeksi</button>
+  <button class="tab-btn" onclick="showTab('t3')"><span>🔴</span> Setting Laser</button>
+  <button class="tab-btn" onclick="showTab('t4')"><span>🔁</span> Sekuens Terapi</button>
+  <button class="tab-btn" onclick="showTab('t5')"><span>🔬</span> Identifikasi Lesi</button>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     TAB 1 — STAGING & DME
+════════════════════════════════════════ -->
+<section id="t1" class="section active">
+
+<div class="card">
+  <div class="card-title">Klasifikasi ICDR — International Clinical DR Scale</div>
+  <div class="card-sub">AAO Preferred Practice Pattern 2023 · ETDRS basis</div>
+
+  <div class="alert alert-teal"><span class="alert-icon">ℹ</span><div>Klasifikasi ini adalah <strong>working classification</strong> untuk klinik umum. ETDRS (original) lebih granular (13 level), namun ICDR 5-level ini diterima secara internasional untuk skrining dan tatalaksana berbasis tingkat risiko.</div></div>
+
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Stadium</th><th>Temuan Funduskopi</th><th>Fitur Kunci</th><th>Interval Monitor</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge b-green">Tidak ada DR</span></td>
+        <td class="v1">Normal</td>
+        <td>Tidak ada lesi DR sama sekali</td>
+        <td><span class="vg">12 bulan</span></td>
+      </tr>
+      <tr>
+        <td><span class="badge b-sky">Mild NPDR</span></td>
+        <td class="v1">Mikroaneurisma saja</td>
+        <td>Hanya MA; belum ada hemorrhage, exudate, atau IRMA</td>
+        <td><span class="vs">12 bulan</span></td>
+      </tr>
+      <tr>
+        <td><span class="badge b-sky">Moderate NPDR</span></td>
+        <td class="v1">Lebih dari mild, kurang dari severe</td>
+        <td>Dot-blot hemorrhage, hard exudate, CWS, venous dilatation — belum memenuhi 4-2-1</td>
+        <td><span class="vs">6 bulan</span></td>
+      </tr>
+      <tr>
+        <td><span class="badge b-amber">Severe NPDR</span></td>
+        <td class="v1">Aturan 4-2-1 (cukup 1 kriteria)</td>
+        <td>
+          <strong>4</strong>: hemorrhage di ≥4 kuadran<br>
+          <strong>2</strong>: venous beading di ≥2 kuadran<br>
+          <strong>1</strong>: IRMA prominent di ≥1 kuadran
+        </td>
+        <td><span class="va">3–4 bulan</span></td>
+      </tr>
+      <tr>
+        <td><span class="badge b-coral">PDR</span></td>
+        <td class="v1">Neovaskularisasi &amp;/atau komplikasinya</td>
+        <td>NVD, NVE, VH, TRD, neovaskularisasi iris (NVI)</td>
+        <td><span class="vc">Segera evaluasi</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">PDR — High-Risk Characteristics (HRC, DRS 1981)</div>
+
+  <div class="alert alert-amber"><span class="alert-icon">⚠</span><div><strong>HRC-PDR memerlukan PRP segera:</strong> (1) NVD ≥¼–⅓ disc area · (2) NVD berapapun + VH preretinal/vitreous · (3) NVE ≥½ disc area + VH. Risiko kehilangan penglihatan berat dalam 2 tahun: 26% tanpa terapi vs 11% dengan PRP (DRS).</div></div>
+
+  <div class="divider"></div>
+  <div class="section-label">Evaluasi DME — Paralel dengan Staging DR</div>
+
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead>
+      <tr><th>Tipe DME</th><th>Definisi OCT</th><th>VA</th><th>Pendekatan</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge b-green">Non-CI-DME</span></td>
+        <td>Penebalan retina tidak melibatkan subfield sentral (1 mm central)</td>
+        <td>Biasanya baik</td>
+        <td>Observasi atau focal laser bila ada MA bocor perifer</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-amber">CI-DME + VA baik</span><br><small style="color:var(--text3)">≥20/25 (6/7.5)</small></td>
+        <td>CST ≥305 µm (♀) / ≥320 µm (♂), subfield sentral terlibat</td>
+        <td>≥20/25</td>
+        <td><strong>Protocol V:</strong> observasi ketat setara anti-VEGF di 2 tahun. Pilih berdasarkan diskusi pasien + kepatuhan FU</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-coral">CI-DME + VA buruk</span><br><small style="color:var(--text3)">&lt;20/25 (6/7.5)</small></td>
+        <td>CST threshold terlibat + VA berkurang</td>
+        <td>&lt;20/25</td>
+        <td><strong>Anti-VEGF first-line</strong> (Protocol T/I). Laser sebagai adjuvan saja</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-violet">CI-DME refrakter</span></td>
+        <td>Tidak respons setelah ≥6 injeksi anti-VEGF optimal</td>
+        <td>Bervariasi</td>
+        <td>Steroid intravitreal (IVTA/Ozurdex); focal/grid laser adjuvan; evaluasi faktor sistemik</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="alert alert-teal" style="margin-top:14px;"><span class="alert-icon">📌</span><div><strong>CST cut-off ETDRS OCT (Spectralis/Cirrus berbeda ~10 µm):</strong> Gunakan nilai referensi mesin OCT yang digunakan. Yang lebih penting: perubahan serial ≥10% dari baseline atau munculnya subretinal fluid/intraretinal cyst baru.</div></div>
+</div>
+
+<!-- ─── CARD: TATALAKSANA PER STADIUM ─── -->
+<div class="card">
+  <div class="card-title">Tatalaksana per Stadium — Apa yang Dikerjakan, Bukan Hanya Kapan Kontrol</div>
+  <div class="card-sub">AAO PPP 2023 · ETDRS · DCCT · UKPDS · FIELD · ACCORD Eye Study</div>
+
+  <div class="alert alert-amber"><span class="alert-icon">⚠</span><div><strong>Kesalahan tersering:</strong> Klinisi menuliskan "observasi 6 bulan" untuk moderate NPDR tanpa melakukan intervensi apapun. Padahal <em>intervensi utama pada moderate NPDR adalah sistemik</em>—dan ini sama pentingnya dengan terapi okular pada stadium lanjut.</div></div>
+
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead>
+      <tr><th>Stadium</th><th>Intervensi Okular</th><th>Intervensi Sistemik (Prioritas Utama)</th><th>Yang Dievaluasi Tiap Kunjungan</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge b-green">Tidak ada DR</span></td>
+        <td>Tidak ada</td>
+        <td>Mulai fenofibrat; optimalkan HbA1c, TD, LDL</td>
+        <td>Foto fundus baseline; apakah ada MA pertama?</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-sky">Mild NPDR</span></td>
+        <td>Tidak ada.<br><small style="color:var(--text3)">Jika CI-DME → lihat kolom DME</small></td>
+        <td>Intensifkan kontrol glikemik: target HbA1c &lt;7%.<br>TD &lt;130/80 mmHg.<br>Fenofibrat 160 mg/hari bila tidak ada kontraindikasi.</td>
+        <td>Apakah MA bertambah? Apakah muncul hard exudate baru? CWS? Perubahan kaliber vena?</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-sky">Moderate NPDR</span></td>
+        <td>Tidak ada — <span class="va">PRP TIDAK diindikasikan</span> di stadium ini.<br><small style="color:var(--text3)">Jika CI-DME muncul → tangani DME; jika Non-CI-DME dengan MA bocor perifer → focal laser</small></td>
+        <td>
+          <strong class="vt">Target HbA1c &lt;7%</strong> — DCCT/UKPDS: setiap ↓1% HbA1c → ↓37% risiko progresi DR.<br>
+          <strong class="vt">TD &lt;130/80</strong> — UKPDS: setiap ↓10 mmHg SBP → ↓13% progresi DR.<br>
+          <strong class="vt">Fenofibrat 160 mg/hari</strong> — FIELD &amp; ACCORD Eye: ↓37% progresi DR, ↓30% kebutuhan laser.<br>
+          <strong class="vt">LDL &lt;100 mg/dL</strong> + statin.
+        </td>
+        <td>
+          Foto fundus serial (dokumentasikan progresi).<br>
+          Apakah muncul venous beading, IRMA → stadium meningkat ke Severe?<br>
+          OCT macula: apakah CST meningkat atau muncul SRF/IRC baru?<br>
+          Rujuk internist bila HbA1c, TD, atau lipid belum terkontrol.
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge b-amber">Severe NPDR<br><small>tanpa DME</small></span></td>
+        <td>
+          <span class="va">PRP kondisional</span> — lihat kriteria spesifik di Tab 2.<br>
+          <small style="color:var(--text3)">Bukan semua severe NPDR langsung PRP. Ada kelompok yang boleh diobservasi ketat dan ada yang harus PRP.</small>
+        </td>
+        <td>Kontrol sistemik tetap esensial — progresi ke PDR lebih lambat pada pasien dengan HbA1c terkontrol.</td>
+        <td>Apakah sudah memenuhi kriteria PRP? Apakah muncul NVD/NVE (→ sudah PDR)? Interval 3–4 bulan bila tidak intervensi.</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-amber">Severe NPDR<br><small>+ Non-CI-DME</small></span></td>
+        <td>Focal laser untuk MA bocor perifer (bila zona aman).<br>PRP kondisional untuk komponen NPDR-nya.</td>
+        <td>Sama seperti di atas.</td>
+        <td>OCT: apakah DME berkembang ke CI? Apakah progresi ke PDR?</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-amber">Severe NPDR<br><small>+ CI-DME</small></span></td>
+        <td><span class="vt">Anti-VEGF dulu</span> untuk DME → setelah edema reda, evaluasi ulang kebutuhan PRP untuk komponen severe NPDR.<br><small style="color:var(--text3)">Anti-VEGF untuk DME juga memperlambat progresi NV (efek dua-dalam-satu).</small></td>
+        <td>Sama seperti di atas.</td>
+        <td>Respons OCT setelah 3 injeksi; apakah muncul NV baru?</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-coral">Non-HRC PDR</span></td>
+        <td>PRP atau anti-VEGF (Protocol S — setara 2 tahun). Pilih berdasarkan kepatuhan dan ada/tidaknya CI-DME.</td>
+        <td>Kontrol sistemik tetap penting untuk mencegah rekurensi NV pasca PRP.</td>
+        <td>Regresi NV? Apakah berkembang ke HRC?</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-red">HRC-PDR</span></td>
+        <td><span class="vc">PRP segera</span> (≤1–2 minggu). Anti-VEGF pre-PRP bila ada CI-DME atau NVD sangat aktif.</td>
+        <td>—</td>
+        <td>Regresi NVD/NVE; apakah muncul TRD atau VH?</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Mengapa Moderate NPDR Tidak Perlu PRP — Dasar ETDRS</div>
+
+  <div class="alert alert-teal"><span class="alert-icon">📌</span><div><strong>ETDRS (Early Treatment Diabetic Retinopathy Study, 1985):</strong> Membandingkan PRP dini (pada mild–moderate NPDR) vs PRP terlambat (ditunda sampai HRC-PDR). Hasil: PRP dini mengurangi progresi ke HRC-PDR, namun disertai kehilangan VF moderat yang tidak terjadi pada kelompok observasi. Pada DM tipe 2 khususnya, ETDRS merekomendasikan <strong>menunda PRP sampai severe NPDR atau HRC-PDR</strong>—manfaat tidak melebihi risiko VF loss pada moderate NPDR.</div></div>
+
+  <div class="alert alert-teal"><span class="alert-icon">📌</span><div><strong>Fenofibrat — evidence sering terabaikan:</strong> FIELD Study (Lancet 2007): fenofibrat ↓ kebutuhan laser 31%. ACCORD Eye Study (NEJM 2010): fenofibrat + simvastatin ↓ progresi DR 37% dibanding simvastatin saja. Mekanisme: efek pleiotrofik antiinflamasi dan anti-angiogenik, terlepas dari efek lipid. Ini adalah <em>satu-satunya obat sistemik dengan evidence kuat spesifik untuk progresi DR</em> selain kontrol glikemik dan tekanan darah.</div></div>
+</div>
+
+<!-- ─── CARD: OCT MORPHOLOGY DECISION ─── -->
+<div class="card">
+  <div class="card-title">VA Bukan Satu-satunya Patokan — Morfologi OCT sebagai <em>Leading Indicator</em></div>
+  <div class="card-sub">Relevan khususnya untuk severe NPDR + CI-DME dengan VA masih baik (≥0.8)</div>
+
+  <div class="alert alert-coral"><span class="alert-icon">🚨</span><div><strong>Konsep kritis:</strong> VA adalah <em>lagging indicator</em>—baru turun setelah kerusakan fotoreseptor sudah terjadi. OCT morfologi adalah <em>leading indicator</em>—mendeteksi stres sublethal fotoreseptor sebelum VA jatuh. Pasien dengan VA 0.8 + CI-DME + SRF aktif sudah memerlukan terapi, bukan observasi.</div></div>
+
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead>
+      <tr><th>Temuan OCT</th><th>Interpretasi</th><th>Implikasi Terapi (meski VA masih baik)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="vc">Subretinal fluid (SRF) di subfovea</span></td>
+        <td>Breakdown outer blood-retinal barrier; fotoreseptor basah dari bawah</td>
+        <td><span class="vc">Inisiasi anti-VEGF</span> — SRF jarang resolusi spontan; menunggu = risiko disrupsi IS/OS</td>
+      </tr>
+      <tr>
+        <td><span class="vc">Intraretinal cysts (IRC) di central subfield</span></td>
+        <td>Kerusakan intraretinal aktif; Müller cell breakdown</td>
+        <td><span class="vc">Inisiasi anti-VEGF</span> — VA mungkin masih baik, namun kerusakan aktif berlangsung</td>
+      </tr>
+      <tr>
+        <td><span class="va">Disrupsi ELM atau IS/OS di subfovea</span></td>
+        <td>Kerusakan fotoreseptor sudah terjadi (irreversibel sebagian)</td>
+        <td><span class="va">Anti-VEGF segera</span> — ini tanda sudah terlambat menunggu; semakin cepat, prognosis lebih baik</td>
+      </tr>
+      <tr>
+        <td><span class="va">Hard exudate mendekati atau masuk subfovea</span></td>
+        <td>Deposit lipid yang akan merusak fotoreseptor secara mekanik dan toksik</td>
+        <td><span class="va">Anti-VEGF segera</span> — exudate subfoveal sangat sulit di-resorpsi; jadikan urgensi</td>
+      </tr>
+      <tr>
+        <td><span class="vs">Penebalan difus minimal, tidak ada SRF/IRC</span></td>
+        <td>Edema ringan, arsitektur fovea masih intak</td>
+        <td><span class="vs">Observasi Protocol V bisa dipertimbangkan</span> — jika follow-up ketat tiap 4–8 minggu terjamin</td>
+      </tr>
+      <tr>
+        <td><span class="vg">Foveal contour dan semua lapisan normal</span></td>
+        <td>Non-CI-DME atau belum ada DME bermakna</td>
+        <td><span class="vg">Observasi rutin</span> — tidak ada indikasi anti-VEGF dari komponen DME</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="alert alert-amber"><span class="alert-icon">⚠</span><div><strong>Protocol V dalam konteks Indonesia:</strong> Protocol V membuktikan observasi setara anti-VEGF pada CI-DME + VA ≥20/25 — namun ini valid hanya bila monitoring tiap <strong>4–8 minggu terjamin</strong> dan rescue treatment tersedia segera. Bila interval follow-up BPJS atau logistik pasien &gt;3 bulan, <em>threshold untuk inisiasi anti-VEGF lebih rendah</em>, bukan lebih tinggi.</div></div>
+</div>
+
+</section>
+
+<!-- ═══════════════════════════════════════
+     TAB 2 — LASER vs INJEKSI
+════════════════════════════════════════ -->
+<section id="t2" class="section">
+
+<div class="card">
+  <div class="card-title">Kapan Laser, Kapan Injeksi Anti-VEGF?</div>
+  <div class="card-sub">Decision framework berbasis DRCR.net Protocol S · T · I · V · W</div>
+
+  <div class="alert alert-teal"><span class="alert-icon">ℹ</span><div>Laser dan anti-VEGF bukan kompetitor—seringkali <strong>komplementer</strong>. Keputusan didasarkan pada: (1) ada/tidaknya CI-DME, (2) karakteristik PDR, (3) kepatuhan follow-up pasien, (4) ketersediaan sumber daya.</div></div>
+
+  <div class="section-label">Indikasi PRP (Panretinal Photocoagulation)</div>
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead>
+      <tr><th>Kondisi</th><th>Indikasi PRP</th><th>Urgensi</th><th>Catatan</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge b-coral">HRC-PDR</span></td>
+        <td class="vg">WAJIB — terapi primer</td>
+        <td><span class="vc">Segera (&lt;1 minggu)</span></td>
+        <td>DRS: reduksi risiko kehilangan VF berat 50%+. Bila ada CI-DME → anti-VEGF dulu 1–2× sebelum PRP</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-amber">Non-HRC PDR</span></td>
+        <td class="vg">Direkomendasikan</td>
+        <td><span class="va">1–2 minggu</span></td>
+        <td>Protocol S: anti-VEGF non-inferior, namun PRP lebih durable bila kepatuhan rendah</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-amber">Severe NPDR risiko tinggi</span></td>
+        <td class="va">Pertimbangkan (bukan wajib)</td>
+        <td><span class="vs">Terencana</span></td>
+        <td>DM tipe 1, akan operasi katarak, kehamilan, kepatuhan FU sangat buruk → PRP preventif. Protocol W: anti-VEGF juga efektif</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-sky">VH menghalangi PRP</span></td>
+        <td class="va">Tunda, anti-VEGF dulu</td>
+        <td><span class="vs">Anti-VEGF → monitor 4–8 minggu</span></td>
+        <td>Anti-VEGF sering menjernihkan VH cukup untuk PRP. Bila tidak jernih → vitrektomi</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-sky">Moderate NPDR tanpa faktor risiko</span></td>
+        <td class="vc">Tidak diindikasikan</td>
+        <td>—</td>
+        <td>Observasi + kontrol sistemik; PRP prematur tidak terbukti bermanfaat</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Indikasi Focal/Grid Laser untuk DME</div>
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead>
+      <tr><th>Kondisi DME</th><th>Teknik Laser</th><th>Target</th><th>Catatan Penting</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge b-green">Non-CI-DME dengan leaking MA</span></td>
+        <td><span class="vt">Focal laser</span></td>
+        <td>MA bocor di 500–3000 µm dari FAZ center</td>
+        <td>ETDRS: reduksi risiko moderate VL 50%. First-line untuk non-CI-DME dengan MA fokal</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-amber">CI-DME tidak respons anti-VEGF (≥6 injeksi)</span></td>
+        <td><span class="vt">Focal/Grid laser adjuvan</span></td>
+        <td>MA perifer (jauh dari 500 µm FAZ); zona 500–3000 µm</td>
+        <td>Protocol I: laser deferred sebagai adjuvan; tidak mengganti anti-VEGF</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-amber">CI-DME dengan dominan hard exudate fokal</span></td>
+        <td><span class="vt">FFA-guided focal laser</span></td>
+        <td>Leaking MA sumber hard exudate, di luar 500 µm FAZ</td>
+        <td>Ideal dengan FFA; bila tanpa FFA → gunakan OCT-A atau klinis (ring exudate = MA di tengah)</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-coral">CI-DME dengan VA &lt;20/25</span></td>
+        <td><span class="vc">Bukan first-line</span></td>
+        <td>—</td>
+        <td>Anti-VEGF first-line. Laser hanya adjuvan bila ada MA bocor ekstra-foveal yang jelas</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-coral">Dalam 500 µm dari FAZ</span></td>
+        <td><span class="vc">KONTRAINDIKASI</span></td>
+        <td>—</td>
+        <td>Risiko skotoma sentral permanen. Jangan laser dalam zona ini</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Anti-VEGF — Indikasi Kuat</div>
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead>
+      <tr><th>Kondisi</th><th>Agen Pilihan</th><th>Evidence</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>CI-DME + VA &lt;20/25</td>
+        <td><span class="v1">Aflibercept &gt; bevacizumab bila VA ≤20/50</span></td>
+        <td>Protocol T (NEJM 2015): aflibercept superior saat VA buruk</td>
+      </tr>
+      <tr>
+        <td>CI-DME + VA ≥20/25</td>
+        <td>Bevacizumab atau ranibizumab</td>
+        <td>Protocol V: hasil setara observasi di 2 tahun; diskusikan bersama pasien</td>
+      </tr>
+      <tr>
+        <td>PDR ± CI-DME (Protocol S)</td>
+        <td>Ranibizumab atau aflibercept</td>
+        <td>Non-inferior vs PRP di 2 tahun; VF lebih baik; DME tidak memburuk</td>
+      </tr>
+      <tr>
+        <td>Severe NPDR risiko tinggi (Protocol W)</td>
+        <td>Ranibizumab q4w</td>
+        <td>Reduksi progresi ke PDR 65% dalam 2 tahun; bukan standar perawatan rutin saat ini</td>
+      </tr>
+      <tr>
+        <td>Pre-vitrektomi (Protocol AB)</td>
+        <td>Bevacizumab 1.25 mg</td>
+        <td>7–14 hari pre-op: reduksi VH intraop, memudahkan diseksi FVP</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="alert alert-amber" style="margin-top:16px;"><span class="alert-icon">⚠</span><div><strong>Keterbatasan di klinik tanpa FFA:</strong> Focal laser untuk DME idealnya dipandu FFA (identifikasi MA bocor). Alternatif: (1) gunakan OCT-A untuk pemetaan MA dan area non-perfusi, (2) klinisi berpengalaman dapat mengidentifikasi MA bocor dari pola hard exudate circinate, (3) pertimbangkan anti-VEGF sebagai first-line bila FFA tidak tersedia dan VA &lt;20/25.</div></div>
+</div>
+
+<!-- ─── CARD: SEVERE NPDR TANPA DME ─── -->
+<div class="card">
+  <div class="card-title">Severe NPDR Tanpa DME — Kapan Mulai PRP?</div>
+  <div class="card-sub">ETDRS 1985 · DRS · Protocol W (DRCR.net 2021) · AAO PPP 2023</div>
+
+  <div class="alert alert-teal"><span class="alert-icon">ℹ</span><div>Ini adalah pertanyaan klinis yang paling sering menimbulkan keragu-raguan. Jawaban singkatnya: <strong>tidak semua severe NPDR harus langsung di-PRP</strong>. Keputusan didasarkan pada <em>profil risiko pasien</em>, bukan hanya pada staging fundus. Ada yang harus PRP segera, ada yang boleh observasi ketat.</div></div>
+
+  <div class="section-label">Konsep "Very Severe NPDR" — Risiko Tertinggi dalam Grup Severe</div>
+
+  <div class="alert alert-amber"><span class="alert-icon">⚠</span><div><strong>Dalam "Severe NPDR" ada spektrum risiko:</strong><br>
+  • <strong>1 kriteria 4-2-1 positif</strong> = Severe NPDR risiko sedang — risiko berkembang ke HRC-PDR dalam 1 tahun: ~15%<br>
+  • <strong>2 kriteria 4-2-1 positif</strong> = Severe NPDR risiko tinggi — ~30–40%<br>
+  • <strong>Semua 3 kriteria positif</strong> = "Very Severe NPDR" — risiko HRC-PDR dalam 1 tahun: ~45–75%<br>
+  Threshold untuk PRP lebih rendah pada "very severe NPDR."</div></div>
+
+  <div class="section-label">Algoritma Keputusan PRP pada Severe NPDR Tanpa DME</div>
+
+  <!-- Three-column decision cards -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:20px;">
+
+    <div style="background:rgba(240,112,96,.07);border:1px solid rgba(240,112,96,.3);border-radius:10px;padding:16px 18px;">
+      <div style="font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--coral);margin-bottom:10px;">PRP Segera (≤2 minggu)</div>
+      <div style="font-size:.82rem;color:var(--text2);line-height:1.7;">
+        <div style="display:flex;gap:7px;margin-bottom:5px;"><span style="color:var(--coral);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">DM Tipe 1</strong> dengan severe NPDR — risiko progresi lebih cepat, lebih agresif</span></div>
+        <div style="display:flex;gap:7px;margin-bottom:5px;"><span style="color:var(--coral);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">Akan operasi katarak</strong> dalam waktu dekat — operasi dapat memicu eksaserbasi NV drastis</span></div>
+        <div style="display:flex;gap:7px;margin-bottom:5px;"><span style="color:var(--coral);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">Kehamilan</strong> aktif atau berencana hamil — perubahan hormonal memicu progresi cepat</span></div>
+        <div style="display:flex;gap:7px;margin-bottom:5px;"><span style="color:var(--coral);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">Mata fellow sudah PDR atau buta</strong> — satu-satunya mata yang berfungsi, tidak bisa toleransi kehilangan penglihatan</span></div>
+        <div style="display:flex;gap:7px;margin-bottom:5px;"><span style="color:var(--coral);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">Very severe NPDR</strong> (semua 3 kriteria 4-2-1 positif) — risiko HRC-PDR 1 tahun &gt;45%</span></div>
+        <div style="display:flex;gap:7px;"><span style="color:var(--coral);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">Kepatuhan FU sangat buruk</strong> — pasien tidak bisa dijamin datang 3 bulan lagi</span></div>
+      </div>
+    </div>
+
+    <div style="background:rgba(240,180,41,.07);border:1px solid rgba(240,180,41,.3);border-radius:10px;padding:16px 18px;">
+      <div style="font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:10px;">Pertimbangkan PRP (1–4 minggu)</div>
+      <div style="font-size:.82rem;color:var(--text2);line-height:1.7;">
+        <div style="display:flex;gap:7px;margin-bottom:5px;"><span style="color:var(--amber);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">2 kriteria 4-2-1 positif</strong> + DM tipe 2 risiko tinggi</span></div>
+        <div style="display:flex;gap:7px;margin-bottom:5px;"><span style="color:var(--amber);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">Progresi cepat</strong> dari moderate ke severe dalam &lt;6 bulan</span></div>
+        <div style="display:flex;gap:7px;margin-bottom:5px;"><span style="color:var(--amber);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">Usia &lt;40 tahun</strong> dengan kontrol sistemik buruk</span></div>
+        <div style="display:flex;gap:7px;margin-bottom:5px;"><span style="color:var(--amber);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">IRMA prominent</strong> luas di &gt;1 kuadran + venous beading multilevel</span></div>
+        <div style="display:flex;gap:7px;"><span style="color:var(--amber);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">Kepatuhan sedang</strong> — bisa datang tapi tidak bisa bulanan</span></div>
+      </div>
+    </div>
+
+    <div style="background:rgba(62,207,142,.07);border:1px solid rgba(62,207,142,.3);border-radius:10px;padding:16px 18px;">
+      <div style="font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:10px;">Observasi Ketat (3–4 bulan)</div>
+      <div style="font-size:.82rem;color:var(--text2);line-height:1.7;">
+        <div style="display:flex;gap:7px;margin-bottom:5px;"><span style="color:var(--green);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">DM Tipe 2</strong>, kontrol glikemik sudah baik (HbA1c &lt;7.5%)</span></div>
+        <div style="display:flex;gap:7px;margin-bottom:5px;"><span style="color:var(--green);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">Hanya 1 kriteria 4-2-1 positif</strong> — mild severe</span></div>
+        <div style="display:flex;gap:7px;margin-bottom:5px;"><span style="color:var(--green);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">Kepatuhan FU baik</strong> — pasien bisa datang tiap 3 bulan dan paham tanda bahaya</span></div>
+        <div style="display:flex;gap:7px;margin-bottom:5px;"><span style="color:var(--green);flex-shrink:0;">▸</span><span><strong style="color:var(--text1)">Course stabil</strong> — tidak ada progresi cepat pada 2 kunjungan terakhir</span></div>
+        <div style="display:flex;gap:7px;"><span style="color:var(--green);flex-shrink:0;">▸</span><span>Pasien memahami: bila ada keluhan floaters, kilatan cahaya, atau penurunan penglihatan → harus datang segera tanpa tunggu jadwal</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Protocol W — Alternatif Anti-VEGF untuk Severe NPDR (Tanpa DME)</div>
+
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead>
+      <tr><th>Aspek</th><th>Protocol W (DRCR.net, JAMA 2021)</th><th>Implikasi Praktis</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="v1">Populasi studi</td>
+        <td>Moderate–severe NPDR (ETDRS level 43–53), tanpa CI-DME, tanpa PDR</td>
+        <td>Sesuai untuk severe NPDR tanpa DME yang ingin dicegah progresinya</td>
+      </tr>
+      <tr>
+        <td class="v1">Intervensi</td>
+        <td>Ranibizumab 0.5 mg q4w × 6 bulan, kemudian PRN</td>
+        <td>Injeksi bulanan — membutuhkan kepatuhan tinggi dan ketersediaan ranibizumab</td>
+      </tr>
+      <tr>
+        <td class="v1">Hasil utama</td>
+        <td>Reduksi progresi ke PDR: <span class="vg">65% lebih rendah</span> di 2 tahun (16.3% vs 43.5%)</td>
+        <td>Efektif mencegah perkembangan ke PDR</td>
+      </tr>
+      <tr>
+        <td class="v1">Status guidelines</td>
+        <td><span class="va">Belum jadi standar perawatan rutin</span> (AAO PPP 2023 masih menyebut sebagai "pertimbangan")</td>
+        <td>Gunakan selektif: bila PRP tidak bisa dilakukan (media keruh) atau pasien menolak PRP</td>
+      </tr>
+      <tr>
+        <td class="v1">Kelemahan</td>
+        <td>Butuh injeksi bulanan; bila pasien tidak patuh → progresi dapat terjadi tanpa "jaring pengaman" PRP</td>
+        <td>PRP lebih durable bila kepatuhan rendah. Jangan pilih Protocol W bila FU tidak terjamin</td>
+      </tr>
+      <tr>
+        <td class="v1">Kapan pertimbangkan</td>
+        <td>Severe NPDR + media keruh (tidak bisa PRP) · Severe NPDR bilateral simetris + satu sisi harus ditunda PRP · Pasien menolak laser</td>
+        <td>Dapat dikombinasikan: Protocol W sementara PRP disiapkan saat media jernih</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Kapan Menilai Respons PRP pada Severe NPDR</div>
+
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead>
+      <tr><th>Waktu Post-PRP</th><th>Yang Dievaluasi</th><th>Keputusan</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="v1">4–6 minggu pasca sesi terakhir PRP</td>
+        <td>Apakah sudah muncul NV baru (menjadi PDR)?</td>
+        <td>Bila PRP komplit (≥1200 spot) dan belum ada NV → lanjut observasi 3 bulan</td>
+      </tr>
+      <tr>
+        <td class="v1">3 bulan post-PRP komplit</td>
+        <td>Apakah IRMA berkurang? Venous beading membaik? Tidak ada NVE/NVD?</td>
+        <td>Respons baik → observasi 6 bulan. Muncul NVE → sudah PDR → supplement PRP + anti-VEGF</td>
+      </tr>
+      <tr>
+        <td class="v1">PRP komplit tapi NV tetap muncul</td>
+        <td>Apakah PRP benar-benar komplit 360°? Apakah ada area yang terlewat?</td>
+        <td>Fill-in PRP di area skip. Pertimbangkan anti-VEGF adjuvan.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="alert alert-teal"><span class="alert-icon">💡</span><div><strong>Konsep penting:</strong> Pada severe NPDR yang tidak diintervensi, sekitar <strong>50% akan berkembang ke HRC-PDR dalam 1 tahun</strong> (ETDRS data). PRP bukan untuk "menyembuhkan" severe NPDR—melainkan untuk <em>mencegah ia menjadi HRC-PDR</em> yang berisiko VH, TRD, dan kebutaan. Ini yang harus dikomunikasikan ke pasien: "Kita laser bukan karena penglihatan sudah jelek, tapi supaya tidak menjadi jelek."</div></div>
+</div>
+
+</section>
+
+<!-- ═══════════════════════════════════════
+     TAB 3 — SETTING LASER
+════════════════════════════════════════ -->
+<section id="t3" class="section">
+
+<div class="inner-tabs">
+  <button class="inner-tab active" onclick="showInner('parp','b3-1')">🔴 PRP (Single-Shot)</button>
+  <button class="inner-tab" onclick="showInner('focl','b3-2')">🟡 Focal Laser — DME</button>
+  <button class="inner-tab" onclick="showInner('grid','b3-3')">🟠 Grid Laser — DME</button>
+</div>
+
+<!-- PRP -->
+<div id="parp" class="inner-section active">
+<div class="card">
+  <div class="card-title">Setting PRP — Single-Shot Laser</div>
+  <div class="card-sub">Berlaku untuk sistem non-pattern (manual single-shot); 532 nm / 514 nm / 577 nm</div>
+
+  <div class="alert alert-amber"><span class="alert-icon">⚠</span><div><strong>Perbedaan kritis single-shot vs pattern laser:</strong> Pattern laser (PASCAL) dapat memberikan 100–400 spot dalam hitungan detik. Single-shot manual: realistis <strong>200–350 spot per sesi</strong> karena keterbatasan fatigue pasien, miosis, dan waktu tindakan. Total PRP memerlukan <strong>4–6 sesi</strong>.</div></div>
+
+  <div class="section-label">Parameter Dasar PRP</div>
+  <div class="laser-grid">
+    <div class="lp-card">
+      <div class="lp-label">Ukuran Spot (Mesin)</div>
+      <div class="lp-value">300–500</div>
+      <div class="lp-unit">µm</div>
+      <div class="lp-note">Efektif di retina bergantung lensa kontak. Lens magnifikasi &gt;1× → spot retinal lebih kecil dari setting mesin. Umumnya set 300–500 µm untuk tujuan 200–400 µm di retina.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Durasi Pulsa</div>
+      <div class="lp-value">100–150</div>
+      <div class="lp-unit">ms (0.10–0.15 detik)</div>
+      <div class="lp-note">Durasi lebih pendek (100 ms) → lebih sedikit penyebaran termal, nyeri lebih minimal, namun butuh power lebih tinggi untuk endpoint yang sama.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Power Awal</div>
+      <div class="lp-value">100–150</div>
+      <div class="lp-unit">mW (titrate)</div>
+      <div class="lp-note">Mulai rendah, naikan bertahap 50 mW sampai mencapai Grade 2 burn. Range kerja umum: <strong>150–400 mW</strong>. Media keruh/fundus terang membutuhkan power lebih tinggi.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Jarak Antar Spot</div>
+      <div class="lp-value">½–1×</div>
+      <div class="lp-unit">diameter spot</div>
+      <div class="lp-note">Jarak = 0.5–1 diameter burn. Terlalu dekat → konfluent burns, lebih nyeri, risiko cracking Bruch. Terlalu jauh → tidak efektif ablasi retina perifer.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Total Spot Target</div>
+      <div class="lp-value">1200–1600</div>
+      <div class="lp-unit">spot (minimum)</div>
+      <div class="lp-note">Kasus berat / NVD besar / high-risk: sampai <strong>2000+ spot</strong>. Hitung akumulasi di semua sesi.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Per Sesi (Single-Shot)</div>
+      <div class="lp-value">200–350</div>
+      <div class="lp-unit">spot/sesi</div>
+      <div class="lp-note">Realistis dengan sistem manual. Dibatasi miosis, fatigue pasien, dan waktu. Sesi &gt;400 spot dengan single-shot jarang nyaman.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Jumlah Sesi</div>
+      <div class="lp-value">4–6</div>
+      <div class="lp-unit">sesi</div>
+      <div class="lp-note">Interval 1–2 minggu antar sesi. Sesi pertama: inferior → nasal → superior → temporal terakhir.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Interval Antar Sesi</div>
+      <div class="lp-value">1–2</div>
+      <div class="lp-unit">minggu</div>
+      <div class="lp-note">Jangan terlalu cepat (&lt;1 minggu) → risiko edema macula pasca PRP. Jangan terlalu lama (&gt;3 minggu) → progresi NV saat interval.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Endpoint Burn — Grading Reaksi Koagulasi</div>
+
+  <div class="burn-row">
+    <div class="burn-box">
+      <div class="burn-circle" style="background:radial-gradient(circle,rgba(180,160,140,.15) 60%,transparent 100%);"></div>
+      <div class="burn-label">Grade 1</div>
+      <div class="burn-grade" style="color:var(--text3)">Hampir tidak terlihat. Terlalu ringan untuk PRP.</div>
+    </div>
+    <div class="burn-box">
+      <div class="burn-circle" style="background:radial-gradient(circle,rgba(200,200,185,.7) 40%,rgba(180,180,165,.3) 70%,transparent 100%);border-color:var(--teal);"></div>
+      <div class="burn-label" style="color:var(--teal)">Grade 2 ✓ TARGET</div>
+      <div class="burn-grade" style="color:var(--teal)">Abu-abu putih, jelas terlihat. Target optimal PRP.</div>
+    </div>
+    <div class="burn-box">
+      <div class="burn-circle" style="background:radial-gradient(circle,#fff 25%,rgba(200,200,185,.8) 50%,rgba(160,160,150,.4) 75%,transparent 100%);border-color:var(--amber);"></div>
+      <div class="burn-label" style="color:var(--amber)">Grade 3 — Hindari</div>
+      <div class="burn-grade" style="color:var(--va)">Putih jelas, pusat sangat terang. Terlalu kuat → crack Bruch, nyeri.</div>
+    </div>
+    <div class="burn-box">
+      <div class="burn-circle" style="background:radial-gradient(circle,#fff 20%,rgba(220,220,220,.9) 40%,rgba(150,120,120,.6) 65%,transparent 100%);border-color:var(--coral);"></div>
+      <div class="burn-label" style="color:var(--coral)">Grade 4 — Bahaya</div>
+      <div class="burn-grade" style="color:var(--vc)">Cincin gelap, ledakan jaringan. Potensi perforasi koroid/retina.</div>
+    </div>
+  </div>
+
+  <div class="alert alert-teal"><span class="alert-icon">💡</span><div><strong>Tips titrasi power:</strong> Mulai di area ekuator nasal (fundus paling toleran, media paling jernih). Naikan power sampai Grade 2 tercapai. <em>Power yang dibutuhkan bervariasi per area</em>—retina perifer membutuhkan lebih tinggi dari posterior, area dengan migrasi pigmen RPE membutuhkan lebih rendah. Selalu re-titrasi saat pindah zona.</div></div>
+
+  <div class="divider"></div>
+  <div class="section-label">Zona Perlakuan PRP &amp; Urutan Sesi</div>
+
+  <!-- PRP Zone Diagram -->
+  <div class="svg-wrap">
+  <svg viewBox="0 0 580 340" xmlns="http://www.w3.org/2000/svg" style="max-width:580px;width:100%;">
+    <!-- Fundus circle -->
+    <circle cx="200" cy="170" r="155" fill="#0e0203" stroke="#2a1515" stroke-width="1.5"/>
+    <!-- Disc -->
+    <ellipse cx="128" cy="162" rx="22" ry="26" fill="#c8a860" stroke="#a08040" stroke-width="1"/>
+    <ellipse cx="128" cy="162" rx="11" ry="13" fill="#e0c070"/>
+    <!-- Macula -->
+    <circle cx="220" cy="170" r="28" fill="#0a0102" opacity="0.6"/>
+    <circle cx="220" cy="170" r="4" fill="#aa6030" opacity="0.5"/>
+    <!-- Safe zone around macula (3000 µm ≈ 2 DD) -->
+    <circle cx="220" cy="170" r="56" fill="none" stroke="rgba(240,180,41,.5)" stroke-width="1" stroke-dasharray="5 3"/>
+    <!-- Safe zone disc -->
+    <ellipse cx="128" cy="162" rx="38" ry="40" fill="none" stroke="rgba(240,180,41,.5)" stroke-width="1" stroke-dasharray="5 3"/>
+    <!-- PRP Zone label: -->
+    <!-- Sesi 1: Inferior (green) -->
+    <path d="M80,270 Q200,320 320,270" fill="none" stroke="rgba(62,207,142,.4)" stroke-width="2" stroke-dasharray="3 2"/>
+    <!-- Dots inferior -->
+    <circle cx="130" cy="295" r="3.5" fill="rgba(62,207,142,.6)"/>
+    <circle cx="160" cy="305" r="3.5" fill="rgba(62,207,142,.6)"/>
+    <circle cx="190" cy="308" r="3.5" fill="rgba(62,207,142,.6)"/>
+    <circle cx="220" cy="307" r="3.5" fill="rgba(62,207,142,.6)"/>
+    <circle cx="250" cy="305" r="3.5" fill="rgba(62,207,142,.6)"/>
+    <circle cx="280" cy="295" r="3.5" fill="rgba(62,207,142,.6)"/>
+    <circle cx="105" cy="283" r="3.5" fill="rgba(62,207,142,.6)"/>
+    <circle cx="310" cy="283" r="3.5" fill="rgba(62,207,142,.6)"/>
+
+    <!-- Sesi 2: Nasal (sky) -->
+    <circle cx="65" cy="200" r="3.5" fill="rgba(96,184,240,.6)"/>
+    <circle cx="58" cy="175" r="3.5" fill="rgba(96,184,240,.6)"/>
+    <circle cx="60" cy="148" r="3.5" fill="rgba(96,184,240,.6)"/>
+    <circle cx="70" cy="122" r="3.5" fill="rgba(96,184,240,.6)"/>
+    <circle cx="86" cy="235" r="3.5" fill="rgba(96,184,240,.6)"/>
+    <circle cx="86" cy="100" r="3.5" fill="rgba(96,184,240,.6)"/>
+
+    <!-- Sesi 3: Superior (amber) -->
+    <circle cx="130" cy="60" r="3.5" fill="rgba(240,180,41,.6)"/>
+    <circle cx="160" cy="50" r="3.5" fill="rgba(240,180,41,.6)"/>
+    <circle cx="190" cy="44" r="3.5" fill="rgba(240,180,41,.6)"/>
+    <circle cx="220" cy="42" r="3.5" fill="rgba(240,180,41,.6)"/>
+    <circle cx="250" cy="44" r="3.5" fill="rgba(240,180,41,.6)"/>
+    <circle cx="280" cy="50" r="3.5" fill="rgba(240,180,41,.6)"/>
+    <circle cx="105" cy="70" r="3.5" fill="rgba(240,180,41,.6)"/>
+    <circle cx="310" cy="70" r="3.5" fill="rgba(240,180,41,.6)"/>
+
+    <!-- Sesi 4-5: Temporal (coral) -->
+    <circle cx="340" cy="170" r="3.5" fill="rgba(240,112,96,.6)"/>
+    <circle cx="342" cy="148" r="3.5" fill="rgba(240,112,96,.6)"/>
+    <circle cx="342" cy="192" r="3.5" fill="rgba(240,112,96,.6)"/>
+    <circle cx="348" cy="126" r="3.5" fill="rgba(240,112,96,.6)"/>
+    <circle cx="348" cy="214" r="3.5" fill="rgba(240,112,96,.6)"/>
+    <circle cx="350" cy="104" r="3.5" fill="rgba(240,112,96,.6)"/>
+    <circle cx="350" cy="236" r="3.5" fill="rgba(240,112,96,.6)"/>
+
+    <!-- Labels -->
+    <text x="200" y="330" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(62,207,142,.8)">Sesi 1 — Inferior</text>
+    <text x="38" y="175" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(96,184,240,.8)" transform="rotate(-90,38,175)">Sesi 2 — Nasal</text>
+    <text x="200" y="30" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(240,180,41,.8)">Sesi 3 — Superior</text>
+    <text x="358" y="175" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(240,112,96,.8)" transform="rotate(90,358,175)">Sesi 4–5 — Temporal</text>
+
+    <!-- Safe zone labels -->
+    <text x="200" y="215" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="rgba(240,180,41,.7)">— 3000 µm dari FAZ —</text>
+    <text x="200" y="170" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="rgba(240,180,41,.5)">Zona aman</text>
+
+    <!-- Legend -->
+    <rect x="420" y="80" width="140" height="180" rx="6" fill="#0d1526" stroke="#1f3356" stroke-width="1"/>
+    <text x="430" y="100" font-family="Fraunces,serif" font-size="12" fill="#e8f0fe" font-weight="600">Urutan PRP</text>
+    <circle cx="435" cy="120" r="5" fill="rgba(62,207,142,.7)"/>
+    <text x="445" y="124" font-family="DM Sans,sans-serif" font-size="10" fill="#9fb3d4">Inferior (Sesi 1)</text>
+    <circle cx="435" cy="142" r="5" fill="rgba(96,184,240,.7)"/>
+    <text x="445" y="146" font-family="DM Sans,sans-serif" font-size="10" fill="#9fb3d4">Nasal (Sesi 2)</text>
+    <circle cx="435" cy="164" r="5" fill="rgba(240,180,41,.7)"/>
+    <text x="445" y="168" font-family="DM Sans,sans-serif" font-size="10" fill="#9fb3d4">Superior (Sesi 3)</text>
+    <circle cx="435" cy="186" r="5" fill="rgba(240,112,96,.7)"/>
+    <text x="445" y="190" font-family="DM Sans,sans-serif" font-size="10" fill="#9fb3d4">Temporal (Sesi 4–5)</text>
+    <line x1="425" y1="205" x2="555" y2="205" stroke="#1f3356" stroke-width="0.5"/>
+    <text x="430" y="220" font-family="DM Mono,monospace" font-size="9" fill="#617694">○ = Zona aman</text>
+    <text x="430" y="235" font-family="DM Mono,monospace" font-size="9" fill="#f0b429">- - = Batas posterior</text>
+    <text x="430" y="250" font-family="DM Mono,monospace" font-size="9" fill="#617694">3000 µm dari FAZ</text>
+  </svg>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Area yang Harus Dihindari dalam PRP</div>
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead><tr><th>Area</th><th>Alasan</th></tr></thead>
+    <tbody>
+      <tr><td><span class="vc">Dalam 3000 µm dari sentrum FAZ (temporal)</span></td><td>Risiko skotoma sentral, kerusakan makula; PRP hanya di luar arkade</td></tr>
+      <tr><td><span class="vc">Dalam 500 µm dari tepi disc</span></td><td>Risiko kerusakan serabut saraf peripapiler</td></tr>
+      <tr><td><span class="va">Langsung di atas pembuluh darah besar</span></td><td>Risiko oklusi vaskular, perdarahan</td></tr>
+      <tr><td><span class="va">Area dengan subretinal fluid aktif</span></td><td>Eksaserbasi edema; tunggu terapi anti-VEGF dahulu</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Lensa Kontak & Faktor Magnifikasi</div>
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead><tr><th>Lensa Kontak</th><th>Magnifikasi Retinal</th><th>Contoh: Set 300 µm → Retina</th><th>Penggunaan Umum</th></tr></thead>
+    <tbody>
+      <tr><td>Goldman 3-mirror</td><td>~1.0×</td><td>~300 µm</td><td>PRP + focal; versatile</td></tr>
+      <tr><td>Volk QuadrAspheric 90D</td><td>~1.0× (perlu konfirmasi)</td><td>~300 µm</td><td>PRP widefield</td></tr>
+      <tr><td>Mainster Standard PRP (165°)</td><td>~1.35×</td><td class="vg">~222 µm (lebih kecil)</td><td>PRP; cakupan luas</td></tr>
+      <tr><td>Mainster Focal/Grid</td><td>~1.05×</td><td>~286 µm</td><td>Focal/grid DME</td></tr>
+      <tr><td>Area Centralis (Volk)</td><td>~1.06×</td><td>~283 µm</td><td>Macula, focal laser</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="alert alert-amber"><span class="alert-icon">⚠</span><div>Magnifikasi lensa kontak menentukan ukuran spot AKTUAL di retina. Lensa dengan magnifikasi lebih tinggi → spot retinal LEBIH KECIL. Konfirmasi dengan spesifikasi lensa yang digunakan. Prinsip: <em>endpoint klinis (burn reaction Grade 2)</em> lebih penting dari angka setting mesin.</div></div>
+</div>
+</div>
+
+<!-- FOCAL LASER -->
+<div id="focl" class="inner-section">
+<div class="card">
+  <div class="card-title">Setting Focal Laser — DME (Macular Laser)</div>
+  <div class="card-sub">ETDRS Focal Technique · Target: leaking microaneurysma 500–3000 µm dari FAZ</div>
+
+  <div class="alert alert-coral"><span class="alert-icon">🚨</span><div><strong>Batas absolute:</strong> Jangan laser dalam radius <strong>500 µm dari center FAZ</strong>. Risiko skotoma sentral permanen. Gunakan batas klinisi konservatif di 500–750 µm bila tanpa FFA.</div></div>
+
+  <div class="section-label">Parameter Focal Laser</div>
+  <div class="laser-grid">
+    <div class="lp-card">
+      <div class="lp-label">Ukuran Spot</div>
+      <div class="lp-value">50–100</div>
+      <div class="lp-unit">µm</div>
+      <div class="lp-note">Jauh lebih kecil dari PRP. 50 µm untuk MA kecil, 100 µm untuk MA lebih besar atau ring exudate.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Durasi</div>
+      <div class="lp-value">50–100</div>
+      <div class="lp-unit">ms</div>
+      <div class="lp-note">Durasi lebih pendek (50 ms) = presisi lebih tinggi, penyebaran panas lebih minimal.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Power Awal</div>
+      <div class="lp-value">50–80</div>
+      <div class="lp-unit">mW (titrate)</div>
+      <div class="lp-note">Jauh lebih rendah dari PRP. Endpoint: perubahan subtle abu-abu atau sedikit whitening pada MA. HINDARI burn putih terang di makula.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Endpoint Klinisi</div>
+      <div class="lp-value">Grade 1–1.5</div>
+      <div class="lp-unit">Burn reaction</div>
+      <div class="lp-note">Sangat ringan: barely visible graying pada MA / jaringan periMA. BUKAN Grade 2-3 seperti PRP.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Zona Target</div>
+      <div class="lp-value">500–3000</div>
+      <div class="lp-unit">µm dari FAZ center</div>
+      <div class="lp-note">Hanya di dalam zona ini. Lesi ≥3000 µm dari FAZ: low priority, pertimbangkan hanya bila jelas bocor ke sentral.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Target Lesi</div>
+      <div class="lp-value">Leaking MA</div>
+      <div class="lp-unit">per ETDRS / klinis</div>
+      <div class="lp-note">Idealnya dipandu FFA. Tanpa FFA: target MA yang terletak di center ring hard exudate (circinate = sumber bocor di tengah ring).</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Teknik Aplikasi Focal Laser</div>
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead><tr><th>Langkah</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td class="v1">1. Identifikasi target</td><td>MA bocor dalam zona 500–3000 µm (idealnya dari FFA atau pola hard exudate). Tandai lokasi secara mental atau foto pre-laser.</td></tr>
+      <tr><td class="v1">2. Titrasi power</td><td>Mulai di area teraman (paling perifer dari target, menjauh dari FAZ). Naikan power sampai Grade 1–1.5 reaction terlihat di MA atau sedikit whitening periMA.</td></tr>
+      <tr><td class="v1">3. Aplikasi</td><td>Tempatkan spot langsung <em>di atas</em> atau sedikit bertumpang dengan MA. Satu spot per MA. Verifikasi perubahan warna MA (darkening atau subtle whitening).</td></tr>
+      <tr><td class="v1">4. Jarak dari FAZ</td><td>Selalu ukur jarak dari FAZ sebelum aplikasi. Gunakan lebar vena temporal sebagai referensi (≈125 µm = 1 DD-mini untuk orientasi).</td></tr>
+      <tr><td class="v1">5. Post-treatment</td><td>Scar laser tidak boleh melebihi 2× ukuran spot asli (tanda over-treatment). Foto fundus post-laser untuk dokumentasi posisi dan reaksi.</td></tr>
+      <tr><td class="v1">6. Evaluasi respons</td><td>Evaluasi OCT 3–4 bulan kemudian. Bila DME persisten dan masih ada MA treatable → re-treat. Jangan re-treat area yang sudah di-laser dalam 3 bulan (scar maturation).</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="alert alert-teal"><span class="alert-icon">💡</span><div><strong>Identifikasi MA tanpa FFA:</strong> Gunakan prinsip "circinate = MA di tengah". Ring atau arc hard exudate → MA bocor berada di sentrum ring. OCT-A (bila tersedia): MA tampak sebagai titik merah pada lapisan kapiler superfisial/dalam. Slit lamp dengan fundus lens + red-free illumination meningkatkan visibilitas MA vs dot hemorrhage.</td></div></div>
+</div>
+</div>
+
+<!-- GRID LASER -->
+<div id="grid" class="inner-section">
+<div class="card">
+  <div class="card-title">Setting Grid Laser — Diffuse DME</div>
+  <div class="card-sub">Modified ETDRS Grid Technique · Second-line adjuvan anti-VEGF</div>
+
+  <div class="alert alert-amber"><span class="alert-icon">ℹ</span><div>Grid laser untuk DME difus <strong>bukan first-line</strong>. Digunakan sebagai adjuvan bila DME tidak respons anti-VEGF, atau pada klinik tanpa kemampuan injeksi intravitreal. Protocol I (DRCR.net): laser deferred + anti-VEGF superior dibanding laser alone.</div></div>
+
+  <div class="laser-grid">
+    <div class="lp-card">
+      <div class="lp-label">Ukuran Spot</div>
+      <div class="lp-value">100–200</div>
+      <div class="lp-unit">µm</div>
+      <div class="lp-note">Lebih besar dari focal laser, lebih kecil dari PRP.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Durasi</div>
+      <div class="lp-value">100</div>
+      <div class="lp-unit">ms</div>
+      <div class="lp-note">Standard untuk grid laser macula.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Power</div>
+      <div class="lp-value">Sangat Ringan</div>
+      <div class="lp-unit">Grade 1 (barely visible)</div>
+      <div class="lp-note">Subthreshold atau barely visible. Sering lebih rendah dari focal laser konvensional. Endpoint: minimal visible atau subthreshold bila memungkinkan.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Pola</div>
+      <div class="lp-value">Grid</div>
+      <div class="lp-unit">2× jarak spot</div>
+      <div class="lp-note">Jarak antar spot = 2 diameter burn. Grid merata di zona edema, 500–3000 µm dari FAZ.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Zona Perlakuan</div>
+      <div class="lp-value">500–3000</div>
+      <div class="lp-unit">µm dari FAZ</div>
+      <div class="lp-note">Sama seperti focal, hindari &lt;500 µm dari FAZ sentrum.</div>
+    </div>
+    <div class="lp-card">
+      <div class="lp-label">Re-treatment</div>
+      <div class="lp-value">≥4 bulan</div>
+      <div class="lp-unit">setelah sesi pertama</div>
+      <div class="lp-note">Tunggu minimal 4 bulan untuk maturasi skar sebelum mempertimbangkan re-treatment.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+</section>
+
+<!-- ═══════════════════════════════════════
+     TAB 4 — SEKUENS TERAPI
+════════════════════════════════════════ -->
+<section id="t4" class="section">
+
+<div class="card">
+  <div class="card-title">Urutan Terapi — Kapan Injeksi Dulu, Kapan Laser Dulu</div>
+  <div class="card-sub">Sekuens berbasis DRCR.net Protocol S · I · AB · AAO PPP 2023</div>
+
+  <div class="seq-row">
+    <div class="seq-card inj-first">
+      <div class="seq-card-title">💉 INJEKSI ANTI-VEGF DULU → Laser kemudian</div>
+      <div class="seq-item">PDR + CI-DME yang signifikan. PRP dapat memperburuk edema makula (meningkatkan kadar VEGF lokal). Anti-VEGF dahulu → DME reda → PRP.</div>
+      <div class="seq-item">NVD/NVE sangat aktif yang menghalangi targeting PRP. Anti-VEGF → NV regression → PRP lebih mudah dan presisi.</div>
+      <div class="seq-item">VH ringan-sedang yang mengaburkan pandangan untuk PRP. Anti-VEGF → VH jernih dalam 4–6 minggu → PRP.</div>
+      <div class="seq-item">Pre-vitrektomi: anti-VEGF 7–14 hari sebelum operasi → reduksi VH intraop (Protocol AB).</div>
+      <div class="seq-item">Kehamilan dengan PDR: anti-VEGF dapat dipertimbangkan bila PRP tidak memungkinkan (namun diskusikan risiko sistemik anti-VEGF ke janin).</div>
+      <div class="seq-item">Severe NPDR dengan CI-DME yang mengancam: anti-VEGF untuk DME dulu, PRP hanya bila progresi ke PDR.</div>
+    </div>
+    <div class="seq-card las-first">
+      <div class="seq-card-title">🔴 LASER (PRP) DULU → Injeksi bila perlu</div>
+      <div class="seq-item">PDR tanpa CI-DME. PRP adalah terapi primer yang durable tanpa ketergantungan jadwal injeksi bulanan.</div>
+      <div class="seq-item">Kepatuhan follow-up sangat rendah. PRP memberikan terapi definitif dalam 4–6 sesi; anti-VEGF butuh 6–12 bulan injeksi regular.</div>
+      <div class="seq-item">HRC-PDR tanpa macular edema. PRP segera mengikuti DRS guidelines. Anti-VEGF opsional bila ada kontraindikasi.</div>
+      <div class="seq-item">Non-CI-DME dengan MA bocor fokal. Focal laser adalah first-line; anti-VEGF tidak perlu bila DME tidak melibatkan sentral.</div>
+      <div class="seq-item">Sumber daya terbatas / BPJS terbatas injeksi. PRP adalah terapi paling cost-effective jangka panjang.</div>
+      <div class="seq-item">Severe NPDR tanpa DME yang akan operasi katarak. PRP preventif sebelum operasi — katarak memicu progresi DR.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Interval PRP–Injeksi dalam Terapi Kombinasi</div>
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead>
+      <tr><th>Skenario</th><th>Sekuens Optimal</th><th>Interval</th><th>Evidence</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>PDR + CI-DME (paling umum)</td>
+        <td><span class="vt">Anti-VEGF ×1–2 → tunggu → PRP</span></td>
+        <td>2–4 minggu setelah anti-VEGF terakhir → mulai PRP</td>
+        <td>Protocol S: anti-VEGF mengurangi DME yang terinduksi PRP; kombinasi lebih aman untuk macula</td>
+      </tr>
+      <tr>
+        <td>NVD aktif + tanpa DME</td>
+        <td><span class="va">PRP segera (4–6 sesi) → monitor</span></td>
+        <td>Selesaikan PRP dalam 6–8 minggu; anti-VEGF bila NV belum regresi pasca PRP komplit</td>
+        <td>DRS: PRP primer untuk HRC-PDR</td>
+      </tr>
+      <tr>
+        <td>CI-DME tanpa PDR (VA &lt;20/25)</td>
+        <td><span class="vt">Anti-VEGF loading 3–6× → PRN</span></td>
+        <td>Monthly × 3 lalu PRN; laser hanya adjuvan bila tidak respons</td>
+        <td>Protocol T/I: anti-VEGF first-line DME VA buruk</td>
+      </tr>
+      <tr>
+        <td>VH + PDR (tidak bisa PRP)</td>
+        <td><span class="vt">Anti-VEGF → tunggu klirens VH → PRP</span></td>
+        <td>Anti-VEGF → 4–8 minggu → cek klirens → PRP. Bila tidak jernih 3 bulan → vitrektomi</td>
+        <td>Clinical practice; Protocol AB basis</td>
+      </tr>
+      <tr>
+        <td>Pre-vitrektomi (FVP aktif)</td>
+        <td><span class="vt">Anti-VEGF → 7–14 hari → PPV</span></td>
+        <td>Jangan &gt;2 minggu pre-op: fibrosis kontraksi FVP dapat memperburuk TRD</td>
+        <td>Protocol AB; AAO Ophthalmic Technology Assessment</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Kapan Mengulangi Laser (PRP / Focal)</div>
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead>
+      <tr><th>Situasi</th><th>Tindakan</th><th>Waktu</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="v1">PRP belum komplit (total spot &lt;1200)</td>
+        <td class="vg">Lanjutkan sesi PRP hingga komplit</td>
+        <td>Interval 1–2 minggu per sesi</td>
+      </tr>
+      <tr>
+        <td class="v1">PRP komplit, NV belum regresi setelah 6–8 minggu</td>
+        <td class="va">Fill-in PRP di area retina perifer yang mungkin terlewat</td>
+        <td>6–8 minggu pasca sesi terakhir; cari "skip area" dengan BIO/foto widefield</td>
+      </tr>
+      <tr>
+        <td class="v1">NV regresi, lalu rekuren setelah berbulan-bulan</td>
+        <td class="va">Supplement PRP di zona iskemik baru. Evaluasi kontrol DM/TD.</td>
+        <td>Segera saat rekurensi terdeteksi; tidak perlu tunggu</td>
+      </tr>
+      <tr>
+        <td class="v1">Disc hemorrhage baru pasca PRP komplit</td>
+        <td class="va">Cek NVD aktif; supplement PRP. Pertimbangkan anti-VEGF adjuvan.</td>
+        <td>Segera evaluasi; DH baru = sinyal progresi</td>
+      </tr>
+      <tr>
+        <td class="v1">Focal laser DME: resolusi parsial setelah 3–4 bulan</td>
+        <td class="va">Re-treat MA yang masih bocor di zona yang belum di-laser</td>
+        <td>Minimal 3–4 bulan sejak sesi pertama</td>
+      </tr>
+      <tr>
+        <td class="v1">Focal laser DME: tidak ada respons setelah 4 bulan</td>
+        <td class="vc">Tambah anti-VEGF; pertimbangkan OCT untuk re-evaluasi DME tipe</td>
+        <td>4 bulan evaluasi → switch atau kombinasi</td>
+      </tr>
+      <tr>
+        <td class="v1">Pasca vitrektomi, NVE rekuren</td>
+        <td class="vc">Supplement PRP endolaser / transpupillary, anti-VEGF</td>
+        <td>Sesuai kondisi klinis post-op</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Indikasi Vitrektomi Pars Plana (PPV)</div>
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead><tr><th>Indikasi</th><th>Urgensi</th><th>Catatan</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="v1">TRD mengancam / belum melibatkan makula</td>
+        <td><span class="vc">Segera (&lt;1–2 minggu)</span></td>
+        <td>Prognosis lebih baik sebelum makula terlibat. Pre-op anti-VEGF 7–14 hari.</td>
+      </tr>
+      <tr>
+        <td class="v1">TRD macula-off</td>
+        <td><span class="vc">Segera (dalam hari)</span></td>
+        <td>Prognosis VA lebih buruk bila sudah off &gt;1 minggu. Tidak perlu tunggu anti-VEGF bila TRD masif.</td>
+      </tr>
+      <tr>
+        <td class="v1">VH non-clearing &gt;4–8 minggu</td>
+        <td><span class="va">Terencana</span></td>
+        <td>B-scan USG wajib sebelum PPV: apakah ada TRD tersembunyi?</td>
+      </tr>
+      <tr>
+        <td class="v1">Traction + Rhegmatogenous RD</td>
+        <td><span class="vc">Segera (&lt;24–48 jam)</span></td>
+        <td>Gabungan TRD + RRD = urgensi bedah paling tinggi.</td>
+      </tr>
+      <tr>
+        <td class="v1">Dense premacular/subhyaloid hemorrhage</td>
+        <td><span class="va">Terencana atau Nd:YAG</span></td>
+        <td>Nd:YAG hyaloidotomy alternatif bila membran tipis. PPV bila tidak bisa dilakukan Nd:YAG.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+</section>
+
+<!-- ═══════════════════════════════════════
+     TAB 5 — IDENTIFIKASI LESI
+════════════════════════════════════════ -->
+<section id="t5" class="section">
+
+<div class="card">
+  <div class="card-title">Peta Lesi Fundus — Diabetic Retinopathy</div>
+  <div class="card-sub">Ilustrasi skematik • Identifikasi dan diferensiasi lesi DR</div>
+
+  <div class="section-label">Gambaran Fundus Skematik — Semua Lesi</div>
+  <div class="svg-wrap">
+  <svg viewBox="0 0 660 420" xmlns="http://www.w3.org/2000/svg" style="max-width:660px;width:100%;">
+    <!-- Fundus circle background -->
+    <defs>
+      <clipPath id="fc"><circle cx="210" cy="210" r="195"/></clipPath>
+    </defs>
+    <circle cx="210" cy="210" r="195" fill="#0e0105"/>
+    <!-- subtle gradient for depth -->
+    <circle cx="210" cy="210" r="195" fill="none" stroke="#200808" stroke-width="4"/>
+
+    <g clip-path="url(#fc)">
+    <!-- Disc -->
+    <ellipse cx="105" cy="200" rx="28" ry="33" fill="#c8a055" stroke="#a08035" stroke-width="1.5"/>
+    <ellipse cx="105" cy="200" rx="13" ry="16" fill="#e0c070"/>
+
+    <!-- Main superior artery (thin, brighter) -->
+    <path d="M117,167 Q160,120 225,115 Q295,110 340,140 Q375,163 360,195" fill="none" stroke="#b03030" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Main superior vein (thicker, darker) -->
+    <path d="M120,180 Q163,128 228,122 Q300,116 344,148 Q380,173 363,208" fill="none" stroke="#6e1818" stroke-width="3" stroke-linecap="round"/>
+    <!-- Superior branch artery -->
+    <path d="M340,140 Q350,130 365,128 Q380,126 385,135" fill="none" stroke="#b03030" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Superior branch vein -->
+    <path d="M344,148 Q355,138 370,136 Q388,134 392,143" fill="none" stroke="#6e1818" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Main inferior artery -->
+    <path d="M117,233 Q160,280 225,285 Q295,290 340,260 Q375,237 360,205" fill="none" stroke="#b03030" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Main inferior vein -->
+    <path d="M120,220 Q163,272 228,278 Q300,284 344,252 Q380,227 363,192" fill="none" stroke="#6e1818" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- Macula -->
+    <circle cx="265" cy="202" r="32" fill="#080003" opacity="0.55"/>
+    <circle cx="265" cy="202" r="5" fill="#7a3820" opacity="0.6"/>
+
+    <!-- ── LESIONS ── -->
+
+    <!-- 1. MICROANEURYSM (tiny bright red dots) -->
+    <circle cx="220" cy="162" r="2.5" fill="#ff4444"/>
+    <circle cx="232" cy="170" r="2" fill="#ff5555"/>
+    <circle cx="214" cy="175" r="2" fill="#ff4444"/>
+    <circle cx="240" cy="160" r="2" fill="#ff5555"/>
+
+    <!-- 2. DOT HEMORRHAGE (slightly larger, darker red) -->
+    <circle cx="300" cy="165" r="4.5" fill="#991515"/>
+    <circle cx="315" cy="173" r="4" fill="#881212"/>
+    <circle cx="290" cy="178" r="4" fill="#991515"/>
+
+    <!-- 3. BLOT HEMORRHAGE (larger, irregular, very dark) -->
+    <ellipse cx="320" cy="248" rx="9" ry="7" fill="#550808" transform="rotate(20,320,248)"/>
+    <ellipse cx="335" cy="255" rx="8" ry="6" fill="#440606" transform="rotate(-15,335,255)"/>
+    <ellipse cx="310" cy="260" rx="6" ry="5" fill="#550808" transform="rotate(5,310,260)"/>
+
+    <!-- 4. HARD EXUDATE (yellow ring/circinate) -->
+    <circle cx="285" cy="243" r="3" fill="#f5d060"/>
+    <circle cx="293" cy="248" r="2.5" fill="#f5d060"/>
+    <circle cx="278" cy="248" r="2.5" fill="#f5d060"/>
+    <circle cx="285" cy="254" r="2.5" fill="#f5d060"/>
+    <circle cx="293" cy="240" r="2" fill="#f5d060"/>
+    <circle cx="278" cy="240" r="2" fill="#f5d060"/>
+    <!-- center MA of ring -->
+    <circle cx="285" cy="247" r="1.5" fill="#ff4040"/>
+
+    <!-- 5. COTTON WOOL SPOT (fluffy white patch) -->
+    <ellipse cx="175" cy="152" rx="14" ry="9" fill="#dddaca" opacity="0.8"/>
+    <ellipse cx="179" cy="150" rx="16" ry="10" fill="#c8c5b2" opacity="0.4"/>
+    <ellipse cx="173" cy="155" rx="12" ry="7" fill="#e0ddc8" opacity="0.5"/>
+
+    <!-- 6. VENOUS BEADING (on inferior vein) -->
+    <!-- Enlarged bead segments -->
+    <circle cx="228" cy="278" r="5.5" fill="#5a1010" stroke="#7a1818" stroke-width="0.8"/>
+    <ellipse cx="242" cy="276" rx="3.5" ry="4" fill="#3a0808"/>
+    <circle cx="256" cy="274" r="6" fill="#5a1010" stroke="#7a1818" stroke-width="0.8"/>
+    <ellipse cx="270" cy="272" rx="3" ry="4" fill="#3a0808"/>
+    <circle cx="283" cy="270" r="5.5" fill="#5a1010" stroke="#7a1818" stroke-width="0.8"/>
+
+    <!-- 7. IRMA (fine tortuous intraretinal loops) -->
+    <path d="M355,170 Q362,158 368,164 Q374,170 366,176 Q359,182 354,174 Q352,167 355,170" fill="none" stroke="#e06060" stroke-width="1.2"/>
+    <path d="M370,167 Q377,155 383,161 Q389,167 381,174 Q374,180 369,172 Q367,164 370,167" fill="none" stroke="#e06060" stroke-width="1.2"/>
+    <path d="M384,164 Q390,153 396,158 Q400,164 394,171 Q387,176 383,169" fill="none" stroke="#e06060" stroke-width="1"/>
+
+    <!-- 8. NVE (neovascularization, preretinal frond) -->
+    <path d="M385,145 Q390,128 396,135 Q393,122 400,128 Q397,115 405,122" fill="none" stroke="#ff5555" stroke-width="2"/>
+    <path d="M385,145 Q379,128 373,136 Q375,123 369,130 Q370,118 364,125" fill="none" stroke="#ff5555" stroke-width="1.8"/>
+    <path d="M385,145 Q387,130 390,116 Q393,106 396,100" fill="none" stroke="#ff6666" stroke-width="1.8"/>
+    <path d="M385,145 Q382,133 378,124" fill="none" stroke="#ff5555" stroke-width="1.4"/>
+    <circle cx="385" cy="145" r="4.5" fill="#ff3333"/>
+    <!-- fibrous white component -->
+    <path d="M385,145 Q388,135 392,128" fill="none" stroke="#d0c8c0" stroke-width="1" opacity="0.6"/>
+    </g>
+
+    <!-- Outer ring -->
+    <circle cx="210" cy="210" r="195" fill="none" stroke="#2a0a0a" stroke-width="2"/>
+
+    <!-- CALLOUT LINES & LABELS -->
+    <!-- MA -->
+    <line x1="225" y1="162" x2="290" y2="120" stroke="#ff8888" stroke-width="0.7" stroke-dasharray="3 2"/>
+    <circle cx="225" cy="162" r="1.5" fill="#ff8888"/>
+    <!-- Dot hemorrhage -->
+    <line x1="315" y1="165" x2="355" y2="128" stroke="#cc6666" stroke-width="0.7" stroke-dasharray="3 2"/>
+    <circle cx="315" cy="165" r="1.5" fill="#cc6666"/>
+    <!-- Blot -->
+    <line x1="330" y1="255" x2="420" y2="290" stroke="#cc6666" stroke-width="0.7" stroke-dasharray="3 2"/>
+    <circle cx="330" cy="255" r="1.5" fill="#cc6666"/>
+    <!-- Hard exudate -->
+    <line x1="290" y1="252" x2="360" y2="290" stroke="#f5d060" stroke-width="0.7" stroke-dasharray="3 2"/>
+    <circle cx="290" cy="252" r="1.5" fill="#f5d060"/>
+    <!-- CWS -->
+    <line x1="168" y1="148" x2="108" y2="118" stroke="#d8d4c0" stroke-width="0.7" stroke-dasharray="3 2"/>
+    <circle cx="168" cy="148" r="1.5" fill="#d8d4c0"/>
+    <!-- Venous beading -->
+    <line x1="256" y1="280" x2="200" y2="320" stroke="#cc8888" stroke-width="0.7" stroke-dasharray="3 2"/>
+    <circle cx="256" cy="280" r="1.5" fill="#cc8888"/>
+    <!-- IRMA -->
+    <line x1="383" y1="165" x2="430" y2="178" stroke="#e06060" stroke-width="0.7" stroke-dasharray="3 2"/>
+    <circle cx="383" cy="165" r="1.5" fill="#e06060"/>
+    <!-- NVE -->
+    <line x1="390" y1="118" x2="435" y2="105" stroke="#ff6666" stroke-width="0.7" stroke-dasharray="3 2"/>
+    <circle cx="390" cy="118" r="1.5" fill="#ff6666"/>
+
+    <!-- LEGEND BOX -->
+    <rect x="436" y="65" width="210" height="290" rx="8" fill="#0d1526" stroke="#1f3356" stroke-width="1"/>
+    <text x="446" y="87" font-family="Fraunces,serif" font-size="13" fill="#e8f0fe" font-weight="600">Identifikasi Lesi</text>
+    <line x1="436" y1="94" x2="646" y2="94" stroke="#1f3356" stroke-width="0.8"/>
+
+    <!-- Legend items -->
+    <circle cx="450" cy="114" r="3.5" fill="#ff4444"/>
+    <text x="460" y="118" font-family="DM Sans,sans-serif" font-size="11" fill="#e8f0fe" font-weight="500">Mikroaneurisma</text>
+    <text x="460" y="131" font-family="DM Mono,monospace" font-size="9" fill="#617694">&lt;125 µm · merah terang · batas tajam</text>
+
+    <circle cx="450" cy="150" r="5" fill="#991515"/>
+    <text x="460" y="154" font-family="DM Sans,sans-serif" font-size="11" fill="#e8f0fe" font-weight="500">Dot hemorrhage</text>
+    <text x="460" y="167" font-family="DM Mono,monospace" font-size="9" fill="#617694">125–250 µm · merah gelap · deep</text>
+
+    <ellipse cx="450" cy="186" rx="7" ry="5.5" fill="#550808"/>
+    <text x="460" y="190" font-family="DM Sans,sans-serif" font-size="11" fill="#e8f0fe" font-weight="500">Blot hemorrhage</text>
+    <text x="460" y="203" font-family="DM Mono,monospace" font-size="9" fill="#617694">&gt;250 µm · irreguler · sangat gelap</text>
+
+    <circle cx="452" cy="222" r="4" fill="#f5d060"/>
+    <circle cx="444" cy="222" r="3" fill="#f5d060" opacity="0.6"/>
+    <circle cx="452" cy="214" r="3" fill="#f5d060" opacity="0.6"/>
+    <text x="460" y="226" font-family="DM Sans,sans-serif" font-size="11" fill="#e8f0fe" font-weight="500">Hard exudate</text>
+    <text x="460" y="239" font-family="DM Mono,monospace" font-size="9" fill="#617694">Kuning tajam · pola ring · OPL</text>
+
+    <ellipse cx="450" cy="257" rx="8" ry="5" fill="#d0cdb8" opacity="0.8"/>
+    <text x="460" y="261" font-family="DM Sans,sans-serif" font-size="11" fill="#e8f0fe" font-weight="500">Cotton wool spot</text>
+    <text x="460" y="274" font-family="DM Mono,monospace" font-size="9" fill="#617694">Putih fluffy · batas difus · NFL</text>
+
+    <!-- Venous beading line -->
+    <line x1="436" y1="285" x2="462" y2="285" stroke="#5a1010" stroke-width="5"/>
+    <circle cx="440" cy="285" r="3.5" fill="#7a1818"/>
+    <circle cx="455" cy="285" r="3.5" fill="#7a1818"/>
+    <text x="466" y="289" font-family="DM Sans,sans-serif" font-size="11" fill="#e8f0fe" font-weight="500">Venous beading</text>
+
+    <!-- IRMA -->
+    <path d="M440,308 Q445,300 450,305 Q455,310 449,315 Q443,319 439,313 Q437,306 440,308" fill="none" stroke="#e06060" stroke-width="1.2"/>
+    <text x="460" y="311" font-family="DM Sans,sans-serif" font-size="11" fill="#e8f0fe" font-weight="500">IRMA</text>
+
+    <!-- NVE -->
+    <path d="M438,335 Q442,327 446,332 Q443,324 449,328" fill="none" stroke="#ff5555" stroke-width="2"/>
+    <circle cx="438" cy="335" r="2.5" fill="#ff3333"/>
+    <text x="460" y="337" font-family="DM Sans,sans-serif" font-size="11" fill="#e8f0fe" font-weight="500">NVE (Neovaskularisasi)</text>
+
+    <!-- Callout labels outside circle -->
+    <text x="268" y="116" font-family="DM Mono,monospace" font-size="9" fill="#ff8888">Mikroaneurisma</text>
+    <text x="355" y="124" font-family="DM Mono,monospace" font-size="9" fill="#cc6666">Dot hemorrhage</text>
+    <text x="420" y="295" font-family="DM Mono,monospace" font-size="9" fill="#cc6666" text-anchor="middle">Blot hemorrhage</text>
+    <text x="358" y="298" font-family="DM Mono,monospace" font-size="9" fill="#f5d060">Hard exudate</text>
+    <text x="50" y="114" font-family="DM Mono,monospace" font-size="9" fill="#d8d4c0">Cotton wool</text>
+    <text x="155" y="328" font-family="DM Mono,monospace" font-size="9" fill="#cc8888">Venous beading</text>
+    <text x="427" y="182" font-family="DM Mono,monospace" font-size="9" fill="#e06060">IRMA</text>
+    <text x="432" y="102" font-family="DM Mono,monospace" font-size="9" fill="#ff6666">NVE</text>
+  </svg>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Kartu Identifikasi Lesi — Detail Klinis</div>
+
+  <div class="lesion-grid">
+
+    <!-- MA -->
+    <div class="lesion-card">
+      <div class="lesion-card-illus">
+      <svg viewBox="0 0 120 80" style="width:120px;height:80px;">
+        <rect x="0" y="0" width="120" height="80" fill="#100205"/>
+        <circle cx="40" cy="40" r="3.5" fill="#ff4444"/>
+        <circle cx="55" cy="36" r="2.5" fill="#ff5050"/>
+        <circle cx="70" cy="42" r="3" fill="#ff4444"/>
+        <circle cx="48" cy="50" r="2" fill="#ff5555"/>
+        <circle cx="62" cy="30" r="2" fill="#ff4040"/>
+        <!-- scale bar -->
+        <line x1="90" y1="70" x2="110" y2="70" stroke="#617694" stroke-width="0.8"/>
+        <text x="100" y="78" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#617694">125 µm</text>
+      </svg>
+      </div>
+      <div class="lesion-card-body">
+        <div class="lesion-card-title" style="color:var(--coral)">Mikroaneurisma (MA)</div>
+        <div class="lesion-card-sub">Lesi DR paling awal</div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Ukuran</span><span class="lesion-fact-v">&lt;125 µm (titik terkecil)</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Warna</span><span class="lesion-fact-v">Merah terang / merah-jingga</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Batas</span><span class="lesion-fact-v">Sangat tajam, sirkular</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Lapisan</span><span class="lesion-fact-v">INL (inner nuclear layer)</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Sifat</span><span class="lesion-fact-v">Sakkular, dinding kapiler. Posisi stabil antar kunjungan</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">FFA</span><span class="lesion-fact-v">Hiperfluoresen kuat, kebocoran minimal atau moderat</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Klinis</span><span class="lesion-fact-v">Lebih terlihat dengan red-free light. Sering sulit dibedakan dari dot hemorrhage secara klinis</span></div>
+      </div>
+    </div>
+
+    <!-- Dot hemorrhage -->
+    <div class="lesion-card">
+      <div class="lesion-card-illus">
+      <svg viewBox="0 0 120 80" style="width:120px;height:80px;">
+        <rect x="0" y="0" width="120" height="80" fill="#100205"/>
+        <!-- MA for comparison -->
+        <circle cx="30" cy="38" r="3" fill="#ff4444" opacity="0.7"/>
+        <text x="30" y="55" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#617694">MA</text>
+        <!-- Dot Hge -->
+        <circle cx="65" cy="38" r="6" fill="#991515"/>
+        <circle cx="65" cy="38" r="5" fill="#880f0f"/>
+        <text x="65" y="58" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#cc6666">Dot Hge</text>
+        <!-- Blot for comparison -->
+        <ellipse cx="100" cy="38" rx="10" ry="8" fill="#550808" transform="rotate(15,100,38)"/>
+        <text x="100" y="58" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#cc6666">Blot Hge</text>
+      </svg>
+      </div>
+      <div class="lesion-card-body">
+        <div class="lesion-card-title" style="color:var(--coral)">Dot Hemorrhage</div>
+        <div class="lesion-card-sub">Perdarahan kapiler intraretinal</div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Ukuran</span><span class="lesion-fact-v">125–250 µm (lebih besar dari MA)</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Warna</span><span class="lesion-fact-v">Merah gelap / merah-hitam</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Batas</span><span class="lesion-fact-v">Tajam, lebih bulat</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Lapisan</span><span class="lesion-fact-v">INL (perdarahan dalam)</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">vs MA</span><span class="lesion-fact-v">Lebih besar, lebih gelap, tidak punya dinding. Berubah bentuk/hilang dalam minggu-bulan</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">FFA</span><span class="lesion-fact-v">Hipofluoresen (blocking). Tidak bocor (beda dengan MA)</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Penting</span><span class="lesion-fact-v">Secara klinis, MA dan dot Hge sering sulit dibedakan tanpa FFA. Keduanya bisa ada bersama</span></div>
+      </div>
+    </div>
+
+    <!-- Blot hemorrhage -->
+    <div class="lesion-card">
+      <div class="lesion-card-illus">
+      <svg viewBox="0 0 120 80" style="width:120px;height:80px;">
+        <rect x="0" y="0" width="120" height="80" fill="#100205"/>
+        <ellipse cx="60" cy="40" rx="22" ry="16" fill="#550808" transform="rotate(20,60,40)"/>
+        <ellipse cx="65" cy="38" rx="18" ry="12" fill="#440606" transform="rotate(-10,65,38)"/>
+        <ellipse cx="55" cy="44" rx="14" ry="10" fill="#3a0505" transform="rotate(5,55,44)"/>
+      </svg>
+      </div>
+      <div class="lesion-card-body">
+        <div class="lesion-card-title" style="color:var(--coral)">Blot Hemorrhage</div>
+        <div class="lesion-card-sub">Perdarahan intraretinal luas</div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Ukuran</span><span class="lesion-fact-v">&gt;250 µm, tidak teratur (blob)</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Warna</span><span class="lesion-fact-v">Merah sangat gelap / hitam-merah</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Batas</span><span class="lesion-fact-v">Agak irreguler, kadang sedikit difus di tepi</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Lapisan</span><span class="lesion-fact-v">INL–OPL (lebih dalam dari dot Hge)</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Makna</span><span class="lesion-fact-v">Jumlah banyak di 4 kuadran = salah satu kriteria severe NPDR (aturan 4-2-1)</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">OCT</span><span class="lesion-fact-v">Bayangan (shadowing) ke lapisan lebih dalam; hyperreflective band di INL-OPL</span></div>
+      </div>
+    </div>
+
+    <!-- Venous Beading -->
+    <div class="lesion-card">
+      <div class="lesion-card-illus">
+      <svg viewBox="0 0 120 80" style="width:120px;height:80px;">
+        <rect x="0" y="0" width="120" height="80" fill="#100205"/>
+        <!-- Normal vein comparison -->
+        <path d="M10,25 Q60,22 110,25" fill="none" stroke="#6e1818" stroke-width="4" stroke-linecap="round"/>
+        <text x="60" y="18" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#617694">Normal</text>
+        <!-- Beaded vein -->
+        <circle cx="22" cy="58" r="5.5" fill="#5a1010"/>
+        <path d="M27" y="58" fill="none"/>
+        <rect x="27" y="55" width="8" height="6" rx="1" fill="#3a0808"/>
+        <circle cx="44" cy="58" r="6" fill="#5a1010"/>
+        <rect x="50" y="55" width="7" height="6" rx="1" fill="#3a0808"/>
+        <circle cx="66" cy="58" r="5.5" fill="#5a1010"/>
+        <rect x="71" y="55" width="8" height="6" rx="1" fill="#3a0808"/>
+        <circle cx="88" cy="58" r="6" fill="#5a1010"/>
+        <rect x="94" y="55" width="8" height="6" rx="1" fill="#3a0808"/>
+        <circle cx="111" cy="58" r="5" fill="#5a1010"/>
+        <text x="60" y="74" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#cc8888">Beading (pelebaran tidak rata)</text>
+      </svg>
+      </div>
+      <div class="lesion-card-body">
+        <div class="lesion-card-title" style="color:var(--amber)">Venous Beading</div>
+        <div class="lesion-card-sub">Dilatasi vena tidak teratur</div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Tampak</span><span class="lesion-fact-v">Vena dengan pelebaran dan penyempitan bergantian — tampak seperti "manik-manik" atau "sosis"</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Sebab</span><span class="lesion-fact-v">Iskemia retina luas → dilatasi vena lokal</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Lokasi</span><span class="lesion-fact-v">Pada vena retina (bukan arteri). Lebih nyata pada vena arcade</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Staging</span><span class="lesion-fact-v">Adanya di ≥2 kuadran = salah satu kriteria severe NPDR</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">vs IRMA</span><span class="lesion-fact-v">Venous beading pada vena besar; IRMA adalah pembuluh halus intraretinal</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Klinis</span><span class="lesion-fact-v">Perlu pembesaran cukup (90D/BIO) untuk tampak jelas. Konfirmasi dengan fundus foto</span></div>
+      </div>
+    </div>
+
+    <!-- IRMA -->
+    <div class="lesion-card">
+      <div class="lesion-card-illus">
+      <svg viewBox="0 0 120 80" style="width:120px;height:80px;">
+        <rect x="0" y="0" width="120" height="80" fill="#100205"/>
+        <!-- Background vessels -->
+        <path d="M10,40 Q60,38 110,40" fill="none" stroke="#5a1010" stroke-width="3" opacity="0.6"/>
+        <!-- IRMA loops (intraretinal, fine) -->
+        <path d="M35,40 Q40,28 46,34 Q52,40 44,47 Q37,53 33,46 Q30,38 35,40" fill="none" stroke="#d85858" stroke-width="1.3"/>
+        <path d="M52,40 Q57,27 63,33 Q69,39 62,47 Q55,53 51,46 Q48,37 52,40" fill="none" stroke="#d85858" stroke-width="1.3"/>
+        <path d="M70,40 Q74,29 79,34 Q84,40 78,46 Q72,52 68,46 Q65,38 70,40" fill="none" stroke="#d05050" stroke-width="1.2"/>
+        <path d="M85,40 Q89,30 94,35 Q99,41 93,47 Q87,52 83,46" fill="none" stroke="#d05050" stroke-width="1"/>
+        <text x="60" y="74" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#d85858">Capillary loops intraretinal</text>
+      </svg>
+      </div>
+      <div class="lesion-card-body">
+        <div class="lesion-card-title" style="color:var(--amber)">IRMA</div>
+        <div class="lesion-card-sub">Intraretinal Microvascular Abnormality</div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Tampak</span><span class="lesion-fact-v">Pembuluh kapiler halus, tortuous (berkelok), loop intraretinal di dekat area non-perfusi</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Warna</span><span class="lesion-fact-v">Merah muda-merah, lebih tipis dari vena normal</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Lokasi</span><span class="lesion-fact-v">Intraretinal — tidak menembus ILM (membran limitans interna)</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">FFA</span><span class="lesion-fact-v">Tidak bocor (atau kebocoran sangat minimal). Berbeda dengan NVE yang bocor dramatis</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Makna</span><span class="lesion-fact-v">IRMA di ≥1 kuadran = kriteria severe NPDR. Prekursor NVE</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">vs NVE</span><span class="lesion-fact-v">IRMA: flat intraretinal, tidak bocor FFA, tidak ada fibrous component. NVE: menonjol ke preretinal, bocor dramatis, sering ada jaringan fibrous</span></div>
+      </div>
+    </div>
+
+    <!-- NVE -->
+    <div class="lesion-card">
+      <div class="lesion-card-illus">
+      <svg viewBox="0 0 120 80" style="width:120px;height:80px;">
+        <rect x="0" y="0" width="120" height="80" fill="#100205"/>
+        <!-- Retinal surface line -->
+        <line x1="10" y1="55" x2="110" y2="55" stroke="#2a1515" stroke-width="0.8" stroke-dasharray="3 2"/>
+        <text x="8" y="52" font-family="DM Mono,monospace" font-size="7" fill="#3a2a2a">ILM</text>
+        <!-- NVE fronds above the line -->
+        <path d="M60,55 Q64,40 68,46 Q65,35 72,40 Q69,28 76,34" fill="none" stroke="#ff5555" stroke-width="2.2"/>
+        <path d="M60,55 Q55,40 50,47 Q53,35 46,41 Q48,28 43,36" fill="none" stroke="#ff5555" stroke-width="2"/>
+        <path d="M60,55 Q61,42 64,32 Q67,24 70,18" fill="none" stroke="#ff6666" stroke-width="2"/>
+        <path d="M60,55 Q59,42 56,34" fill="none" stroke="#ff5555" stroke-width="1.5"/>
+        <!-- Fibrous white component -->
+        <path d="M60,55 Q63,44 66,36" fill="none" stroke="#c8c0b8" stroke-width="1" opacity="0.7"/>
+        <circle cx="60" cy="55" r="5" fill="#ff3333"/>
+        <!-- IRMA below line for comparison -->
+        <path d="M25,55 Q29,48 33,52 Q37,56 31,60 Q26,64 23,58" fill="none" stroke="#d85858" stroke-width="1"/>
+        <text x="25" y="74" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#d85858">IRMA</text>
+        <text x="75" y="74" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#ff6666">NVE</text>
+      </svg>
+      </div>
+      <div class="lesion-card-body">
+        <div class="lesion-card-title" style="color:var(--red)">NVE — Neovaskularisasi Ekstradiskal</div>
+        <div class="lesion-card-sub">Pembuluh darah baru di permukaan retina</div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Tampak</span><span class="lesion-fact-v">Jaringan pembuluh baru berbentuk "frond" atau daun di PERMUKAAN retina (tidak flat)</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Lokasi</span><span class="lesion-fact-v">Preretinal — menembus ILM ke ruang preretinal. Tumbuh antara ILM dan hyaloid posterior</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">FFA</span><span class="lesion-fact-v">Bocor DRAMATIS — hyperfluorescence masif. Hallmark untuk NV aktif</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">OCT/OCT-A</span><span class="lesion-fact-v">Terlihat sebagai pembuluh di lapisan preretinal. OCT B-scan: elevasi retina superfisial</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">vs IRMA</span><span class="lesion-fact-v">NVE: preretinal, menonjol, bocor FFA, dapat ada fibrous component putih keabuan. IRMA: intraretinal, flat, minimal/tidak bocor</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">NVD</span><span class="lesion-fact-v">Bila tumbuh di disc = NVD. Lebih berbahaya — NVD ≥¼ DA = HRC PDR</span></div>
+      </div>
+    </div>
+
+    <!-- Cotton Wool Spot -->
+    <div class="lesion-card">
+      <div class="lesion-card-illus">
+      <svg viewBox="0 0 120 80" style="width:120px;height:80px;">
+        <rect x="0" y="0" width="120" height="80" fill="#100205"/>
+        <ellipse cx="60" cy="38" rx="28" ry="17" fill="#c8c5b2" opacity="0.8"/>
+        <ellipse cx="65" cy="36" rx="30" ry="18" fill="#b8b5a0" opacity="0.35"/>
+        <ellipse cx="57" cy="41" rx="22" ry="14" fill="#d5d2be" opacity="0.5"/>
+        <ellipse cx="63" cy="35" rx="20" ry="12" fill="#e0ddc8" opacity="0.6"/>
+        <!-- feathered edges -->
+        <ellipse cx="45" cy="40" rx="8" ry="5" fill="#c8c5b2" opacity="0.25"/>
+        <ellipse cx="77" cy="36" rx="7" ry="5" fill="#c8c5b2" opacity="0.25"/>
+        <ellipse cx="60" cy="26" rx="10" ry="5" fill="#c8c5b2" opacity="0.2"/>
+      </svg>
+      </div>
+      <div class="lesion-card-body">
+        <div class="lesion-card-title" style="color:var(--text2)">Cotton Wool Spot (CWS)</div>
+        <div class="lesion-card-sub">Infark nerve fiber layer</div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Tampak</span><span class="lesion-fact-v">Bercak putih buram, tepi tidak tajam (fluffy/bulu kapas)</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Lapisan</span><span class="lesion-fact-v">NFL — infark akibat oklusi arteriol prekapiler</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Lama ada</span><span class="lesion-fact-v">Hilang spontan dalam 4–12 minggu (aksonal debris diserap)</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">vs Hard exudate</span><span class="lesion-fact-v">CWS: putih/abu, batas difus fluffy, NFL, hilang cepat. Hard exudate: kuning, batas tajam, OPL, bertahan lebih lama</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">FFA</span><span class="lesion-fact-v">Area non-perfusi (hipofluoresen) sesuai lokasi CWS</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">OCT</span><span class="lesion-fact-v">Penebalan hyperreflective NFL di atas CWS</span></div>
+      </div>
+    </div>
+
+    <!-- Hard Exudate -->
+    <div class="lesion-card">
+      <div class="lesion-card-illus">
+      <svg viewBox="0 0 120 80" style="width:120px;height:80px;">
+        <rect x="0" y="0" width="120" height="80" fill="#100205"/>
+        <!-- Circinate ring pattern -->
+        <circle cx="60" cy="40" r="22" fill="none" stroke="rgba(240,180,41,.4)" stroke-width="0.8" stroke-dasharray="2 2"/>
+        <!-- individual exudate deposits -->
+        <circle cx="60" cy="18" r="4" fill="#f5d060"/>
+        <circle cx="73" cy="23" r="3.5" fill="#e8c840"/>
+        <circle cx="80" cy="35" r="4" fill="#f5d060"/>
+        <circle cx="80" cy="48" r="3.5" fill="#e8c840"/>
+        <circle cx="73" cy="58" r="4" fill="#f5d060"/>
+        <circle cx="60" cy="62" r="3.5" fill="#e8c840"/>
+        <circle cx="47" cy="58" r="4" fill="#f5d060"/>
+        <circle cx="40" cy="48" r="3.5" fill="#e8c840"/>
+        <circle cx="40" cy="35" r="4" fill="#f5d060"/>
+        <circle cx="47" cy="23" r="3.5" fill="#e8c840"/>
+        <!-- Leaking MA at center -->
+        <circle cx="60" cy="40" r="2.5" fill="#ff4040"/>
+        <text x="60" y="75" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#617694">MA bocor di pusat ring</text>
+      </svg>
+      </div>
+      <div class="lesion-card-body">
+        <div class="lesion-card-title" style="color:var(--amber)">Hard Exudate</div>
+        <div class="lesion-card-sub">Deposit lipid intraretinal</div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Tampak</span><span class="lesion-fact-v">Kuning terang, berbentuk deposit kecil atau bercak, batas sangat tajam</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Lapisan</span><span class="lesion-fact-v">OPL (outer plexiform layer) — deposit lipoprotein dari plasma bocor</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Pola ring</span><span class="lesion-fact-v">Pola circinate = ring hard exudate dengan MA bocor di pusat. Kunci identifikasi MA targetable untuk focal laser</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">Durasi</span><span class="lesion-fact-v">Bertahan lama (bulan-tahun). Bertambah bila sumber bocor tidak diobati</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">OCT</span><span class="lesion-fact-v">Hyperreflective foci di OPL dengan shadowing ke belakang</span></div>
+        <div class="lesion-fact"><span class="lesion-fact-k">vs CWS</span><span class="lesion-fact-v">Hard exudate: kuning, batas tajam, OPL, permanen. CWS: putih abu fluffy, batas tidak tajam, NFL, menghilang</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Tabel Diferensiasi Cepat — IRMA vs NVE (Klinis Kritis)</div>
+
+  <div class="alert alert-coral"><span class="alert-icon">🚨</span><div>Perbedaan IRMA dan NVE adalah <strong>penentu staging</strong>: IRMA = Severe NPDR, NVE = PDR. Kesalahan identifikasi berakibat under-treatment PDR yang berpotensi mengakibatkan kebutaan.</div></div>
+
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead>
+      <tr><th>Fitur</th><th>IRMA</th><th>NVE / NVD</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="v1">Lokasi anatomis</td><td class="vg">Intraretinal (dalam retina)</td><td class="vc">Preretinal (di atas permukaan retina)</td></tr>
+      <tr><td class="v1">Tampilan 3D</td><td class="vg">Flat, tidak menonjol dari permukaan</td><td class="vc">Menonjol ke vitreous, seperti "pohon"</td></tr>
+      <tr><td class="v1">Kebocoran FFA</td><td class="vg">Minimal / tidak bocor</td><td class="vc">Bocor DRAMATIS (hyperfluorescence masif)</td></tr>
+      <tr><td class="v1">Jaringan fibrous</td><td class="vg">Tidak ada</td><td class="vc">Sering ada (white/grey fibrous component)</td></tr>
+      <tr><td class="v1">OCT B-scan</td><td class="vg">Tidak mengangkat permukaan retina</td><td class="vc">Preretinal elevation, terlihat di lapisan preretinal</td></tr>
+      <tr><td class="v1">OCT-A</td><td class="vg">Lapisan kapiler retina dalam</td><td class="vc">Lapisan preretinal (di atas ILM)</td></tr>
+      <tr><td class="v1">Hubungan vena</td><td class="vg">Sering dekat area non-perfusi, muncul dari retina iskemik</td><td class="vc">Sering muncul dari vena atau disc</td></tr>
+      <tr><td class="v1">Implikasi staging</td><td class="va">Severe NPDR (bila ≥1 kuadran)</td><td class="vc">PDR — intervensi diperlukan</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Lapisan Retina &amp; Lokasi Lesi</div>
+  <div class="svg-wrap">
+  <svg viewBox="0 0 620 260" xmlns="http://www.w3.org/2000/svg" style="max-width:620px;width:100%;">
+    <!-- Cross-section of retina layers -->
+    <!-- Vitreous -->
+    <rect x="0" y="10" width="620" height="28" fill="#060d18" rx="4"/>
+    <text x="8" y="27" font-family="DM Mono,monospace" font-size="10" fill="#617694">Vitreous</text>
+
+    <!-- ILM -->
+    <rect x="0" y="38" width="620" height="8" fill="#1a3a5a"/>
+    <text x="8" y="46" font-family="DM Mono,monospace" font-size="9" fill="#36d9c8">ILM</text>
+
+    <!-- NFL -->
+    <rect x="0" y="46" width="620" height="16" fill="#0e2236"/>
+    <text x="8" y="58" font-family="DM Mono,monospace" font-size="9" fill="#9fb3d4">NFL</text>
+
+    <!-- GCL + IPL -->
+    <rect x="0" y="62" width="620" height="18" fill="#0d1a2e"/>
+    <text x="8" y="74" font-family="DM Mono,monospace" font-size="9" fill="#617694">GCL / IPL</text>
+
+    <!-- INL -->
+    <rect x="0" y="80" width="620" height="22" fill="#0f1e38"/>
+    <text x="8" y="95" font-family="DM Mono,monospace" font-size="9" fill="#9fb3d4">INL</text>
+
+    <!-- OPL -->
+    <rect x="0" y="102" width="620" height="22" fill="#0d1a2e"/>
+    <text x="8" y="117" font-family="DM Mono,monospace" font-size="9" fill="#617694">OPL</text>
+
+    <!-- ONL -->
+    <rect x="0" y="124" width="620" height="22" fill="#0e1e3a"/>
+    <text x="8" y="139" font-family="DM Mono,monospace" font-size="9" fill="#617694">ONL</text>
+
+    <!-- IS/OS + ELM -->
+    <rect x="0" y="146" width="620" height="16" fill="#0d1828"/>
+    <text x="8" y="158" font-family="DM Mono,monospace" font-size="9" fill="#617694">IS/OS + ELM</text>
+
+    <!-- RPE -->
+    <rect x="0" y="162" width="620" height="14" fill="#1a0808"/>
+    <text x="8" y="173" font-family="DM Mono,monospace" font-size="9" fill="#9fb3d4">RPE</text>
+
+    <!-- Choroid -->
+    <rect x="0" y="176" width="620" height="24" fill="#250a0a"/>
+    <text x="8" y="192" font-family="DM Mono,monospace" font-size="9" fill="#617694">Choroid</text>
+
+    <!-- LESIONS placed in cross section -->
+
+    <!-- NVE (preretinal, above ILM) -->
+    <path d="M380,38 Q385,25 390,30 Q386,18 394,24 Q390,12 398,18" fill="none" stroke="#ff5555" stroke-width="2"/>
+    <path d="M380,38 Q374,25 368,30 Q372,18 366,24" fill="none" stroke="#ff5555" stroke-width="1.8"/>
+    <circle cx="380" cy="38" r="3.5" fill="#ff3333"/>
+    <text x="380" y="8" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#ff6666">NVE (preretinal)</text>
+
+    <!-- CWS (NFL) -->
+    <ellipse cx="230" cy="54" rx="22" ry="8" fill="#c8c5b2" opacity="0.75"/>
+    <ellipse cx="234" cy="53" rx="24" ry="9" fill="#b8b5a0" opacity="0.3"/>
+    <text x="230" y="206" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#d8d4c0">CWS</text>
+    <line x1="230" y1="62" x2="230" y2="198" stroke="#d8d4c0" stroke-width="0.6" stroke-dasharray="3 2"/>
+
+    <!-- IRMA (INL, intraretinal) -->
+    <path d="M470,88 Q476,80 481,85 Q486,90 480,96 Q474,101 470,95 Q468,87 470,88" fill="none" stroke="#d85858" stroke-width="1.3"/>
+    <path d="M484,87 Q490,79 496,84 Q501,90 494,97 Q488,102 484,96" fill="none" stroke="#d85858" stroke-width="1.2"/>
+    <text x="480" y="206" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#d85858">IRMA</text>
+    <line x1="480" y1="102" x2="480" y2="198" stroke="#d85858" stroke-width="0.6" stroke-dasharray="3 2"/>
+
+    <!-- Microaneurysm (INL) -->
+    <circle cx="320" cy="91" r="4" fill="#ff4444"/>
+    <text x="320" y="206" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#ff8888">MA</text>
+    <line x1="320" y1="95" x2="320" y2="198" stroke="#ff8888" stroke-width="0.6" stroke-dasharray="3 2"/>
+
+    <!-- Dot Hemorrhage (INL) -->
+    <circle cx="160" cy="89" r="6.5" fill="#881515"/>
+    <text x="160" y="206" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#cc6666">Dot Hge</text>
+    <line x1="160" y1="96" x2="160" y2="198" stroke="#cc6666" stroke-width="0.6" stroke-dasharray="3 2"/>
+
+    <!-- Blot Hemorrhage (INL-OPL) -->
+    <ellipse cx="545" cy="100" rx="14" ry="18" fill="#550808" transform="rotate(5,545,100)"/>
+    <text x="545" y="206" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#cc6666">Blot Hge</text>
+    <line x1="545" y1="118" x2="545" y2="198" stroke="#cc6666" stroke-width="0.6" stroke-dasharray="3 2"/>
+
+    <!-- Hard Exudate (OPL) -->
+    <circle cx="100" cy="113" r="5" fill="#f5d060"/>
+    <circle cx="113" cy="110" r="4" fill="#e8c840"/>
+    <circle cx="90" cy="110" r="4" fill="#f5d060"/>
+    <text x="100" y="206" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#f5d060">Hard Exudate</text>
+    <line x1="100" y1="118" x2="100" y2="198" stroke="#f5d060" stroke-width="0.6" stroke-dasharray="3 2"/>
+
+    <!-- SRF in DME (subretinal, under photoreceptors) -->
+    <ellipse cx="430" cy="155" rx="30" ry="8" fill="rgba(96,184,240,0.2)" stroke="rgba(96,184,240,0.4)" stroke-width="0.8"/>
+    <text x="430" y="206" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="rgba(96,184,240,0.8)">SRF (DME)</text>
+    <line x1="430" y1="163" x2="430" y2="198" stroke="rgba(96,184,240,0.6)" stroke-width="0.6" stroke-dasharray="3 2"/>
+
+    <!-- Layer label line -->
+    <line x1="0" y1="200" x2="620" y2="200" stroke="#1f3356" stroke-width="0.5"/>
+
+  </svg>
+  </div>
+
+</div>
+
+</section>
+
+<footer>
+  <div class="footer-name">dr. Muhammad Indra, SpM</div>
+  <div class="footer-disc">Panduan klinis berbasis bukti. Keputusan medis akhir sepenuhnya tanggung jawab klinisi yang memeriksa pasien secara langsung. Referensi: DRCR.net Protocols S/T/I/V/W/AB · AAO PPP 2023 · ETDRS · DRS · BCSC Section 12.</div>
+</footer>
+
+<script>
+function showTab(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx=['t1','t2','t3','t4','t5'].indexOf(id);
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+}
+
+function showInner(secId, btnId){
+  document.querySelectorAll('.inner-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.inner-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(secId).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

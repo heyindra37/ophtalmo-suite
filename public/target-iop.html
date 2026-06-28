@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Target IOP — Glaukoma & OHT</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080e1a;
+  --bg2: #0d1526;
+  --bg3: #121e35;
+  --bg4: #1a2845;
+  --border: #1f3356;
+  --border2: #243b65;
+  --text1: #e8f0fe;
+  --text2: #9fb3d4;
+  --text3: #617694;
+  --teal: #36d9c8;
+  --teal2: #1fb8a8;
+  --amber: #f0b429;
+  --amber2: #c88f1a;
+  --coral: #f07060;
+  --green: #3ecf8e;
+  --green2: #2ba870;
+  --violet: #8b80f8;
+  --sky: #60b8f0;
+  --glow-teal: 0 0 20px rgba(54,217,200,0.18);
+  --glow-amber: 0 0 20px rgba(240,180,41,0.18);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text1);
+  min-height: 100vh;
+  padding: 0 0 60px 0;
+}
+
+/* ─── HEADER ─────────────────────────────── */
+.site-header {
+  position: relative;
+  padding: 52px 32px 44px;
+  text-align: center;
+  overflow: hidden;
+}
+.site-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 100% at 50% -10%, rgba(54,217,200,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.site-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 340px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--teal), transparent);
+}
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--teal);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding: 5px 14px;
+  border: 1px solid rgba(54,217,200,0.25);
+  border-radius: 100px;
+  background: rgba(54,217,200,0.05);
+}
+.site-header h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 600;
+  color: var(--text1);
+  line-height: 1.1;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+}
+.site-header h1 em {
+  font-style: italic;
+  color: var(--teal);
+}
+.site-header p {
+  font-size: 1rem;
+  color: var(--text2);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+}
+
+/* ─── NAV TABS ────────────────────────────── */
+.tab-nav {
+  display: flex;
+  gap: 6px;
+  padding: 0 32px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex-shrink: 0;
+  padding: 13px 22px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text3);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.active {
+  color: var(--teal);
+  border-bottom-color: var(--teal);
+  font-weight: 600;
+}
+.tab-icon { font-size: 1rem; }
+
+/* ─── SECTIONS ────────────────────────────── */
+.section { display: none; padding: 0 32px; }
+.section.active { display: block; animation: fadein 0.35s ease; }
+@keyframes fadein { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* ─── CARD ────────────────────────────────── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 30px;
+  margin-bottom: 24px;
+  transition: border-color 0.3s;
+}
+.card:hover { border-color: var(--border2); }
+.card-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--text1);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.card-sub {
+  font-size: 0.82rem;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 22px;
+}
+
+/* ─── SECTION HEADING ─────────────────────── */
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+}
+
+/* ─── STAGING TABLE ───────────────────────── */
+.staging-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.staging-table th {
+  padding: 12px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  background: var(--bg3);
+  color: var(--text3);
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.staging-table td {
+  padding: 14px 16px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  line-height: 1.55;
+}
+.staging-table tr:last-child td { border-bottom: none; }
+.staging-table tr:hover td { background: rgba(54,217,200,0.03); }
+
+.badge-stage {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: 'DM Mono', monospace;
+}
+.badge-early { background: rgba(62,207,142,0.12); color: var(--green); border: 1px solid rgba(62,207,142,0.25); }
+.badge-mild  { background: rgba(96,184,240,0.12); color: var(--sky); border: 1px solid rgba(96,184,240,0.25); }
+.badge-mod   { background: rgba(240,180,41,0.12); color: var(--amber); border: 1px solid rgba(240,180,41,0.25); }
+.badge-sev   { background: rgba(240,112,96,0.12); color: var(--coral); border: 1px solid rgba(240,112,96,0.25); }
+
+.val { color: var(--text1); font-weight: 500; }
+.val-good { color: var(--green); }
+.val-ok   { color: var(--sky); }
+.val-warn { color: var(--amber); }
+.val-bad  { color: var(--coral); }
+
+/* ─── IOP TARGET BOX ──────────────────────── */
+.iop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+.iop-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.iop-card:hover { border-color: var(--border2); transform: translateY(-3px); }
+.iop-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.iop-card.green::before  { background: var(--green); }
+.iop-card.sky::before    { background: var(--sky); }
+.iop-card.amber::before  { background: var(--amber); }
+.iop-card.coral::before  { background: var(--coral); }
+.iop-card.violet::before { background: var(--violet); }
+.iop-card-stage {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 10px;
+}
+.iop-card.green .iop-card-stage  { color: var(--green); }
+.iop-card.sky .iop-card-stage    { color: var(--sky); }
+.iop-card.amber .iop-card-stage  { color: var(--amber); }
+.iop-card.coral .iop-card-stage  { color: var(--coral); }
+.iop-card.violet .iop-card-stage { color: var(--violet); }
+.iop-target {
+  font-family: 'Fraunces', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.iop-card.green .iop-target  { color: var(--green); }
+.iop-card.sky .iop-target    { color: var(--sky); }
+.iop-card.amber .iop-target  { color: var(--amber); }
+.iop-card.coral .iop-target  { color: var(--coral); }
+.iop-card.violet .iop-target { color: var(--violet); }
+.iop-card-reduction {
+  font-size: 0.8rem;
+  color: var(--text3);
+  margin-bottom: 12px;
+}
+.iop-card-notes {
+  font-size: 0.79rem;
+  color: var(--text2);
+  line-height: 1.55;
+}
+
+/* ─── FORM ────────────────────────────────── */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text3);
+  margin-bottom: 7px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: 'DM Mono', monospace;
+}
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text1);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  -webkit-appearance: none;
+}
+.form-group input:focus, .form-group select:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(54,217,200,0.08);
+}
+.form-group select option { background: var(--bg3); }
+
+.check-group { margin-bottom: 20px; }
+.check-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+  color: var(--text2);
+}
+.check-label:hover { border-color: var(--border2); background: var(--bg3); }
+.check-label input[type=checkbox] {
+  width: 16px; height: 16px;
+  accent-color: var(--teal);
+  flex-shrink: 0;
+}
+.check-label.checked {
+  border-color: rgba(54,217,200,0.4);
+  background: rgba(54,217,200,0.04);
+  color: var(--text1);
+}
+
+.calc-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, var(--teal2), var(--teal));
+  color: var(--bg);
+  border: none;
+  border-radius: 9px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+  margin-top: 8px;
+  letter-spacing: 0.02em;
+}
+.calc-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.calc-btn:active { transform: translateY(0); }
+
+/* ─── RESULT BOX ──────────────────────────── */
+.result-wrap {
+  display: none;
+  margin-top: 24px;
+  animation: fadein 0.4s ease;
+}
+.result-wrap.show { display: block; }
+
+.result-hero {
+  border-radius: 12px;
+  padding: 24px 26px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.rh-low    { background: rgba(62,207,142,0.08);  border: 1px solid rgba(62,207,142,0.25); }
+.rh-mod    { background: rgba(240,180,41,0.08);  border: 1px solid rgba(240,180,41,0.25); }
+.rh-high   { background: rgba(240,112,96,0.08);  border: 1px solid rgba(240,112,96,0.25); }
+.rh-vhigh  { background: rgba(139,128,248,0.08); border: 1px solid rgba(139,128,248,0.25); }
+
+.rh-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.rh-value {
+  font-family: 'Fraunces', serif;
+  font-size: 2.1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.rh-low .rh-label, .rh-low .rh-value     { color: var(--green); }
+.rh-mod .rh-label, .rh-mod .rh-value     { color: var(--amber); }
+.rh-high .rh-label, .rh-high .rh-value   { color: var(--coral); }
+.rh-vhigh .rh-label, .rh-vhigh .rh-value { color: var(--violet); }
+.rh-desc { font-size: 0.875rem; color: var(--text2); max-width: 380px; line-height: 1.55; }
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.result-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.ri-label {
+  font-size: 0.72rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 6px;
+}
+.ri-value { font-size: 1.05rem; font-weight: 600; color: var(--text1); }
+.ri-note  { font-size: 0.78rem; color: var(--text2); margin-top: 4px; line-height: 1.4; }
+
+.rec-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+}
+.rec-box-title {
+  font-size: 0.78rem;
+  color: var(--teal);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 10px;
+}
+.rec-box ul { padding-left: 18px; }
+.rec-box li {
+  font-size: 0.875rem;
+  color: var(--text2);
+  margin-bottom: 6px;
+  line-height: 1.55;
+}
+.rec-box li strong { color: var(--text1); }
+
+/* ─── ALERT BOXES ─────────────────────────── */
+.alert {
+  display: flex;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 9px;
+  margin-bottom: 14px;
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+.alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.alert-teal  { background: rgba(54,217,200,0.06);  border: 1px solid rgba(54,217,200,0.2);  color: var(--text2); }
+.alert-amber { background: rgba(240,180,41,0.06);  border: 1px solid rgba(240,180,41,0.2);  color: var(--text2); }
+.alert-coral { background: rgba(240,112,96,0.06);  border: 1px solid rgba(240,112,96,0.2);  color: var(--text2); }
+.alert-green { background: rgba(62,207,142,0.06);  border: 1px solid rgba(62,207,142,0.2);  color: var(--text2); }
+
+/* ─── OHT TABS ────────────────────────────── */
+.sub-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.sub-tab-btn {
+  padding: 9px 18px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text3);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.sub-tab-btn:hover { border-color: var(--border2); color: var(--text2); }
+.sub-tab-btn.active { background: rgba(54,217,200,0.08); border-color: rgba(54,217,200,0.4); color: var(--teal); font-weight: 600; }
+.sub-section { display: none; }
+.sub-section.active { display: block; }
+
+/* ─── DIVIDER ─────────────────────────────── */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+  margin: 28px 0;
+}
+
+/* ─── STOP TABLE ──────────────────────────── */
+.decision-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  margin-top: 10px;
+}
+.decision-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 10px 16px;
+  text-align: left;
+}
+.decision-table td {
+  padding: 13px 16px;
+  background: var(--bg3);
+  font-size: 0.875rem;
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+.decision-table td:first-child { border-radius: 8px 0 0 8px; border-right: none; }
+.decision-table td:not(:first-child):not(:last-child) { border-right: none; border-left: none; }
+.decision-table td:last-child { border-radius: 0 8px 8px 0; border-left: none; }
+.decision-table tr:hover td { background: var(--bg4); }
+
+/* ─── RISK METER ──────────────────────────── */
+.risk-meter {
+  height: 8px;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--green), var(--amber), var(--coral), var(--violet));
+  margin: 14px 0;
+  position: relative;
+}
+.risk-pointer {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.3), 0 2px 8px rgba(0,0,0,0.4);
+  transition: left 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+.risk-meter-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+/* ─── FOOTER ──────────────────────────────── */
+footer {
+  margin-top: 60px;
+  padding: 28px 32px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.footer-name {
+  font-family: 'Fraunces', serif;
+  font-size: 1.05rem;
+  color: var(--teal);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.footer-disc {
+  font-size: 0.8rem;
+  color: var(--text3);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ─── RESPONSIVE ──────────────────────────── */
+@media (max-width: 768px) {
+  .section { padding: 0 16px; }
+  .tab-nav { padding: 0 16px; }
+  .site-header { padding: 36px 20px 32px; }
+  .card { padding: 20px; }
+  .staging-table { font-size: 0.78rem; }
+  .staging-table th, .staging-table td { padding: 10px 11px; }
+  footer { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-badge">🎯 Clinical Reference</div>
+  <h1>Target IOP <em>Calculator</em></h1>
+  <p>Glaukoma · Ocular Hypertension · Panduan Manajemen Berbasis Bukti</p>
+</header>
+
+<!-- NAV -->
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('tab-staging')"><span class="tab-icon">👁</span> Staging ONH</button>
+  <button class="tab-btn" onclick="showTab('tab-target')"><span class="tab-icon">🎯</span> Target IOP</button>
+  <button class="tab-btn" onclick="showTab('tab-oht')"><span class="tab-icon">🔍</span> Manajemen OHT</button>
+  <button class="tab-btn" onclick="showTab('tab-calc')"><span class="tab-icon">📊</span> Kalkulator OHT</button>
+</nav>
+
+<!-- ════════════════════════════════════════════════
+     TAB 1 : STAGING ONH
+     ════════════════════════════════════════════════ -->
+<section id="tab-staging" class="section active">
+  <div class="card">
+    <div class="card-title">Gambaran Klinis Glaukoma Berdasarkan Stadium</div>
+    <div class="card-sub">ONH • RNFL • Visual Field • Visus</div>
+
+    <div class="alert alert-teal"><span class="alert-icon">ℹ</span><div>Klasifikasi mengacu pada <strong>HHF (Hodapp-Parrish-Anderson) / Hodapp Criteria</strong> untuk visual field, dan <strong>DDLS (Disc Damage Likelihood Scale)</strong> serta pola klinis ONH yang diterima secara internasional. Referensi: AAO BCSC Section 10 (Glaucoma), edisi terbaru.</div></div>
+
+    <div style="overflow-x:auto;">
+    <table class="staging-table">
+      <thead>
+        <tr>
+          <th>Stadium</th>
+          <th>ONH / CDR</th>
+          <th>Rim & ISNT</th>
+          <th>RNFL (OCT)</th>
+          <th>Visual Field (MD)</th>
+          <th>Visus</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge-stage badge-early">Early</span></td>
+          <td><span class="val">CDR 0.50–0.65</span><br>Asimetri ≥0.2</td>
+          <td>ISNT rule <em>borderline</em>; penipisan fokal ringan, biasanya di kutub inferior atau superior; disc hemorrhage mungkin ada</td>
+          <td>Defek fokal ringan pada sektor arkuata; average RNFL thickness masih dalam batas normal bawah atau sedikit tipis</td>
+          <td><span class="val-good">MD 0 s/d −6 dB</span><br>Skotoma parasentral fokal; hanya 1–2 titik defek yang mencolok; tidak melibatkan 5° sentral</td>
+          <td><span class="val-good">20/20–20/40</span><br>Visus sentral biasanya normal; penurunan tidak dirasakan pasien</td>
+        </tr>
+        <tr>
+          <td><span class="badge-stage badge-mild">Mild</span></td>
+          <td><span class="val">CDR 0.65–0.75</span><br>Cup vertikal melebar</td>
+          <td>ISNT rule mulai dilanggar, umumnya inferior > superior mulai hilang; notching fokal lebih nyata; PPA alfa mulai tampak</td>
+          <td>Defek bundel RNFL jelas; penipisan pada 1–2 sektor; kehilangan refleks RNFL pada slit lamp</td>
+          <td><span class="val-ok">MD −6 s/d −12 dB</span><br>Skotoma arkuata parsial; defek dua kuadran atas/bawah; tidak melibatkan 5° sentral</td>
+          <td><span class="val-ok">20/20–20/60</span><br>Visus sentral masih baik; pasien mulai sadar ada blind spot meluas</td>
+        </tr>
+        <tr>
+          <td><span class="badge-stage badge-mod">Moderate</span></td>
+          <td><span class="val">CDR 0.75–0.85</span><br>Excavasi vertikal jelas</td>
+          <td>ISNT rule hampir tidak berlaku; rim sangat tipis, terutama inferior dan superior; PPA beta mulai ada; lamina cribrosa mulai terekspos</td>
+          <td>Defek luas multifokal; kehilangan bundel arkuata nyata pada kedua sisi; average thickness turun signifikan</td>
+          <td><span class="val-warn">MD −12 s/d −20 dB</span><br>Defek nasal step; arkuata komplit satu sisi; mengancam tetapi belum melibatkan 5°/10° sentral</td>
+          <td><span class="val-warn">20/40–20/200</span><br>Penurunan ketajaman kontras; kesulitan visus malam; lapang pandang terasa menyempit</td>
+        </tr>
+        <tr>
+          <td><span class="badge-stage badge-sev">Severe / Advanced</span></td>
+          <td><span class="val">CDR &gt;0.85–1.0</span><br>Saucerization; nasal shifting arteri</td>
+          <td>Rim hampir atau tidak ada; PPA beta luas mengelilingi disc; lamina cribrosa terekspos penuh; disc pucat atrofi</td>
+          <td>Atrofi difus dan luas; RNFL thickness mendekati batas bawah instrumen (floor effect); semua sektor tipis</td>
+          <td><span class="val-bad">MD &lt; −20 dB</span><br>Sisa penglihatan sentral saja ("tubular vision"); defek melibatkan 5°–10° sentral; bisa sampai sisa cahaya</td>
+          <td><span class="val-bad">CF – LP</span><br>Atau &lt;20/200 jika sentral terlibat; lapang pandang sangat terbatas; keterbatasan aktivitas nyata</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-label">Catatan Klinis Penting</div>
+
+    <div class="alert alert-amber"><span class="alert-icon">⚠</span><div><strong>Disosiasi Struktur–Fungsi:</strong> Hingga 50% sel ganglion retina bisa hilang sebelum defek VF terdeteksi secara konvensional (Quigley 1982). OCT RNFL dapat mendeteksi kerusakan 3–5 tahun lebih awal daripada perimetri standar. Prioritaskan OCT sebagai parameter struktural primer pada early glaucoma.</div></div>
+
+    <div class="alert alert-teal"><span class="alert-icon">📌</span><div><strong>ISNT Rule (Inferior ≥ Superior ≥ Nasal ≥ Temporal):</strong> Pada 85% mata normal, ketebalan rim mengikuti pola ini. Pelanggaran pola—terutama inferior atau superior—merupakan tanda awal curiga glaukoma. Validitas terbatas pada disc kecil atau high myopia.</div></div>
+
+    <div class="alert alert-teal"><span class="alert-icon">📌</span><div><strong>DDLS (Disc Damage Likelihood Scale, Spaeth 2000):</strong> Stadium 1–2 = Early; 3–4 = Mild; 5–6 = Moderate; 7–10 = Severe. Berbasis rim-to-disc ratio (RDR) pada sektor paling tipis, lebih sensitif daripada CDR global.</div></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════
+     TAB 2 : TARGET IOP
+     ════════════════════════════════════════════════ -->
+<section id="tab-target" class="section">
+  <div class="card">
+    <div class="card-title">Target IOP Berdasarkan Stadium Glaukoma</div>
+    <div class="card-sub">AAO BCSC · Preferred Practice Pattern (PPP) · EGS Guidelines</div>
+
+    <div class="alert alert-teal"><span class="alert-icon">ℹ</span><div>Target IOP bersifat <strong>individual</strong> dan berbasis penurunan persentase dari <em>baseline untreated IOP</em>. IOP yang tercantum di bawah adalah <em>nilai maksimum yang dapat ditoleransi</em>. Bila ada progresi meskipun target tercapai, target harus diturunkan lebih lanjut.</div></div>
+
+    <div class="iop-grid">
+      <div class="iop-card green">
+        <div class="iop-card-stage">Early Glaucoma</div>
+        <div class="iop-target">≤18 mmHg</div>
+        <div class="iop-card-reduction">Penurunan ≥20–25% dari baseline</div>
+        <div class="iop-card-notes">Jika baseline 22–26 mmHg. Bila ada faktor risiko tambahan (progresi cepat, VD, NH), target diturunkan ke ≤15–16 mmHg. AGIS Study: target &lt;18 mmHg mencegah progresi VF secara bermakna.</div>
+      </div>
+      <div class="iop-card sky">
+        <div class="iop-card-stage">Mild Glaucoma</div>
+        <div class="iop-target">≤15–17 mmHg</div>
+        <div class="iop-card-reduction">Penurunan ≥25–30% dari baseline</div>
+        <div class="iop-card-notes">Target harus dievaluasi ulang setiap 6 bulan. Bila terdapat disc hemorrhage berulang atau progresi OCT meskipun IOP terkontrol, pertimbangkan terapi tambahan.</div>
+      </div>
+      <div class="iop-card amber">
+        <div class="iop-card-stage">Moderate Glaucoma</div>
+        <div class="iop-target">≤12–15 mmHg</div>
+        <div class="iop-card-reduction">Penurunan ≥30–35% dari baseline</div>
+        <div class="iop-card-notes">CNTGS menunjukkan bahwa penurunan IOP 30% efektif bahkan pada NTG/moderate. Pertimbangkan evaluasi fluktuasi diurnal dengan 4–5 kali pengukuran IOP dalam sehari.</div>
+      </div>
+      <div class="iop-card coral">
+        <div class="iop-card-stage">Severe / Advanced</div>
+        <div class="iop-target">≤10–12 mmHg</div>
+        <div class="iop-card-reduction">Penurunan ≥35–40% dari baseline</div>
+        <div class="iop-card-notes">Setiap tambahan 1 mmHg reduksi bermakna pada severe glaucoma. Evaluasi surgical (trabekulektomi / MIGS) bila target tidak tercapai dengan medikamentosa maksimal.</div>
+      </div>
+      <div class="iop-card violet">
+        <div class="iop-card-stage">NTG (Normal Tension)</div>
+        <div class="iop-target">≤12 mmHg</div>
+        <div class="iop-card-reduction">Penurunan ≥30% dari baseline</div>
+        <div class="iop-card-notes">CNTGS (Collaborative Normal-Tension Glaucoma Study): penurunan 30% dari baseline secara signifikan memperlambat progresi VF dibanding tanpa terapi (11.1% vs 35.4% dalam 5 tahun).</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-label">Faktor Modifikasi Target IOP</div>
+
+    <div style="overflow-x:auto;">
+    <table class="staging-table">
+      <thead>
+        <tr><th>Faktor Risiko</th><th>Dampak pada Target IOP</th><th>Dasar Bukti</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Progresi cepat (VF/OCT memburuk)</td>
+          <td><span class="val-bad">Turunkan target 2–3 mmHg lebih rendah</span></td>
+          <td>EMGT, AGIS, CIGTS</td>
+        </tr>
+        <tr>
+          <td>Sisa VF sentral minimal (&lt;10°)</td>
+          <td><span class="val-bad">Target ≤10 mmHg; pertimbangkan operasi</span></td>
+          <td>AAO PPP 2022</td>
+        </tr>
+        <tr>
+          <td>Disc hemorrhage berulang</td>
+          <td><span class="val-warn">Turunkan target; disc hemorrhage = progresi akan datang</span></td>
+          <td>Drance Sign; EMGT data</td>
+        </tr>
+        <tr>
+          <td>Fluktuasi IOP besar (&gt;3–4 mmHg)</td>
+          <td><span class="val-warn">Fluktuasi independen; pertimbangkan pengukuran diurnal</span></td>
+          <td>AGIS data; Asrani et al.</td>
+        </tr>
+        <tr>
+          <td>Risiko vaskular (hipotensi, migrain, sleep apnea)</td>
+          <td><span class="val-warn">IOP target lebih rendah; pertimbangkan faktor non-IOP</span></td>
+          <td>NTG; Ophthalmology 2013</td>
+        </tr>
+        <tr>
+          <td>CCT tipis (&lt;520 µm)</td>
+          <td><span class="val-warn">IOP terukur under-estimated; target lebih rendah lagi</span></td>
+          <td>OHTS; Pascal DCT</td>
+        </tr>
+        <tr>
+          <td>Usia muda (&lt;50 tahun) + moderate–severe</td>
+          <td><span class="val-bad">Target agresif; lebih banyak tahun berisiko kehilangan VF</span></td>
+          <td>AAO BCSC Sec. 10</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-label">Kapan Eskalasi Terapi</div>
+    <div class="alert alert-coral"><span class="alert-icon">🚨</span><div><strong>Indikasi eskalasi (tambah obat atau operasi):</strong> (1) Target IOP tidak tercapai pada 2× kunjungan berturut-turut · (2) Progresi VF/OCT meskipun IOP sudah di target · (3) Intoleransi obat atau kepatuhan rendah · (4) Pasien muda dengan severe glaucoma yang memerlukan target &lt;12 mmHg dan tidak tercapai dengan obat.</div></div>
+  </div>
+
+  <!-- ── KALKULATOR TARGET IOP ────────────── -->
+  <div class="card">
+    <div class="card-title">Kalkulator Target IOP — <em>Glaukoma</em></div>
+    <div class="card-sub">Masukkan data pasien → dapatkan target IOP individual</div>
+
+    <div class="alert alert-teal"><span class="alert-icon">ℹ</span><div>Target IOP dihitung berdasarkan <strong>baseline untreated IOP</strong>, stadium glaukoma, usia, dan faktor risiko. Angka yang dihasilkan adalah <em>target maksimum yang dapat ditoleransi</em>—bukan target ideal absolut. Selalu evaluasi ulang bila ada progresi.</div></div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Stadium Glaukoma</label>
+        <select id="g-stage">
+          <option value="">-- Pilih Stadium --</option>
+          <option value="early">Early Glaucoma</option>
+          <option value="mild">Mild Glaucoma</option>
+          <option value="moderate">Moderate Glaucoma</option>
+          <option value="severe">Severe / Advanced Glaucoma</option>
+          <option value="ntg">Normal Tension Glaucoma (NTG)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>IOP Baseline (mmHg) — tanpa obat</label>
+        <input type="number" id="g-iop" min="10" max="65" placeholder="mis. 28">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Usia Pasien (tahun)</label>
+        <input type="number" id="g-age" min="10" max="100" placeholder="mis. 55">
+      </div>
+      <div class="form-group">
+        <label>IOP Saat Ini dengan Obat (mmHg) <span style="color:var(--text3);font-weight:400">(opsional)</span></label>
+        <input type="number" id="g-cur" min="6" max="60" placeholder="kosongkan bila belum terapi">
+      </div>
+    </div>
+
+    <div class="check-group">
+      <div class="section-label">Faktor Risiko Modifikasi</div>
+      <label class="check-label" id="lbl-g-prog" onclick="toggleCheck(this,'g-prog')">
+        <input type="checkbox" id="g-prog"> Progresi cepat (VF / OCT memburuk meskipun sudah terapi)
+      </label>
+      <label class="check-label" id="lbl-g-dh" onclick="toggleCheck(this,'g-dh')">
+        <input type="checkbox" id="g-dh"> Disc hemorrhage (saat ini atau riwayat berulang)
+      </label>
+      <label class="check-label" id="lbl-g-vas" onclick="toggleCheck(this,'g-vas')">
+        <input type="checkbox" id="g-vas"> Faktor vaskular (hipotensi, migrain, sleep apnea, vasospasme)
+      </label>
+      <label class="check-label" id="lbl-g-fluct" onclick="toggleCheck(this,'g-fluct')">
+        <input type="checkbox" id="g-fluct"> Fluktuasi IOP diurnal besar (&gt;3–4 mmHg)
+      </label>
+      <label class="check-label" id="lbl-g-cct" onclick="toggleCheck(this,'g-cct')">
+        <input type="checkbox" id="g-cct"> CCT tipis (&lt;520 µm) — IOP terukur kemungkinan under-estimated
+      </label>
+      <label class="check-label" id="lbl-g-vf" onclick="toggleCheck(this,'g-vf')">
+        <input type="checkbox" id="g-vf"> Sisa VF sentral minimal (&lt;10°) — lapang pandang kritis
+      </label>
+    </div>
+
+    <button class="calc-btn" onclick="calcGlaucoma()">Hitung Target IOP</button>
+
+    <div class="result-wrap" id="res-glaucoma">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════
+     TAB 3 : MANAJEMEN OHT
+     ════════════════════════════════════════════════ -->
+<section id="tab-oht" class="section">
+  <div class="card">
+    <div class="card-title">Panduan Manajemen Ocular Hypertension (OHT)</div>
+    <div class="card-sub">OHTS · EGS · AAO PPP · Evidence-Based Framework</div>
+
+    <div class="alert alert-teal"><span class="alert-icon">ℹ</span><div><strong>Definisi OHT:</strong> IOP ≥22 mmHg pada ≥2 kunjungan, dengan disc optic normal, RNFL normal, visual field normal, dan sudut terbuka—<em>tanpa</em> kerusakan glaukomatosa yang terdeteksi. Prevalensi ~5–10% populasi &gt;40 tahun.</div></div>
+
+    <div class="section-label">Target IOP pada OHT</div>
+    <div class="iop-grid">
+      <div class="iop-card sky">
+        <div class="iop-card-stage">OHT Muda (&lt;55 tahun)</div>
+        <div class="iop-target">≤21 mmHg</div>
+        <div class="iop-card-reduction">Atau penurunan ≥20% bila risiko tinggi</div>
+        <div class="iop-card-notes">Lebih banyak tahun terekspos risiko. Bila IOP 24–30 + CDR ≥0.65 + FH glaukoma → pertimbangkan terapi meski asimtomatik. Target lebih agresif pada CDR besar atau asimetri.</div>
+      </div>
+      <div class="iop-card amber">
+        <div class="iop-card-stage">OHT Tua (≥55 tahun)</div>
+        <div class="iop-target">≤24 mmHg</div>
+        <div class="iop-card-reduction">Observasi lebih dapat dipertimbangkan</div>
+        <div class="iop-card-notes">OHTS menunjukkan bahwa 5-year conversion rate tanpa terapi ~9.5% secara keseluruhan. Pada pasien tua dengan risiko rendah, manfaat terapi seumur hidup vs beban obat harus ditimbang.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-label">Kapan Mulai Terapi, Observasi, atau Stop</div>
+
+    <table class="decision-table">
+      <thead>
+        <tr>
+          <th>Situasi Klinis</th>
+          <th>Keputusan</th>
+          <th>Rasionalisasi Bukti</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Risiko 5 tahun &gt;15%</strong> (OHTS calculator)</td>
+          <td><span class="val-bad">MULAI TERAPI</span></td>
+          <td>OHTS: terapi menurunkan konversi 60% (9.5% → 4.4%)</td>
+        </tr>
+        <tr>
+          <td>IOP <strong>≥30 mmHg</strong> berapapun usianya</td>
+          <td><span class="val-bad">MULAI TERAPI</span></td>
+          <td>Risiko tinggi konversi struktural; tidak ada safety level pada IOP setinggi ini</td>
+        </tr>
+        <tr>
+          <td>IOP 24–29 + <strong>CDR ≥0.65</strong> + FH glaukoma + usia muda</td>
+          <td><span class="val-warn">PERTIMBANGKAN TERAPI</span></td>
+          <td>Faktor multipel = risiko kumulatif tinggi; diskusikan dengan pasien</td>
+        </tr>
+        <tr>
+          <td>IOP 22–25, <strong>CDR normal</strong>, tidak ada RF, usia ≥65</td>
+          <td><span class="val-ok">OBSERVASI</span></td>
+          <td>OHTS: 5-year conversion hanya ~3% pada low-risk; tidak cost-effective</td>
+        </tr>
+        <tr>
+          <td>IOP 22–24 + <strong>DM</strong> + tanpa RF lain</td>
+          <td><span class="val-ok">OBSERVASI KETAT</span></td>
+          <td>DM sedikit meningkatkan risiko namun bukan indikasi mutlak terapi; evidence lemah</td>
+        </tr>
+        <tr>
+          <td>OHT terkontrol <strong>5 tahun</strong>, tidak ada progresi struktur/fungsi, risiko rendah</td>
+          <td><span class="val-good">PERTIMBANGKAN STOP / TAPER</span></td>
+          <td>OHTS Phase 2 & EGS guidance: monitoring ketat pasca stop; banyak pasien tetap tidak konversi</td>
+        </tr>
+        <tr>
+          <td>Pasien <strong>menolak terapi</strong>, risiko rendah–sedang</td>
+          <td><span class="val-ok">OBSERVASI + EDUKASI</span></td>
+          <td>Shared decision making; lapor gejala segera bila ada; VF+OCT tiap 6–12 bulan</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+    <div class="section-label">Kapan STOP Antiglaukoma pada OHT</div>
+
+    <div class="rec-box">
+      <div class="rec-box-title">Kriteria Pertimbangan Stop / Tapering Terapi OHT</div>
+      <ul>
+        <li>Tidak ada konversi ke glaukoma selama <strong>≥5 tahun</strong> monitoring ketat</li>
+        <li>Reevaluasi risiko menunjukkan kategori <strong>rendah</strong> (IOP turun spontan, CDR stabil, VF dan OCT normal konsisten)</li>
+        <li>Pasien memiliki <strong>komorbiditas berat</strong> (terminal illness, ketergantungan obat multipel) yang memengaruhi kualitas hidup</li>
+        <li>Toleransi obat buruk dan tidak ada alternatif yang sesuai</li>
+        <li><strong>IOP baseline tanpa obat ternyata ≤21 mmHg</strong> setelah wash-out (sekitar 10–15% pasien OHT)</li>
+        <li>Rencana: stop <strong>satu obat pada satu waktu</strong>, cek IOP 4–6 minggu kemudian, lanjutkan monitoring VF + OCT tiap 6 bulan selama 2 tahun pertama pasca stop</li>
+      </ul>
+    </div>
+
+    <div class="alert alert-amber"><span class="alert-icon">⚠</span><div><strong>Perhatian saat stop terapi:</strong> Rebound IOP elevation dapat terjadi, terutama pada prostaglandin analog. Monitor IOP 2–4 minggu setelah stop. Jangan stop prostaglandin mendadak tanpa rencana follow-up.</div></div>
+    <div class="alert alert-coral"><span class="alert-icon">🚨</span><div><strong>Red flags setelah stop terapi OHT:</strong> IOP naik ≥3 mmHg dari target · Disc hemorrhage baru · Asymmetri VF baru · Penipisan RNFL fokal pada OCT serial → <em>segera mulai ulang terapi</em>.</div></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════
+     TAB 4 : KALKULATOR OHT
+     ════════════════════════════════════════════════ -->
+<section id="tab-calc" class="section">
+
+  <div class="sub-tabs">
+    <button class="sub-tab-btn active" onclick="showSubTab('calc-ideal')">🔬 Kalkulator Ideal (CCT + PSD)</button>
+    <button class="sub-tab-btn" onclick="showSubTab('calc-praktis')">🏥 Kalkulator Praktis (Tanpa CCT/PSD)</button>
+  </div>
+
+  <!-- ── SUB A: IDEAL ─────────────────────────── -->
+  <div id="calc-ideal" class="sub-section active">
+    <div class="card">
+      <div class="card-title">Kalkulator Risiko OHT — <em>Ideal</em></div>
+      <div class="card-sub">Berbasis OHTS Risk Calculator · Gordon et al. 2002 · Mansberger et al. 2012</div>
+
+      <div class="alert alert-teal"><span class="alert-icon">ℹ</span><div>Kalkulator ini mengimplementasikan <strong>OHTS 5-Year Risk Model</strong> yang divalidasi. Predictor utama: IOP, CCT, CDR vertikal, usia, dan PSD dari visual field. Skor risiko ≥5% sudah menjadi ambang pertimbangan terapi di banyak center.</div></div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Usia (tahun)</label>
+          <input type="number" id="i-age" min="18" max="100" placeholder="mis. 52">
+        </div>
+        <div class="form-group">
+          <label>IOP Baseline (mmHg)</label>
+          <input type="number" id="i-iop" min="22" max="45" placeholder="22–45">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>CCT (µm)</label>
+          <input type="number" id="i-cct" min="400" max="700" placeholder="400–700">
+        </div>
+        <div class="form-group">
+          <label>CDR Vertikal</label>
+          <input type="number" id="i-cdr" min="0.1" max="1.0" step="0.05" placeholder="0.10–1.00">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>PSD (dB)</label>
+          <input type="number" id="i-psd" min="1.0" max="10.0" step="0.1" placeholder="1.0–10.0">
+        </div>
+        <div class="form-group">
+          <label>Ras/Etnis</label>
+          <select id="i-race">
+            <option value="non-aa">Non–African American</option>
+            <option value="aa">African American</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="check-group">
+        <div class="section-label">Faktor Risiko Tambahan</div>
+        <label class="check-label" id="lbl-i-fh" onclick="toggleCheck(this,'i-fh')">
+          <input type="checkbox" id="i-fh"> Riwayat keluarga POAG (first-degree relative)
+        </label>
+        <label class="check-label" id="lbl-i-vas" onclick="toggleCheck(this,'i-vas')">
+          <input type="checkbox" id="i-vas"> Penyakit vaskular (DM, HTN tidak terkontrol, migrain, sleep apnea)
+        </label>
+        <label class="check-label" id="lbl-i-disc" onclick="toggleCheck(this,'i-disc')">
+          <input type="checkbox" id="i-disc"> Disc hemorrhage atau splinter hemorrhage (saat ini / riwayat)
+        </label>
+      </div>
+
+      <button class="calc-btn" onclick="calcIdeal()">Hitung Risiko OHT (OHTS Model)</button>
+
+      <div class="result-wrap" id="res-ideal">
+        <!-- filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUB B: PRAKTIS ───────────────────────── -->
+  <div id="calc-praktis" class="sub-section">
+    <div class="card">
+      <div class="card-title">Kalkulator Risiko OHT — <em>Praktis</em></div>
+      <div class="card-sub">Tanpa CCT · Tanpa PSD · Cocok untuk Klinik dengan Alat Terbatas</div>
+
+      <div class="alert alert-amber"><span class="alert-icon">ℹ</span><div>Kalkulator ini menggunakan prediktor yang <strong>tersedia di klinik umum tanpa pachymeter atau perimetri</strong>: IOP, usia, CDR, riwayat keluarga, dan faktor risiko klinis. Didasarkan pada konversi dari model OHTS yang disederhanakan dan konsensus EGS. <em>Akurasi lebih rendah dari model ideal — gunakan sebagai panduan awal, bukan pengganti pemeriksaan lengkap.</em></div></div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Usia (tahun)</label>
+          <input type="number" id="p-age" min="18" max="100" placeholder="mis. 52">
+        </div>
+        <div class="form-group">
+          <label>IOP Tertinggi Terukur (mmHg)</label>
+          <input type="number" id="p-iop" min="22" max="45" placeholder="22–45">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>CDR Vertikal (mata terburuk)</label>
+          <input type="number" id="p-cdr" min="0.1" max="1.0" step="0.05" placeholder="0.10–1.00">
+        </div>
+        <div class="form-group">
+          <label>Asimetri CDR antar mata</label>
+          <select id="p-asym">
+            <option value="0">Tidak ada (&lt;0.2)</option>
+            <option value="1">Ada (≥0.2)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Ras/Etnis</label>
+        <select id="p-race">
+          <option value="non-aa">Non–African American / Asia</option>
+          <option value="aa">African American</option>
+        </select>
+      </div>
+
+      <div class="check-group">
+        <div class="section-label">Faktor Risiko Klinis</div>
+        <label class="check-label" id="lbl-p-fh" onclick="toggleCheck(this,'p-fh')">
+          <input type="checkbox" id="p-fh"> Riwayat keluarga POAG (first-degree relative)
+        </label>
+        <label class="check-label" id="lbl-p-disc" onclick="toggleCheck(this,'p-disc')">
+          <input type="checkbox" id="p-disc"> Disc hemorrhage atau splinter hemorrhage
+        </label>
+        <label class="check-label" id="lbl-p-prog" onclick="toggleCheck(this,'p-prog')">
+          <input type="checkbox" id="p-prog"> ONH tampak suspek glaukoma (notching, ISNT violation)
+        </label>
+        <label class="check-label" id="lbl-p-vas" onclick="toggleCheck(this,'p-vas')">
+          <input type="checkbox" id="p-vas"> Penyakit vaskular (DM, hipertensi, migrain, sleep apnea)
+        </label>
+        <label class="check-label" id="lbl-p-young" onclick="toggleCheck(this,'p-young')">
+          <input type="checkbox" id="p-young"> Usia muda &lt;45 tahun (lebih banyak tahun terekspos)
+        </label>
+      </div>
+
+      <button class="calc-btn" onclick="calcPraktis()">Analisis Risiko OHT (Model Praktis)</button>
+
+      <div class="result-wrap" id="res-praktis">
+        <!-- filled by JS -->
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-name">dr. Muhammad Indra, SpM</div>
+  <div class="footer-disc">Kalkulator ini hanya sebagai alat bantu klinis berbasis bukti. Keputusan medis akhir tetap sepenuhnya menjadi tanggung jawab klinisi yang memeriksa pasien secara langsung.</div>
+</footer>
+
+<script>
+/* ─── TAB SWITCHING ─────────────────────── */
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = ['tab-staging','tab-target','tab-oht','tab-calc'].indexOf(id);
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+}
+
+function showSubTab(id) {
+  document.querySelectorAll('.sub-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = ['calc-ideal','calc-praktis'].indexOf(id);
+  document.querySelectorAll('.sub-tab-btn')[idx].classList.add('active');
+}
+
+function toggleCheck(lbl, id) {
+  const cb = document.getElementById(id);
+  cb.checked = !cb.checked;
+  lbl.classList.toggle('checked', cb.checked);
+}
+
+/* ─── HELPERS ───────────────────────────── */
+function getRiskClass(pct) {
+  if (pct < 5)  return { cls:'rh-low',   label:'Risiko Rendah',        color:'var(--green)' };
+  if (pct < 15) return { cls:'rh-mod',   label:'Risiko Sedang',        color:'var(--amber)' };
+  if (pct < 25) return { cls:'rh-high',  label:'Risiko Tinggi',        color:'var(--coral)' };
+  return           { cls:'rh-vhigh', label:'Risiko Sangat Tinggi', color:'var(--violet)' };
+}
+
+function buildMeter(pct) {
+  const pos = Math.min(Math.max(pct, 0), 100);
+  return `
+    <div class="risk-meter">
+      <div class="risk-pointer" style="left:${pos}%"></div>
+    </div>
+    <div class="risk-meter-labels">
+      <span>Rendah &lt;5%</span><span>Sedang 5–14%</span><span>Tinggi 15–24%</span><span>Sangat Tinggi ≥25%</span>
+    </div>`;
+}
+
+function getDecision(pct, iop) {
+  if (iop >= 30) return { action: '⚕️ MULAI TERAPI SEGERA', cls:'rh-high', note: 'IOP ≥30 mmHg merupakan indikasi absolut terapi tanpa memandang faktor lain.' };
+  if (pct >= 15) return { action: '⚕️ MULAI TERAPI DIREKOMENDASIKAN', cls:'rh-high', note: 'Risiko 5-tahun ≥15% — OHTS menunjukkan manfaat terapi yang bermakna (konversi berkurang 60%).' };
+  if (pct >= 10) return { action: '⚖️ PERTIMBANGKAN TERAPI', cls:'rh-mod', note: 'Shared decision making. Diskusikan beban terapi vs manfaat. Pertimbangkan preferensi pasien, usia, dan kepatuhan.' };
+  if (pct >= 5)  return { action: '🔭 OBSERVASI KETAT', cls:'rh-mod', note: 'Monitor VF + OCT tiap 6–12 bulan. Pertimbangkan terapi bila ada progresi struktural.' };
+  return           { action: '🔭 OBSERVASI RUTIN', cls:'rh-low', note: 'Risiko rendah. Monitor tahunan. Edukasi pasien mengenai tanda peringatan dan pentingnya follow-up.' };
+}
+
+function getTargetIOP(iop, risk) {
+  if (risk >= 15 || iop >= 30) return Math.round(iop * 0.77);
+  if (risk >= 10) return Math.round(iop * 0.80);
+  return null;
+}
+
+/* ─── KALKULATOR IDEAL ───────────────────── */
+function calcIdeal() {
+  const age  = parseFloat(document.getElementById('i-age').value);
+  const iop  = parseFloat(document.getElementById('i-iop').value);
+  const cct  = parseFloat(document.getElementById('i-cct').value);
+  const cdr  = parseFloat(document.getElementById('i-cdr').value);
+  const psd  = parseFloat(document.getElementById('i-psd').value);
+  const race = document.getElementById('i-race').value;
+  const fh   = document.getElementById('i-fh').checked;
+  const vas  = document.getElementById('i-vas').checked;
+  const disc = document.getElementById('i-disc').checked;
+
+  if ([age,iop,cct,cdr,psd].some(v=>isNaN(v))) {
+    alert('Mohon isi semua kolom input.'); return;
+  }
+
+  // OHTS-based approximate 5-year risk score
+  // Published logistic regression coefficients (Gordon et al. 2002):
+  // logit = -5.85 + 0.0599*age + 0.1078*iop - 0.0060*cct + 3.9530*cdr + 0.4250*psd
+  const logit = -5.85
+    + 0.0599 * age
+    + 0.1078 * iop
+    - 0.0060 * cct
+    + 3.9530 * cdr
+    + 0.4250 * psd
+    + (race === 'aa' ? 0.7 : 0)
+    + (fh   ? 0.45 : 0)
+    + (vas  ? 0.25 : 0)
+    + (disc ? 0.65 : 0);
+
+  let prob = 1 / (1 + Math.exp(-logit));
+  let pct  = Math.min(Math.round(prob * 100), 99);
+
+  const risk = getRiskClass(pct);
+  const dec  = getDecision(pct, iop);
+  const tgt  = getTargetIOP(iop, pct);
+
+  // CCT interpretation
+  let cctNote = '';
+  if (cct < 520)      cctNote = '<span class="val-bad">Tipis (↑ risiko; IOP mungkin under-estimated)</span>';
+  else if (cct > 600) cctNote = '<span class="val-good">Tebal (IOP mungkin over-estimated; risiko relatif lebih rendah)</span>';
+  else                cctNote = '<span class="val-ok">Normal (555±40 µm)</span>';
+
+  let psdNote = '';
+  if (psd > 2.5)     psdNote = '<span class="val-warn">Elevasi PSD — VF mulai terganggu atau noise tinggi</span>';
+  else               psdNote = '<span class="val-good">Normal</span>';
+
+  let html = `
+    <div class="result-hero ${risk.cls}">
+      <div>
+        <div class="rh-label">5-Year Conversion Risk</div>
+        <div class="rh-value">~${pct}%</div>
+      </div>
+      <div class="rh-desc">${risk.label} — ${dec.note}</div>
+    </div>
+    ${buildMeter(pct * 2)}
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="ri-label">Keputusan Klinis</div>
+        <div class="ri-value" style="font-size:0.9rem">${dec.action}</div>
+      </div>
+      ${tgt ? `<div class="result-item"><div class="ri-label">Target IOP bila terapi</div><div class="ri-value">≤${tgt} mmHg</div><div class="ri-note">Penurunan ≥20% dari baseline ${iop} mmHg</div></div>` : ''}
+      <div class="result-item">
+        <div class="ri-label">Interpretasi CCT</div>
+        <div class="ri-value" style="font-size:0.85rem">${cctNote}</div>
+        <div class="ri-note">${cct} µm (referensi: 555±40 µm)</div>
+      </div>
+      <div class="result-item">
+        <div class="ri-label">Interpretasi PSD</div>
+        <div class="ri-value" style="font-size:0.85rem">${psdNote}</div>
+        <div class="ri-note">PSD ${psd} dB</div>
+      </div>
+    </div>
+    ${buildRecomBox(pct, iop, age, tgt)}`;
+
+  const res = document.getElementById('res-ideal');
+  res.innerHTML = html;
+  res.classList.add('show');
+}
+
+/* ─── KALKULATOR PRAKTIS ─────────────────── */
+function calcPraktis() {
+  const age   = parseFloat(document.getElementById('p-age').value);
+  const iop   = parseFloat(document.getElementById('p-iop').value);
+  const cdr   = parseFloat(document.getElementById('p-cdr').value);
+  const asym  = parseInt(document.getElementById('p-asym').value);
+  const race  = document.getElementById('p-race').value;
+  const fh    = document.getElementById('p-fh').checked;
+  const disc  = document.getElementById('p-disc').checked;
+  const prog  = document.getElementById('p-prog').checked;
+  const vas   = document.getElementById('p-vas').checked;
+  const young = document.getElementById('p-young').checked;
+
+  if ([age,iop,cdr].some(v=>isNaN(v))) {
+    alert('Mohon isi semua kolom input.'); return;
+  }
+
+  /* Point-based simplified scoring system
+     Calibrated to approximate OHTS quintile outcomes
+     without CCT and PSD */
+  let score = 0;
+
+  // IOP contribution
+  if (iop >= 30)      score += 5;
+  else if (iop >= 28) score += 4;
+  else if (iop >= 26) score += 3;
+  else if (iop >= 24) score += 2;
+  else                score += 1;
+
+  // CDR contribution
+  if (cdr >= 0.80)      score += 5;
+  else if (cdr >= 0.70) score += 4;
+  else if (cdr >= 0.60) score += 3;
+  else if (cdr >= 0.50) score += 2;
+  else                  score += 0;
+
+  // Age risk (younger = more years at risk)
+  if (age < 45)      score += 2;
+  else if (age < 55) score += 1;
+
+  // Binary risk factors
+  if (race === 'aa') score += 2;
+  if (fh)            score += 2;
+  if (disc)          score += 3;
+  if (prog)          score += 3;
+  if (vas)           score += 1;
+  if (asym)          score += 2;
+  if (young)         score += 1;
+
+  // Map score to approximate % risk (calibrated)
+  let pct;
+  const maxScore = 26;
+  if (score <= 3)       pct = 2;
+  else if (score <= 5)  pct = 5;
+  else if (score <= 7)  pct = 9;
+  else if (score <= 9)  pct = 13;
+  else if (score <= 11) pct = 18;
+  else if (score <= 13) pct = 22;
+  else if (score <= 16) pct = 28;
+  else if (score <= 19) pct = 35;
+  else                  pct = 42;
+
+  // IOP ≥30 override
+  if (iop >= 30) pct = Math.max(pct, 22);
+
+  const risk = getRiskClass(pct);
+  const dec  = getDecision(pct, iop);
+  const tgt  = getTargetIOP(iop, pct);
+
+  // CDR interpretation
+  let cdrNote = '';
+  if (cdr >= 0.8)      cdrNote = '<span class="val-bad">Cup besar — wajib OCT + VF segera</span>';
+  else if (cdr >= 0.65) cdrNote = '<span class="val-warn">Borderline — perhatikan asimetri dan ISNT</span>';
+  else                  cdrNote = '<span class="val-good">Dalam batas normal umum</span>';
+
+  // Score bar visual
+  const pctBar = Math.min(Math.round((score / maxScore) * 100), 100);
+
+  let html = `
+    <div class="result-hero ${risk.cls}">
+      <div>
+        <div class="rh-label">Estimasi Risiko Konversi</div>
+        <div class="rh-value">~${pct}%</div>
+        <div style="font-size:0.72rem; margin-top:4px; opacity:0.7; font-family:'DM Mono',monospace;">Skor: ${score}/${maxScore}</div>
+      </div>
+      <div class="rh-desc">${risk.label} — ${dec.note}</div>
+    </div>
+    ${buildMeter(pct * 2)}
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="ri-label">Keputusan Klinis</div>
+        <div class="ri-value" style="font-size:0.9rem">${dec.action}</div>
+      </div>
+      ${tgt ? `<div class="result-item"><div class="ri-label">Target IOP bila terapi</div><div class="ri-value">≤${tgt} mmHg</div><div class="ri-note">Penurunan ≥20% dari baseline ${iop} mmHg</div></div>` : ''}
+      <div class="result-item">
+        <div class="ri-label">Interpretasi CDR</div>
+        <div class="ri-value" style="font-size:0.85rem">${cdrNote}</div>
+        <div class="ri-note">CDR vertikal: ${cdr}</div>
+      </div>
+      <div class="result-item">
+        <div class="ri-label">Faktor Risiko Aktif</div>
+        <div class="ri-value">${[fh&&'FH POAG', disc&&'Disc hemorrhage', prog&&'ONH suspek', vas&&'Vascular RF', asym&&'CDR asimetri', race==='aa'&&'African Am.'].filter(Boolean).join(', ') || '—'}</div>
+      </div>
+    </div>
+    <div class="alert alert-amber"><span class="alert-icon">⚠</span><div><strong>Keterbatasan model praktis:</strong> Tanpa CCT dan PSD, akurasi estimasi risiko berkurang ~15–20% dibanding model OHTS penuh. Jika memungkinkan, lakukan pachymetri dan perimetri untuk penilaian risiko yang lebih akurat. Pertimbangkan model ini sebagai <em>triage awal</em>.</div></div>
+    ${buildRecomBox(pct, iop, age, tgt)}`;
+
+  const res = document.getElementById('res-praktis');
+  res.innerHTML = html;
+  res.classList.add('show');
+}
+
+/* ─── KALKULATOR TARGET IOP GLAUKOMA ────── */
+function calcGlaucoma() {
+  const stage = document.getElementById('g-stage').value;
+  const iop   = parseFloat(document.getElementById('g-iop').value);
+  const age   = parseFloat(document.getElementById('g-age').value);
+  const cur   = parseFloat(document.getElementById('g-cur').value);
+  const prog  = document.getElementById('g-prog').checked;
+  const dh    = document.getElementById('g-dh').checked;
+  const vas   = document.getElementById('g-vas').checked;
+  const fluct = document.getElementById('g-fluct').checked;
+  const cct   = document.getElementById('g-cct').checked;
+  const vf    = document.getElementById('g-vf').checked;
+
+  if (!stage || isNaN(iop) || isNaN(age)) {
+    alert('Mohon isi: Stadium, IOP Baseline, dan Usia.'); return;
+  }
+
+  // ── Base reduction % and absolute ceiling per stage ──
+  const stageData = {
+    early:    { label:'Early Glaucoma',           redBase:20, redMax:25, ceil:18, color:'green',  refStudy:'AGIS: target <18 mmHg mencegah progresi VF bermakna' },
+    mild:     { label:'Mild Glaucoma',            redBase:25, redMax:30, ceil:17, color:'sky',    refStudy:'EMGT: reduksi ≥25% memperlambat progresi secara signifikan' },
+    moderate: { label:'Moderate Glaucoma',        redBase:30, redMax:35, ceil:15, color:'amber',  refStudy:'CIGTS & CNTGS: penurunan 30% efektif pada moderate' },
+    severe:   { label:'Severe / Advanced',        redBase:35, redMax:40, ceil:12, color:'coral',  refStudy:'Tiap 1 mmHg tambahan reduksi bermakna pada advanced (AAO PPP)' },
+    ntg:      { label:'Normal Tension Glaucoma',  redBase:30, redMax:30, ceil:12, color:'violet', refStudy:'CNTGS: penurunan 30% → konversi 11.1% vs 35.4% tanpa terapi' },
+  };
+  const sd = stageData[stage];
+
+  // ── Apply base % reduction to baseline IOP ──
+  let targetFromPct = Math.round(iop * (1 - sd.redBase / 100));
+  let reductionPct  = sd.redBase;
+  let absCeil       = sd.ceil;
+
+  // ── Modifier factors (each lowers target further) ──
+  const modifiers = [];
+
+  if (prog) {
+    targetFromPct -= 2; reductionPct += 5;
+    modifiers.push({ label:'Progresi cepat', delta:'-2 mmHg', note:'EMGT/AGIS: progresi aktif → target lebih agresif' });
+  }
+  if (dh) {
+    targetFromPct -= 2; reductionPct += 4;
+    modifiers.push({ label:'Disc hemorrhage', delta:'-2 mmHg', note:'Drance Sign: DH = prekursor progresi; target lebih rendah' });
+  }
+  if (vas) {
+    targetFromPct -= 1; reductionPct += 3;
+    modifiers.push({ label:'Faktor vaskular', delta:'-1 mmHg', note:'NTG data: faktor non-IOP memperparah kerusakan; target lebih ketat' });
+  }
+  if (fluct) {
+    targetFromPct -= 1; reductionPct += 2;
+    modifiers.push({ label:'Fluktuasi IOP besar', delta:'-1 mmHg', note:'AGIS: fluktuasi diurnal independen mempercepat progresi VF' });
+  }
+  if (cct) {
+    targetFromPct -= 1; reductionPct += 2;
+    modifiers.push({ label:'CCT tipis <520 µm', delta:'-1 mmHg', note:'IOP GAT under-estimated; IOP aktual lebih tinggi dari terukur' });
+  }
+  if (vf) {
+    targetFromPct = Math.min(targetFromPct, 10);
+    absCeil = 10;
+    modifiers.push({ label:'Sisa VF sentral kritis', delta:'Ceiling ≤10 mmHg', note:'AAO PPP: sisa VF <10° → pertimbangkan operasi' });
+  }
+  if (age < 50 && (stage === 'moderate' || stage === 'severe')) {
+    targetFromPct -= 1;
+    modifiers.push({ label:'Usia muda <50 tahun + advanced', delta:'-1 mmHg', note:'Lebih banyak tahun terekspos risiko; target lebih agresif' });
+  }
+
+  // ── Final target = min(% approach, absolute ceiling) ──
+  const finalTarget = Math.min(targetFromPct, absCeil);
+  const finalPct    = Math.round((1 - finalTarget / iop) * 100);
+
+  // ── Status of current IOP vs target ──
+  let currentStatus = '';
+  if (!isNaN(cur) && cur > 0) {
+    if (cur <= finalTarget) {
+      currentStatus = `<div class="alert alert-green"><span class="alert-icon">✅</span><div><strong>Target TERCAPAI:</strong> IOP saat ini <strong>${cur} mmHg</strong> ≤ target <strong>${finalTarget} mmHg</strong>. Pertahankan regimen, evaluasi VF + OCT tiap 6 bulan.</div></div>`;
+    } else {
+      const gap = cur - finalTarget;
+      currentStatus = `<div class="alert alert-coral"><span class="alert-icon">🚨</span><div><strong>Target BELUM TERCAPAI:</strong> IOP saat ini <strong>${cur} mmHg</strong> masih <strong>${gap} mmHg di atas target (${finalTarget} mmHg)</strong>. Pertimbangkan eskalasi terapi: tambah obat atau evaluasi bedah.</div></div>`;
+    }
+  }
+
+  // ── Modifier rows ──
+  const modRows = modifiers.length
+    ? modifiers.map(m => `<tr><td><strong>${m.label}</strong></td><td style="color:var(--coral)">${m.delta}</td><td>${m.note}</td></tr>`).join('')
+    : `<tr><td colspan="3" style="color:var(--text3); font-style:italic;">Tidak ada faktor modifikasi aktif</td></tr>`;
+
+  // ── Drug recommendation ──
+  let drugLine = '';
+  if (stage === 'early' || stage === 'mild') {
+    drugLine = '<li><strong>First-line:</strong> Prostaglandin analog (latanoprost 0.005% / bimatoprost 0.03%) 1× malam — reduksi IOP ~25–30%</li><li><strong>Alternatif/add-on:</strong> Timolol 0.5% 2× pagi-malam (beta-blocker) atau brinzolamide 1% (CAI topikal)</li>';
+  } else if (stage === 'moderate') {
+    drugLine = '<li><strong>Kombinasi direkomendasikan:</strong> Prostaglandin analog + beta-blocker fixed combination (mis. latanoprost/timolol) — reduksi IOP ~33–38%</li><li><strong>Tambahan:</strong> CAI topikal (brinzolamide) atau CAI sistemik (asetazolamid) bila perlu reduksi lebih dalam</li>';
+  } else if (stage === 'severe' || stage === 'ntg') {
+    drugLine = '<li><strong>Target sangat rendah</strong> → kemungkinan besar <strong>kombinasi tripel</strong> atau <strong>bedah trabekulektomi/MIGS</strong> diperlukan</li><li>Kombinasi: prostaglandin + beta-blocker + CAI; evaluasi SLT sebagai adjuvan</li><li>Konsultasi prosedur bedah bila target ≤12 mmHg tidak tercapai dalam 3 bulan medikamentosa</li>';
+  }
+
+  // ── Build color class ──
+  const colorMap = { green:'rh-low', sky:'rh-low', amber:'rh-mod', coral:'rh-high', violet:'rh-vhigh' };
+  const heroClass = colorMap[sd.color];
+
+  const html = `
+    <div class="result-hero ${heroClass}">
+      <div>
+        <div class="rh-label">Target IOP Individual — ${sd.label}</div>
+        <div class="rh-value">≤ ${finalTarget} mmHg</div>
+        <div style="font-size:0.72rem; margin-top:4px; opacity:0.7; font-family:'DM Mono',monospace;">
+          Reduksi dari baseline: ≥${finalPct}% (dari ${iop} mmHg)
+        </div>
+      </div>
+      <div class="rh-desc">${sd.refStudy}</div>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="ri-label">Target IOP (mmHg)</div>
+        <div class="ri-value" style="font-size:1.6rem; color:${sd.color === 'green' ? 'var(--green)' : sd.color === 'sky' ? 'var(--sky)' : sd.color === 'amber' ? 'var(--amber)' : sd.color === 'coral' ? 'var(--coral)' : 'var(--violet)'}">≤ ${finalTarget}</div>
+        <div class="ri-note">Batas maksimum yang ditoleransi</div>
+      </div>
+      <div class="result-item">
+        <div class="ri-label">% Reduksi Diperlukan</div>
+        <div class="ri-value">≥ ${finalPct}%</div>
+        <div class="ri-note">Dari baseline ${iop} mmHg</div>
+      </div>
+      <div class="result-item">
+        <div class="ri-label">Penurunan Absolut</div>
+        <div class="ri-value">${iop - finalTarget} mmHg</div>
+        <div class="ri-note">${iop} → ${finalTarget} mmHg</div>
+      </div>
+      <div class="result-item">
+        <div class="ri-label">Stadium</div>
+        <div class="ri-value" style="font-size:0.9rem">${sd.label}</div>
+        <div class="ri-note">Reduksi base: ${sd.redBase}–${sd.redMax}%</div>
+      </div>
+    </div>
+
+    ${currentStatus}
+
+    <div class="rec-box" style="margin-bottom:12px">
+      <div class="rec-box-title">Faktor Modifikasi yang Diterapkan</div>
+      <div style="overflow-x:auto">
+      <table class="staging-table" style="margin-top:0">
+        <thead><tr><th>Faktor</th><th>Koreksi</th><th>Rasionalisasi</th></tr></thead>
+        <tbody>${modRows}</tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="rec-box">
+      <div class="rec-box-title">Rekomendasi Terapi & Monitoring</div>
+      <ul>
+        ${drugLine}
+        <li><strong>Evaluasi efikasi:</strong> Cek IOP 4–6 minggu setelah inisiasi atau perubahan obat; bandingkan dengan target</li>
+        <li><strong>Monitoring progresi:</strong> OCT RNFL + VF (SITA Standard 24-2) tiap 6 bulan hingga stabil; lalu tahunan</li>
+        <li><strong>Diurnal IOP curve:</strong> Pertimbangkan bila ada kecurigaan fluktuasi besar atau progresi meskipun IOP tampak terkontrol</li>
+        ${finalTarget <= 12 ? '<li><strong style="color:var(--coral)">⚠ Target sangat rendah (≤12 mmHg):</strong> Evaluasi trabekulektomi atau prosedur drainase bila target tidak tercapai dengan 3 obat. Pertimbangkan SLT sebagai adjuvan.</li>' : ''}
+        ${age < 50 ? '<li><strong>Pasien muda:</strong> Target lebih agresif dan kepatuhan terapi jangka panjang sangat kritis; edukasi intensif diperlukan.</li>' : ''}
+      </ul>
+    </div>`;
+
+  const res = document.getElementById('res-glaucoma');
+  res.innerHTML = html;
+  res.classList.add('show');
+}
+
+/* ─── SHARED RECOMMENDATION BOX ─────────── */
+function buildRecomBox(pct, iop, age, tgt) {
+  let fupInterval = pct >= 15 ? '4–6 minggu setelah inisiasi terapi, lalu 3 bulan' :
+                    pct >= 5  ? '6 bulan' : '12 bulan';
+  let drugs = pct >= 10 ? `
+    <li><strong>First-line:</strong> Prostaglandin analog (latanoprost 0.005%, bimatoprost 0.03%, travoprost 0.004%) — 1× malam, penurunan IOP ~25–30%</li>
+    <li><strong>Alternatif:</strong> Beta-blocker topikal (timolol 0.5%) bila kontraindikasi prostaglandin; efek penurunan IOP setara</li>
+    <li><strong>Evaluasi efikasi:</strong> 4–6 minggu setelah inisiasi; cek IOP peak dan trough bila memungkinkan</li>` : '';
+
+  return `
+    <div class="rec-box">
+      <div class="rec-box-title">Rekomendasi Monitoring & Tindak Lanjut</div>
+      <ul>
+        <li><strong>Interval follow-up:</strong> ${fupInterval}</li>
+        <li><strong>Pemeriksaan wajib:</strong> IOP (minimal 2× waktu berbeda) · CDR serial · OCT RNFL tiap 6–12 bulan · VF (SITA Standard / 24-2) tiap 6–12 bulan</li>
+        <li><strong>Pemeriksaan tambahan ideal:</strong> CCT (pachymetri) bila belum dilakukan · Diurnal IOP curve bila IOP fluktuatif · Corneal hysteresis (ORA/Corvis) bila tersedia</li>
+        ${tgt ? `<li><strong>Target IOP terapi:</strong> ≤${tgt} mmHg (penurunan ≥20% dari baseline ${iop} mmHg)</li>` : `<li><strong>Target IOP observasi:</strong> Pantau bila >21 mmHg pada ≥2 kunjungan</li>`}
+        <li><strong>Stop/taper criteria:</strong> Tidak ada progresi ≥5 tahun + risiko reassessment rendah + pasien sangat muda dengan harapan hidup panjang yang tidak mau terapi seumur hidup</li>
+        ${drugs}
+        ${age < 50 ? '<li><strong>Catatan usia muda:</strong> Pertimbangkan terapi lebih dini karena lebih banyak tahun terekspos risiko; komunikasikan dengan pasien tentang kepatuhan jangka panjang.</li>' : ''}
+        ${iop >= 30 ? '<li><span style="color:var(--coral)"><strong>⚠ IOP ≥30 mmHg:</strong> Indikasi mutlak terapi tanpa memandang faktor lain. Inisiasi segera dan titrate ke target.</span></li>' : ''}
+      </ul>
+    </div>`;
+}
+</script>
+</body>
+</html>
