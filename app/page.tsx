@@ -33,6 +33,14 @@ const apps = [
     status: "Live" as const,
     route: "/ocu-drop",
   },
+  {
+    icon: "🧮",
+    name: "OcuDrop Calculator",
+    description:
+      "Kalkulator kebutuhan obat tetes mata sampai kontrol berikutnya — berdasarkan frekuensi, jumlah mata, dan sediaan obat.",
+    status: "Live" as const,
+    route: "/ocu-calc",
+  },
 ];
 
 export default function HomePage() {

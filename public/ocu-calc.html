@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perlu berapa obat tetes mata? — OcuDrop Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4fbfa;
+    --bg-panel: #ffffff;
+    --bg-panel-2: #eef8f6;
+    --accent: #0d9488;
+    --accent-dim: rgba(13, 148, 136, 0.10);
+    --border: rgba(13, 148, 136, 0.22);
+    --text: #0f2e2b;
+    --text-dim: #587c78;
+    --text-faint: #93aeab;
+    --error: #d9433a;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  body {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 720px;
+  }
+
+  header {
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  header .eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 8px;
+  }
+
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 2rem;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+
+  header p {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    margin: 0;
+  }
+
+  .card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(13, 148, 136, 0.06);
+  }
+
+  .field {
+    margin-bottom: 22px;
+  }
+
+  .field:last-child {
+    margin-bottom: 0;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  input[type="date"],
+  select {
+    width: 100%;
+    background: var(--bg-panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.15s ease;
+    appearance: none;
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%2336d9c8' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(37%) sepia(93%) saturate(451%) hue-rotate(126deg) brightness(94%) contrast(101%);
+    cursor: pointer;
+  }
+
+  input[type="date"]:focus,
+  select:focus {
+    border-color: var(--accent);
+  }
+
+  .toggle-group {
+    display: flex;
+    gap: 10px;
+  }
+
+  .toggle-option {
+    flex: 1;
+    position: relative;
+  }
+
+  .toggle-option input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .toggle-option label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 12px 14px;
+    background: var(--bg-panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: normal;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .toggle-option input:checked + label {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .result-card {
+    background: linear-gradient(165deg, var(--bg-panel), var(--bg-panel-2));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 28px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(13, 148, 136, 0.06);
+  }
+
+  .result-label {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .result-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 2.6rem;
+    font-weight: 500;
+    color: var(--accent);
+    line-height: 1.2;
+    word-break: break-word;
+  }
+
+  .result-value .unit {
+    font-size: 1.3rem;
+    color: var(--text);
+    margin-left: 8px;
+  }
+
+  .result-value.dash {
+    color: var(--text-faint);
+    font-size: 2rem;
+  }
+
+  .error-msg {
+    color: var(--error);
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 8px 0;
+  }
+
+  .breakdown {
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .breakdown-item {
+    text-align: center;
+  }
+
+  .breakdown-item .b-label {
+    font-size: 0.72rem;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+
+  .breakdown-item .b-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.05rem;
+    color: var(--text);
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 18px;
+    color: var(--text-faint);
+    font-size: 0.76rem;
+    line-height: 1.5;
+    padding: 0 10px;
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 20px; }
+    .result-value { font-size: 2.1rem; }
+    .breakdown { grid-template-columns: 1fr; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">OcuDrop Calculator</p>
+    <h1>Perlu berapa obat tetes mata?</h1>
+    <p>Kalkulator kebutuhan obat tetes mata sampai kontrol berikutnya</p>
+  </header>
+
+  <div class="card">
+    <div class="field">
+      <label for="today">Tanggal hari ini</label>
+      <input type="date" id="today">
+    </div>
+
+    <div class="field">
+      <label>Jumlah mata yang ditetes</label>
+      <div class="toggle-group">
+        <div class="toggle-option">
+          <input type="radio" name="eyes" id="eyes1" value="1" checked>
+          <label for="eyes1">1 mata</label>
+        </div>
+        <div class="toggle-option">
+          <input type="radio" name="eyes" id="eyes2" value="2">
+          <label for="eyes2">2 mata</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="freq">Frekuensi pemberian</label>
+      <select id="freq">
+        <option value="1">1 dd (tiap 24 jam)</option>
+        <option value="2">2 dd (tiap 12 jam)</option>
+        <option value="3">3 dd (tiap 5 jam)</option>
+        <option value="4" selected>4 dd (tiap 4 jam)</option>
+        <option value="6">6 dd (tiap 2-3 jam)</option>
+        <option value="8">8 dd (tiap 2 jam)</option>
+        <option value="16">16 dd (tiap 1 jam)</option>
+        <option value="16">tiap jam (16x/hari, jam 06.00-21.00)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="control">Kapan kontrol lagi</label>
+      <input type="date" id="control">
+    </div>
+
+    <div class="field">
+      <label for="sediaan">Sediaan obat</label>
+      <select id="sediaan">
+        <option value="minidose" data-cap="12" data-unit="potek">Minidose 0,6 mL (1 potek)</option>
+        <option value="strip" data-cap="60" data-unit="strip">Strip minidose (5 potek)</option>
+        <option value="botol25" data-cap="50" data-unit="botol">Botol 2,5 mL</option>
+        <option value="botol3" data-cap="60" data-unit="botol">Botol 3 mL</option>
+        <option value="botol5" data-cap="100" data-unit="botol">Botol 5 mL</option>
+        <option value="botol15" data-cap="300" data-unit="botol">Botol 15 mL</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="result-card">
+    <div class="result-label">Perlu berapa</div>
+    <div class="result-value dash" id="resultValue">—</div>
+    <div id="breakdownWrap"></div>
+  </div>
+
+  <footer>
+    Estimasi berdasarkan drop factor standar 20 tetes/mL — bukan angka presisi per merk obat.
+  </footer>
+</div>
+
+<script>
+  // Drop factor standar farmasi: 1 mL larutan tetes mata ≈ 20 tetes.
+  // Kapasitas per sediaan = volume (mL) x 20, dibulatkan sesuai kemasan riil.
+  const todayInput = document.getElementById('today');
+  const controlInput = document.getElementById('control');
+  const freqSelect = document.getElementById('freq');
+  const sediaanSelect = document.getElementById('sediaan');
+  const resultValue = document.getElementById('resultValue');
+  const breakdownWrap = document.getElementById('breakdownWrap');
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function todayISO() {
+    const d = new Date();
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+
+  todayInput.value = todayISO();
+
+  function parseDateOnly(str) {
+    // Parse as local date (avoid timezone shift from new Date(str))
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  function calculate() {
+    const todayStr = todayInput.value;
+    const controlStr = controlInput.value;
+
+    if (!todayStr || !controlStr) {
+      showDash();
+      return;
+    }
+
+    const todayDate = parseDateOnly(todayStr);
+    const controlDate = parseDateOnly(controlStr);
+
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const diffMs = controlDate.getTime() - todayDate.getTime();
+    const durasiHari = Math.ceil(diffMs / msPerDay);
+
+    if (durasiHari <= 0) {
+      showError('Tanggal kontrol harus setelah hari ini');
+      return;
+    }
+
+    const eyes = Number(document.querySelector('input[name="eyes"]:checked').value);
+    const freqPerDay = Number(freqSelect.value);
+    const sediaanOpt = sediaanSelect.options[sediaanSelect.selectedIndex];
+    const kapasitas = Number(sediaanOpt.dataset.cap);
+    const unit = sediaanOpt.dataset.unit;
+    const sediaanLabel = sediaanOpt.text;
+
+    const totalTetes = freqPerDay * eyes * durasiHari;
+    const jumlahDibutuhkan = Math.ceil(totalTetes / kapasitas);
+
+    showResult(jumlahDibutuhkan, unit, durasiHari, totalTetes, kapasitas, sediaanLabel);
+  }
+
+  function showDash() {
+    resultValue.classList.remove('error-msg');
+    resultValue.classList.add('dash');
+    resultValue.textContent = '—';
+    breakdownWrap.innerHTML = '';
+  }
+
+  function showError(msg) {
+    resultValue.classList.remove('dash');
+    resultValue.classList.add('error-msg');
+    resultValue.textContent = msg;
+    breakdownWrap.innerHTML = '';
+  }
+
+  function showResult(jumlah, unit, durasiHari, totalTetes, kapasitas, sediaanLabel) {
+    resultValue.classList.remove('dash', 'error-msg');
+    resultValue.innerHTML = `${jumlah}<span class="unit">${unit}</span>`;
+
+    breakdownWrap.innerHTML = `
+      <div class="breakdown">
+        <div class="breakdown-item">
+          <div class="b-label">Durasi</div>
+          <div class="b-value">${durasiHari} hari</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="b-label">Total tetes</div>
+          <div class="b-value">${totalTetes} tetes</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="b-label">Kapasitas/sediaan</div>
+          <div class="b-value">${kapasitas} tetes</div>
+        </div>
+      </div>
+    `;
+  }
+
+  [todayInput, controlInput, freqSelect, sediaanSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+  document.querySelectorAll('input[name="eyes"]').forEach(el => {
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+</script>
+</body>
+</html>
