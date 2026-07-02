@@ -41,6 +41,14 @@ const apps = [
     status: "Live" as const,
     route: "/ocu-calc",
   },
+  {
+    icon: "💊",
+    name: "Tapering MP",
+    description:
+      "Kalkulator tapering off methylprednisolone oral: jadwal per step, tanggal otomatis, dan rincian resep tablet 16/8/4 mg.",
+    status: "Live" as const,
+    route: "/tapering-mp",
+  },
 ];
 
 export default function HomePage() {
