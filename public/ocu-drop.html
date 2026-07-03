@@ -173,6 +173,13 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
           </div>
         </div>
       </div>
+      <div style="margin-top:14px">
+        <label class="fl">Mode Penjadwalan Otomatis</label>
+        <div class="mode-toggle" id="scheduling-mode-toggle">
+          <button class="on-auto" data-mode="interval" onclick="setSchedulingMode('interval')">⏱ Interval Tetap</button>
+          <button data-mode="insert" onclick="setSchedulingMode('insert')">🧩 Sisip Cerdas</button>
+        </div>
+      </div>
     </div>
     <div class="notice b" style="margin-bottom:14px;font-size:12px">
       <strong>💡 Dua mode:</strong>
@@ -400,12 +407,25 @@ let selectedIds=new Set();
 let conflictResolutions=[];
 let conflictModalQueue=[];
 let conflictModalResolve=null;
+let schedulingMode='interval'; // 'interval' | 'insert'
 
 function getMinGap(){
   const n=parseInt($('min-gap').value,10);
   return Number.isFinite(n)&&n>=1&&n<=120?n:15;
 }
 function setGapPreset(m){$('min-gap').value=String(m);onGapChange();}
+function setSchedulingMode(m){
+  schedulingMode=(m==='insert')?'insert':'interval';
+  syncSchedulingModeUI();
+  onGapChange();
+}
+function syncSchedulingModeUI(){
+  const belt=document.getElementById('scheduling-mode-toggle');
+  if(!belt)return;
+  belt.querySelectorAll('button').forEach(b=>b.classList.remove('on-auto'));
+  const btn=belt.querySelector(`[data-mode="${schedulingMode}"]`);
+  if(btn)btn.classList.add('on-auto');
+}
 function onGapChange(){
   const g=getMinGap();
   const el=$('card-gap-txt');if(el)el.textContent=g+' menit';
@@ -456,6 +476,25 @@ function computeFriendlyInterval(span,doses){
   const preferred=candidates.find(m=>m>=target);
   return preferred||candidates[candidates.length-1];
 }
+function computeInsertTimes(rf,anchorsSorted){
+  if(rf<=0)return [];
+  let gaps=[];
+  for(let i=0;i<anchorsSorted.length-1;i++){
+    const left=anchorsSorted[i],right=anchorsSorted[i+1];
+    if(right>left)gaps.push({left,right});
+  }
+  if(!gaps.length)return [];
+  const placed=[];
+  for(let k=0;k<rf;k++){
+    let bestIdx=0,bestWidth=-1;
+    gaps.forEach((g,idx)=>{const w=g.right-g.left;if(w>bestWidth){bestWidth=w;bestIdx=idx;}});
+    const g=gaps[bestIdx];
+    const mid=(g.left+g.right)/2;
+    placed.push(Math.round(mid));
+    gaps.splice(bestIdx,1,{left:g.left,right:mid},{left:mid,right:g.right});
+  }
+  return placed.sort((a,b)=>a-b);
+}
 
 /* ══════════════════════════════════════════════════
    LOCAL STORAGE DATABASE
@@ -490,7 +529,7 @@ function saveRecord(showMsg=false){
       const evs=sched.filter(e=>e.d.id===d.id).map(e=>toTime(e.t));
       return{...d,times:evs};
     }),
-    rawState:{drugs:JSON.parse(JSON.stringify(drugs)),wake:$('wake').value,sleep:$('sleep').value,pat,minGap:getMinGap(),conflictResolutions:JSON.parse(JSON.stringify(conflictResolutions))},
+    rawState:{drugs:JSON.parse(JSON.stringify(drugs)),wake:$('wake').value,sleep:$('sleep').value,pat,minGap:getMinGap(),schedulingMode:schedulingMode,conflictResolutions:JSON.parse(JSON.stringify(conflictResolutions))},
   };
   const db=loadDB();
   db.unshift(record);
@@ -532,6 +571,8 @@ function loadRecordToInput(rec){
   $('wake').value=rs.wake||'06:00';
   $('sleep').value=rs.sleep||'21:00';
   if(rs.minGap!=null)$('min-gap').value=String(rs.minGap);
+  schedulingMode=rs.schedulingMode==='insert'?'insert':'interval';
+  syncSchedulingModeUI();
   conflictResolutions=Array.isArray(rs.conflictResolutions)?rs.conflictResolutions.slice():[];
   drugs=JSON.parse(JSON.stringify(rs.drugs)).map(migrateDrug);
   uid=Math.max(...drugs.map(d=>d.id),0)+1;
@@ -812,6 +853,7 @@ function buildRawSlots(){
         raw.push({d,di,rt:t,fixed:true,alternate:false,conflict:false});
       }
     }else if(d.mode==='auto'){
+      if(schedulingMode==='insert')return; // diproses di pass kedua di bawah
       let rtList=[];
       if(d.freq===-1){
         for(let i=0;i<rf;i++)rtList.push(wm+i*60);
@@ -824,6 +866,16 @@ function buildRawSlots(){
       rtList.forEach(rt=>raw.push({d,di,rt,fixed:false,alternate:false,conflict:false}));
     }
   });
+  if(schedulingMode==='insert'){
+    let anchors=Array.from(new Set([wm,sm,...raw.map(r=>r.rt)])).sort((a,b)=>a-b);
+    drugs.forEach((d,di)=>{
+      if(d.mode!=='auto')return;
+      const rf=resolveFreq(d.freq);
+      const times=computeInsertTimes(rf,anchors);
+      times.forEach(t=>raw.push({d,di,rt:t,fixed:false,alternate:false,conflict:false}));
+      anchors=Array.from(new Set([...anchors,...times])).sort((a,b)=>a-b);
+    });
+  }
   if(altWarn.length&&typeof window!=='undefined'&&!window._altWarned){
     window._altWarned=true;
     setTimeout(()=>{window._altWarned=false;},800);
@@ -1055,6 +1107,7 @@ function saveTemplate(){
     id:'t'+Date.now(),
     name,
     minGap:getMinGap(),
+    schedulingMode:schedulingMode,
     wake:$('wake').value,
     sleep:$('sleep').value,
     drugs:drugs.map((d,i)=>({
@@ -1095,6 +1148,8 @@ function applyTemplate(tid){
     }
   });
   if(t.minGap!=null)$('min-gap').value=String(t.minGap);
+  schedulingMode=t.schedulingMode==='insert'?'insert':'interval';
+  syncSchedulingModeUI();
   if(t.wake)$('wake').value=t.wake;
   if(t.sleep)$('sleep').value=t.sleep;
   renderDrugList();
@@ -1355,6 +1410,7 @@ function copyEMR(which){
 ══════════════════════════════════════════════════ */
 renderDrugList();
 onTimeChange();
+syncSchedulingModeUI();
 onGapChange();
 renderTemplateList();
 updateDBBadge();
