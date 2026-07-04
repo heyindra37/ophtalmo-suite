@@ -1,25 +1,41 @@
 import type { SaMode, FdMode, Category } from "./soap-presets";
 
 export interface PalpebraFields {
-  value: string; // "normal" | "edema-ringan" | "edema-sedang" | "edema-berat" | "hiperemis" | "ptosis-kongenital" | "ptosis-aponeurotik" | "entropion-sup" | "entropion-inf" | "ektropion" | "trikiasis" | "hordeolum" | "chalazion" | "massa" | "hematom" | "laserasi" | "manual"
+  value: string; // "normal" | "edema-ringan" | "edema-sedang" | "edema-berat" | "hiperemis" | "hiperemi-lid-margin" | "ptosis-kongenital" | "ptosis-aponeurotik" | "entropion-sup" | "entropion-inf" | "ektropion" | "trikiasis" | "hordeolum" | "chalazion" | "massa" | "hematom" | "laserasi" | "manual"
   ptosisLevatorFungsi?: string;
   massaDesc?: string;
   laseasiDesc?: string;
   manual?: string;
+  catatan?: string;
 }
 
 export interface KonjungtivaFields {
-  value: string; // "tidak-hiperemi" | "hiperemi-ringan" | "hiperemi-sedang" | "hiperemi-berat" | "injeksi-konj" | "injeksi-siliar" | "injeksi-mix" | "kemosis" | "sekret-mukoid" | "sekret-mukopurulen" | "sekret-purulen" | "perdarahan-subkonj" | "pterigium" | "epifora" | "manual"
+  hiperemi: "tidak" | "ringan" | "sedang" | "berat";
+  injeksi: "none" | "konjungtiva" | "siliar" | "mix";
+  sekret: "none" | "tidak-ada" | "mukoid" | "mukopurulen" | "purulen";
+  reaksi: "none" | "papil" | "folikel";
+  kemosis: boolean;
+  perdarahanSubkonj: boolean;
+  pterigium: boolean;
   pterigiumGrade?: string; // I / II / III
   pterigiumLokasi?: string; // nasal / temporal
+  epifora: boolean;
   manual?: string;
+  catatan?: string;
 }
 
 export interface CorneaFields {
-  value: string; // "jernih" | "edema" | "infiltrat" | "ulkus" | "sikatrik" | "PEE" | "PEK" | "dendrit" | "KP-halus" | "KP-mutton" | "flap" | "manual"
+  value: string; // "jernih" | "edema" | "edema-bullosa" | "infiltrat" | "ulkus" | "sikatrik" | "PEE" | "PEK" | "dendrit" | "KP-halus" | "KP-mutton" | "KP-custom" | "flap" | "erosi" | "haziness" | "keruh-minimal" | "manual"
   infiltratLokasi?: string;
   infiltratDesc?: string;
+  erosiKedalaman?: string; // "epitel" | "stroma"
+  flStaining?: "" | "positif" | "negatif";
+  erosiCatatanFoto?: string; // free text, mis. "sesuai foto"
+  hazinessLokasi?: string; // "sentral" | "parasentral" | "perifer"
+  kpLokasi?: string; // free text, mis. "endotel, melewati ekuator"
+  kpWarna?: string; // free text, mis. "keputihan"
   manual?: string;
+  catatan?: string;
 }
 
 export interface BMDFields {
@@ -30,11 +46,13 @@ export interface BMDFields {
   cellGrade?: string;
   hipopion: boolean;
   hifema: boolean;
+  catatan?: string;
 }
 
 export interface IrisFields {
   value: string; // "radier" | "iridodenesis" | "sinekia-posterior" | "sinekia-anterior" | "neovaskularisasi" | "bombans" | "atrofi" | "heterokromia" | "manual"
   manual?: string;
+  catatan?: string;
 }
 
 export interface PupilFields {
@@ -43,6 +61,7 @@ export interface PupilFields {
   rc?: string; // normal | lambat
   rapd: boolean;
   manual?: string;
+  catatan?: string; // dirender dalam kurung, mis. "(tanpa midri)"
 }
 
 export interface LensaFields {
@@ -51,6 +70,7 @@ export interface LensaFields {
   pco?: boolean;
   subluksasiArah?: string;
   manual?: string;
+  catatan?: string;
 }
 
 export interface SaEyeState {
@@ -62,6 +82,7 @@ export interface SaEyeState {
   iris: IrisFields;
   pupil: PupilFields;
   lensa: LensaFields;
+  catatanTambahan?: string;
 }
 
 export interface FRFields {
@@ -77,27 +98,41 @@ export interface ONHFields {
   elevasiKuadran?: string;
   nvd: boolean;
   label: string; // "Papil N. II" | "ONH"
+  quickNormal?: boolean;
   manual?: string;
+  catatan?: string;
 }
 
 export interface VitreousFields {
-  value: string; // "jernih" | "floaters" | "perdarahan" | "sel" | "pvd" | "vitritis" | "snowball" | "sulit" | "manual"
+  value: string; // "jernih" | "floaters" | "perdarahan" | "sel" | "pvd" | "vitritis" | "snowball" | "opacity-nussenblatt" | "sulit" | "manual"
   perdarahanLokasi?: string;
+  nussenblattGrade?: string; // "trace" | "0" | "1" | "2" | "3" | "4"
   manual?: string;
+  catatan?: string;
 }
 
 export interface MakulaFields {
   value: string; // "refleks-plus" | "refleks-plus-menurun" | "refleks-minus" | "edema" | "macular-hole" | "erm" | "manual"
   mhGrade?: string; // 1 | 2 | 3 | 4
+  drusen: boolean;
+  drusenLokasi?: string; // "sentral" | "perifer"
+  pigmenBerubah: boolean;
+  pigmenDesc?: string; // default "kehitaman"
+  catatanOCT?: string; // free text, mis. "menunjukkan dry AMD"
   manual?: string;
+  catatan?: string;
 }
 
 export interface RetinaFields {
-  value: string; // "attached" | "dot-blot" | "flame" | "eksudat" | "cws" | "ablasio" | "nve" | "mikroaneurisma" | "vaskulitis" | "robekan" | "sulit" | "manual"
+  value: string; // "attached" | "dot-blot" | "flame" | "eksudat" | "cws" | "ablasio" | "nve" | "mikroaneurisma" | "vaskulitis" | "robekan" | "chorioretinal-aktif" | "chorioretinal-scar" | "sulit" | "manual"
   dotBlotLokasi?: string;
   flameLokasi?: string;
   ablasioArea?: string;
+  crLokasi?: string; // lokasi/kuadran chorioretinal lesion
+  crWarna?: string; // default "putih kekuningan"
+  crEtiologi?: string; // free text, mis. "suspek toxoplasmosis"
   manual?: string;
+  catatan?: string;
 }
 
 export interface FdEyeState {
@@ -107,6 +142,7 @@ export interface FdEyeState {
   vitreous: VitreousFields;
   makula: MakulaFields;
   retina: RetinaFields;
+  catatanTambahan?: string;
 }
 
 export interface GBMEyeState {
@@ -116,7 +152,19 @@ export interface GBMEyeState {
   nyeri: boolean;
 }
 
-export type CoverTestValue = "ortoforia" | "esotropia-OD" | "esotropia-OS" | "esotropia-ODS" | "eksotropia-OD" | "eksotropia-OS" | "eksotropia-ODS" | "hipertropia-OD" | "hipertropia-OS" | "";
+export type DeviasiType = "" | "ortoforia" | "esotropia" | "eksotropia" | "hipertropia" | "hipotropia";
+export type Laterality = "OD" | "OS" | "ODS";
+export type Frequency = "" | "constant" | "intermittent";
+export type ControlGrade = "" | "poor" | "intermediate" | "good";
+
+export interface CoverTestState {
+  deviasi: DeviasiType;
+  laterality: Laterality;
+  frequency: Frequency;
+  control: ControlGrade;
+  catatan?: string; // mis. "mata kanan lebih sering"
+  manual?: string;
+}
 
 export interface SoapState {
   category: string;
@@ -129,15 +177,28 @@ export interface SoapState {
   gbmOD: GBMEyeState;
   gbmOS: GBMEyeState;
   showCoverTest: boolean;
-  coverTest: CoverTestValue;
+  coverTest: CoverTestState;
   catatanTambahan: string;
+}
+
+export function defaultKonjungtiva(): KonjungtivaFields {
+  return {
+    hiperemi: "tidak",
+    injeksi: "none",
+    sekret: "none",
+    reaksi: "none",
+    kemosis: false,
+    perdarahanSubkonj: false,
+    pterigium: false,
+    epifora: false,
+  };
 }
 
 export function defaultSaEye(mode: SaMode = "full"): SaEyeState {
   return {
     mode,
     palpebra: { value: "normal" },
-    konjungtiva: { value: "tidak-hiperemi" },
+    konjungtiva: defaultKonjungtiva(),
     kornea: { value: "jernih" },
     bmd: { value: "dalam", flare: false, cell: false, hipopion: false, hifema: false },
     iris: { value: "radier" },
@@ -152,13 +213,17 @@ export function defaultFdEye(mode: FdMode = "full"): FdEyeState {
     fr: { value: "plus" },
     onh: { batas: "tegas", warna: "normal", cdr: "0.3", elevasi: false, nvd: false, label: "Papil N. II" },
     vitreous: { value: "jernih" },
-    makula: { value: "refleks-plus" },
+    makula: { value: "refleks-plus", drusen: false, pigmenBerubah: false },
     retina: { value: "attached" },
   };
 }
 
 export function defaultGBMEye(): GBMEyeState {
   return { value: "bebas", arah: [], nyeri: false };
+}
+
+export function defaultCoverTest(): CoverTestState {
+  return { deviasi: "", laterality: "ODS", frequency: "", control: "" };
 }
 
 export function defaultSoapState(): SoapState {
@@ -173,7 +238,7 @@ export function defaultSoapState(): SoapState {
     gbmOD: defaultGBMEye(),
     gbmOS: defaultGBMEye(),
     showCoverTest: false,
-    coverTest: "",
+    coverTest: defaultCoverTest(),
     catatanTambahan: "",
   };
 }
