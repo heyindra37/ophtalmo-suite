@@ -153,6 +153,45 @@ export default function ClinicalInputForm({
       {/* B. Gejala & Tanda Klinis */}
       <AccordionSection title="B. Gejala & Tanda Klinis" defaultOpen>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div>
+            <p style={{ ...labelStyle, marginBottom: 6 }}>IOP & Keratic Precipitates</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
+              <div>
+                <label style={labelStyle}>IOP</label>
+                <select style={selectStyle} value={input.iop} onChange={(e) => upd({ iop: e.target.value as ClinicalInput["iop"] })}>
+                  <option value="">Tidak diperiksa</option>
+                  <option value="elevated">Meningkat</option>
+                  <option value="reduced">Menurun</option>
+                  <option value="normal">Normal</option>
+                  <option value="unknown">Tidak tahu</option>
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>Morfologi KP</label>
+                <select style={selectStyle} value={input.kpMorphology} onChange={(e) => upd({ kpMorphology: e.target.value as ClinicalInput["kpMorphology"] })}>
+                  <option value="">Tidak diperiksa</option>
+                  <option value="fine">Fine</option>
+                  <option value="stellate">Stellate</option>
+                  <option value="mutton_fat">Mutton-fat</option>
+                  <option value="large_greasy">Large/greasy</option>
+                  <option value="unknown">Tidak tahu</option>
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>Distribusi KP</label>
+                <select style={selectStyle} value={input.kpDistribution} onChange={(e) => upd({ kpDistribution: e.target.value as ClinicalInput["kpDistribution"] })}>
+                  <option value="">Tidak diperiksa</option>
+                  <option value="arlt_triangle_inferior">Segitiga Arlt (inferior)</option>
+                  <option value="diffuse_beyond_midline">Difus, melewati midline</option>
+                  <option value="linear_turks_line">Linear (Turk's line)</option>
+                  <option value="unknown">Tidak tahu</option>
+                </select>
+              </div>
+            </div>
+            <p style={{ fontSize: 11, color: C.textFaint, margin: "6px 0 0", lineHeight: 1.5 }}>
+              Distribusi KP tidak dipakai sebagai fitur berdiri sendiri — hanya menaikkan skor jika dikombinasikan dengan IOP, pola atrofi iris, atau status sinekia posterior.
+            </p>
+          </div>
           {clinicalGroups.map((g) => (
             <div key={g.group}>
               <p style={{ ...labelStyle, marginBottom: 6 }}>{g.group}</p>

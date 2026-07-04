@@ -26,6 +26,9 @@
       "sex",
       "pain (true/false)",
       "hypopyon (true/false/mobile/immobile)",
+      "iop (elevated/reduced/normal/unknown)",
+      "kp_morphology (fine/stellate/mutton-fat/large_greasy/unknown)",
+      "kp_distribution (arlt_triangle_inferior/diffuse_beyond_midline/linear_turks_line/unknown)",
       "photophobia",
       "systemic_symptoms (list of free text or checkboxes)",
       "immune_status (immunocompetent/immunocompromised/HIV/pregnant)",
@@ -34,6 +37,36 @@
       "fundus_findings (free text or checkboxes)",
       "prior_trauma_or_surgery"
     ]
+  },
+  "kp_distribution_reference": {
+    "purpose": "Quick-reference on keratic precipitate (KP) distribution pattern as a differential-diagnosis clue, supplementing IOP. Sourced from cross-referenced ophthalmology literature (Arlt's triangle concept + AAO EyeNet 'Viral Anterior Uveitis' + Ocular Immunology & Inflammation review), not from Kanski Ch.12 directly - Kanski only mentions the Arlt-triangle pattern in passing under general KP description. Included because slit-lamp exam is universally available (zero additional cost), making KP distribution a very high-value discriminative sign in resource-limited settings.",
+    "arlt_triangle": {
+      "description": "Classic KP distribution: inverted/base-down triangle concentrated on the CENTRAL-INFERIOR cornea, apex pointing up. Caused by gravity + aqueous convection currents (rising along warm iris, falling along cooler cornea).",
+      "clinical_meaning": "Suggestive of a granulomatous inflammatory process, but NOT pathognomonic and NOT etiology-specific on its own - can occur in both non-infectious (sarcoidosis, VKH) AND infectious (TB, syphilis) granulomatous disease.",
+      "typical_entities": [
+        "sarcoidosis_uveitis",
+        "vkh_syndrome",
+        "tb_uveitis",
+        "syphilitic_uveitis",
+        "aau_idiopathic_hlab27 (non-granulomatous, smaller KP but same gravity-driven inferior tendency)"
+      ]
+    },
+    "diffuse_beyond_midline_pattern": {
+      "description": "KP distributed DIFFUSELY across the ENTIRE corneal endothelium, extending beyond the horizontal midline/equator (i.e. beyond the classic inferior Arlt's-triangle confinement), typically FINE/STELLATE in morphology rather than large mutton-fat.",
+      "clinical_meaning": "This is the KEY EXCEPTION to the Arlt's-triangle rule and a discriminative clue toward a VIRAL or Fuchs etiology. Not pathognomonic alone, but a strong contributory signal, especially combined with elevated IOP, sectoral/patchy iris atrophy, and (for Fuchs specifically) absence of posterior synechiae.",
+      "typical_entities": [
+        "herpes_simplex_anterior_uveitis",
+        "vzv_anterior_uveitis",
+        "cmv_anterior_uveitis",
+        "fuchs_uveitis_syndrome"
+      ],
+      "supporting_note": "Additional literature clue (non-Kanski): fresh PIGMENTED KP (rather than the classic non-pigmented fine KP) further supports a viral cause when combined with diffuse/beyond-midline distribution."
+    },
+    "linear_turks_line_pattern": {
+      "description": "KP deposited in a linear vertical formation on the inferior cornea (as opposed to the triangular Arlt pattern).",
+      "clinical_meaning": "Recognized alternative distribution pattern, less specific/less commonly emphasized than Arlt's triangle or the diffuse viral pattern - low scoring weight, mainly useful to avoid mis-classifying it as 'diffuse beyond midline'."
+    },
+    "combination_rule_for_scoring": "KP distribution should NEVER be used as a stand-alone diagnostic feature. It should be combined with IOP pattern, iris atrophy pattern (diffuse vs sectoral vs absent), presence/absence of posterior synechiae, and granulomatous morphology (fine vs mutton-fat) - Kanski and subsequent literature both note no single KP feature is diagnostic in isolation."
   },
   "diseases": [
     {
@@ -57,6 +90,11 @@
         "Psoriatic arthritis",
         "IBD-associated arthropathy"
       ],
+      "kp_distribution": {
+        "pattern": "arlt_triangle_inferior",
+        "detail": "Small non-granulomatous KP, gravity-driven inferior concentration typical of standard AAU - contrast with the diffuse/beyond-midline pattern seen in viral anterior uveitis and Fuchs.",
+        "source_note": "General Arlt's-triangle principle applied to non-granulomatous AAU (cross-referenced literature, not Kanski-specific)"
+      },
       "investigations": [
         {
           "name": "HLA-B27",
@@ -143,6 +181,16 @@
         "Vitritis with anterior gel opacities can be dense"
       ],
       "critical_note": "Do NOT treat with long-term topical steroid for chronic low-grade inflammation - not helpful in this specific entity (exception to usual CAU management)",
+      "iop_pattern": {
+        "pattern": "elevated (chronic/late)",
+        "detail": "Glaucoma develops in up to 60% of involved eyes; typically a LATE manifestation but occasionally present at diagnosis. Several mechanisms suspected (fine radial angle vessels/small irregular peripheral anterior synechiae seen on gonioscopy - source of Amsler sign haemorrhage on AC incision).",
+        "source_note": "Kanski Ch.12, Fuchs Uveitis Syndrome section"
+      },
+      "kp_distribution": {
+        "pattern": "diffuse_beyond_midline (pathognomonic-level for this entity)",
+        "detail": "Diffuse STELLATE KP over the ENTIRE corneal endothelium is one of the most classic/recognizable examples of KP distribution extending beyond Arlt's triangle - this is the reference entity most textbooks use to illustrate the 'exception to Arlt's triangle' pattern.",
+        "source_note": "Kanski Ch.12 (diffuse stellate KP) + cross-referenced literature explicitly using Fuchs as the classic example of diffuse/beyond-midline KP (non-Kanski)"
+      },
       "investigations": [
         {
           "name": "Usually clinical diagnosis; investigate only to exclude alternatives",
@@ -196,6 +244,11 @@
         "escalation": "Systemic immunosuppressive (methotrexate, infliximab, adalimumab) considered EARLY - improves visual prognosis",
         "avoid": "Etanercept - can cause severe worsening",
         "emerging": "Tocilizumab (IL-6 blocker) shown effective in refractory JIA-uveitis"
+      },
+      "iop_pattern": {
+        "pattern": "elevated (chronic complication)",
+        "detail": "Glaucoma listed as a common serious complication (along with amblyopia, maculopathy, cyclitic membrane, phthisis). Not typically an early/acute diagnostic sign since JIA uveitis itself is asymptomatic.",
+        "source_note": "Kanski Ch.12, Uveitis in JIA section"
       }
     },
     {
@@ -213,6 +266,11 @@
         "OCT: subretinal septae; height of subretinal fluid correlates with disease activity"
       ],
       "diagnostic_criteria_table": "Complete VKH = criteria 1-5; Incomplete = 1-3 + (4 or 5); Probable (isolated ocular) = 1-3 only",
+      "kp_distribution": {
+        "pattern": "arlt_triangle_inferior (mutton-fat, granulomatous)",
+        "detail": "As a granulomatous panuveitis, VKH's anterior component classically shows mutton-fat KP with the typical gravity-driven inferior/Arlt's-triangle concentration - unlike the diffuse pattern seen in viral entities.",
+        "source_note": "General granulomatous-KP principle applied to VKH's granulomatous anterior uveitis component (cross-referenced literature, not Kanski-specific)"
+      },
       "associations": [
         "HLA-DR1",
         "HLA-DR4",
@@ -340,6 +398,16 @@
         "posterior": "Systemic steroids +/- immunosuppressive (methotrexate, azathioprine, ciclosporin, TNF inhibitors e.g. adalimumab)",
         "neovascularization": "Scatter photocoagulation to ischemic areas on FA",
         "cmo": "Topical NSAID may help"
+      },
+      "iop_pattern": {
+        "pattern": "variable (complication, not acute diagnostic sign)",
+        "detail": "Glaucoma listed among typical complications alongside cataract, PS, band keratopathy, vitreous haemorrhage, maculopathy.",
+        "source_note": "Kanski Ch.12, Sarcoidosis Investigation/Ocular features section"
+      },
+      "kp_distribution": {
+        "pattern": "arlt_triangle_inferior (mutton-fat)",
+        "detail": "Mutton-fat KP is one of the IWOS 7 key signs of intraocular sarcoidosis; classically distributed gravity-driven inferior/Arlt's-triangle pattern, distinct from the diffuse pattern of viral anterior uveitis.",
+        "source_note": "Kanski Ch.12 (IWOS mutton-fat KP sign) + cross-referenced literature on Arlt's-triangle association with granulomatous disease (non-Kanski)"
       }
     },
     {
@@ -355,7 +423,8 @@
         "'Headlight in the fog' = white retinal nidus viewed through vitritis",
         "Optic disc oedema common",
         "De novo foci (no old scar) more common in immunocompromised",
-        "Most common identifiable cause of focal retinitis"
+        "Most common identifiable cause of focal retinitis",
+        "Spill-over anterior uveitis common - may resemble FUS or be granulomatous; elevated IOP may follow"
       ],
       "epidemiology": "Responsible for 20-60% of posterior uveitis depending on country (85% in Brazil)",
       "investigations": [
@@ -397,6 +466,11 @@
         "prophylaxis": "Co-trimoxazole 160/800mg TID x12 months reduces recurrence from 22% to 3% for up to 3 years",
         "pregnancy": "Careful selection; intravitreal therapy or azithromycin+clindamycin+/-prednisolone may be appropriate; spiramycin for prevention of transmission",
         "avoid": "Depot intra/periocular steroids (e.g. triamcinolone) - can cause uncontrolled progression"
+      },
+      "iop_pattern": {
+        "pattern": "elevated (may follow spill-over anterior uveitis)",
+        "detail": "'Spill-over' anterior uveitis is common in ocular toxoplasmosis. It may be granulomatous or resemble FUS. Elevated IOP may follow.",
+        "source_note": "Kanski Ch.12, Toxoplasmosis Ocular features section"
       }
     },
     {
@@ -533,6 +607,11 @@
         "Retinal vasculitis preferentially VENOUS with occlusion/ischemia",
         "Possible link to Eales disease as hypersensitivity reaction"
       ],
+      "kp_distribution": {
+        "pattern": "arlt_triangle_inferior (granulomatous)",
+        "detail": "TB anterior uveitis is typically granulomatous with mutton-fat/large KP and broad PS, following the classic gravity-driven Arlt's-triangle distribution rather than the diffuse pattern of viral anterior uveitis.",
+        "source_note": "Cross-referenced literature on granulomatous KP distribution (non-Kanski specific for TB, but consistent with Kanski's general granulomatous-KP description)"
+      },
       "investigations": [
         {
           "name": "Tuberculin skin test",
@@ -574,6 +653,11 @@
         "'Ground glass' retinitis with occlusive vasculitis",
         "Argyll Robertson pupils (CNS involvement)"
       ],
+      "kp_distribution": {
+        "pattern": "arlt_triangle_inferior (granulomatous or non-granulomatous)",
+        "detail": "Syphilitic anterior uveitis may be granulomatous or non-granulomatous and bilateral in 50%; when granulomatous, follows the classic Arlt's-triangle inferior distribution rather than the diffuse viral pattern.",
+        "source_note": "Cross-referenced literature (non-Kanski specific for syphilis KP distribution, consistent with Kanski's general granulomatous-KP description)"
+      },
       "note": "The 'great masquerader' - always test for syphilis in atypical/unexplained uveitis",
       "investigations": [
         {
@@ -593,6 +677,11 @@
         "first_line": "Extended course of parenteral penicillin under infectious disease specialist supervision",
         "adjunct": "Topical/systemic steroids to reduce inflammatory damage",
         "warning": "Jarisch-Herxheimer reaction - systemic response to treponemal antigen release on starting therapy, can include TRANSIENT WORSENING of ocular signs"
+      },
+      "iop_pattern": {
+        "pattern": "elevated (secondary syphilis anterior uveitis)",
+        "detail": "Roseolae (dilated iris capillaries) may develop into yellowish nodules; IOP may be elevated.",
+        "source_note": "Kanski Ch.12, Acquired Syphilis Ocular features section"
       }
     },
     {
@@ -750,9 +839,242 @@
       "treatment": {
         "approach": "No proven treatment; self-limited but scotoma often persists"
       }
+    },
+    {
+      "id": "herpes_simplex_anterior_uveitis",
+      "name": "Herpes Simplex Anterior Uveitis",
+      "anatomic_class": "anterior",
+      "etiology_group": "infectious (viral - HSV)",
+      "course": "recurrent (almost always same eye)",
+      "granulomatous": "variable - KP may be fine/stellate/diffuse (Fuchs-like) OR large and grouped",
+      "laterality": "unilateral (may occur with or without active corneal disease)",
+      "key_features": [
+        "Patchy, occasionally SECTORAL iris atrophy including pigment epithelium",
+        "ELEVATED IOP common",
+        "Pupil may be larger than fellow eye",
+        "KP fine/stellate/diffuse (Fuchs-like) OR large and grouped",
+        "Often history of herpes simplex keratitis, cold sores, sometimes genital herpes",
+        "Recurrent episodes almost always involve the SAME eye"
+      ],
+      "iop_pattern": {
+        "pattern": "elevated",
+        "detail": "Elevated IOP is common in herpes simplex anterior uveitis, alongside patchy/sectoral iris atrophy.",
+        "source_note": "Kanski Ch.12, Herpes Simplex Anterior Uveitis section"
+      },
+      "kp_distribution": {
+        "pattern": "diffuse_beyond_midline (variable - can also be large/grouped rather than fine)",
+        "detail": "KP may be fine/stellate/diffuse across the cornea (Fuchs-like, extending beyond Arlt's triangle) OR large and grouped - variable morphology is itself part of the diagnostic ambiguity with CMV/VZV.",
+        "source_note": "Kanski Ch.12 (KP morphology) + cross-referenced literature on Arlt's triangle exceptions (non-Kanski)"
+      },
+      "differential_note": "Distinguishing herpetic from CMV iridocyclitis can be difficult - both have elevated IOP; CMV tends to have LESS ciliary injection, LIMITED flare, FEW cells, and PS are RARE (vs herpetic which may have more prominent anterior chamber activity).",
+      "investigations": [
+        {
+          "name": "Clinical history (recurrent same-eye episodes, keratitis history)",
+          "tier": "basic"
+        },
+        {
+          "name": "PCR aqueous (if diagnosis uncertain)",
+          "tier": "referral"
+        }
+      ],
+      "treatment": {
+        "first_line": "Topical steroid (e.g. prednisolone acetate 1% QID) + topical cycloplegic + oral antiviral (aciclovir 400mg 5x/day)",
+        "alternative_antiviral": "Famciclovir or valaciclovir - better tolerated than aciclovir",
+        "caution": "Steroid may be delayed/used with caution if active epithelial disease present - add topical antiviral if so",
+        "iop_management": "Treat raised IOP as necessary (topical IOP-lowering agents)"
+      }
+    },
+    {
+      "id": "vzv_anterior_uveitis",
+      "name": "Varicella Zoster Virus (VZV) Anterior Uveitis",
+      "anatomic_class": "anterior",
+      "etiology_group": "infectious (viral - VZV)",
+      "course": "starts 1-3 weeks after acute skin rash (herpes zoster ophthalmicus, HZO); may be recurrent",
+      "granulomatous": "may show granulomatous signs",
+      "laterality": "unilateral, associated with ipsilateral HZO history",
+      "key_features": [
+        "Occurs in ~50% of patients with herpes zoster ophthalmicus (HZO)",
+        "Onset 1-3 weeks after acute skin rash (occasionally without dermatitis - zoster sine herpete)",
+        "SECTORAL iris atrophy often present",
+        "Corneal sensation may be reduced",
+        "IOP RAISED",
+        "May occur in primary VZV infection (chickenpox) especially if immunocompromised"
+      ],
+      "iop_pattern": {
+        "pattern": "elevated",
+        "detail": "Sectoral iris atrophy often present, corneal sensation may be reduced and IOP raised.",
+        "source_note": "Kanski Ch.12, VZV Anterior Uveitis section"
+      },
+      "kp_distribution": {
+        "pattern": "diffuse_beyond_midline",
+        "detail": "Like HSV and CMV anterior uveitis, VZV-related KP typically distribute diffusely across the entire corneal endothelium rather than being confined to the classic inferior Arlt's-triangle zone - part of the broader viral anterior uveitis triad pattern.",
+        "source_note": "Cross-referenced literature on Arlt's triangle exceptions (non-Kanski) - Kanski itself does not detail KP distribution specifically for VZV"
+      },
+      "investigations": [
+        {
+          "name": "Clinical history (past ipsilateral HZO)",
+          "tier": "basic"
+        },
+        {
+          "name": "PCR analysis of aqueous",
+          "tier": "referral",
+          "note": "indicated exceptionally"
+        }
+      ],
+      "treatment": {
+        "first_line": "Topical steroid + mydriatic, in addition to standard systemic antiviral treatment of shingles",
+        "systemic_steroid": "Rarely required (e.g. for optic neuritis)",
+        "monitoring": "All HZO patients must be monitored by ophthalmologist depending on severity - up to weekly for at least 6 weeks to detect occult inflammation, then possibly long-term for late complications",
+        "recurrence": "Persistence/recurrence may respond to week-long course of aciclovir 800mg 5x/day; long-term prophylaxis considered for repeated recurrence",
+        "prevention": "VZV vaccination offers protection against shingles"
+      }
+    },
+    {
+      "id": "cmv_anterior_uveitis",
+      "name": "Cytomegalovirus (CMV) Anterior Uveitis",
+      "anatomic_class": "anterior",
+      "etiology_group": "infectious (viral - CMV)",
+      "course": "may be recurrent or chronic",
+      "granulomatous": false,
+      "laterality": "unilateral or bilateral",
+      "key_features": [
+        "More common in IMMUNOCOMPETENT individuals than previously realized (though still less prevalent than HSV/VZV-related inflammation)",
+        "ELEVATED IOP very common - can present as Posner-Schlossman syndrome (glaucomatocyclitic crisis)",
+        "Little or NO ciliary injection",
+        "LIMITED flare, FEW cells (in contrast to more florid herpetic inflammation)",
+        "Corneal endotheliitis",
+        "KP of variable morphology, sectoral iris atrophy",
+        "Posterior synechiae are RARE",
+        "Key diagnostic indicator (in some cases only): FAILURE TO RESPOND to aciclovir and/or steroids"
+      ],
+      "iop_pattern": {
+        "pattern": "elevated - most prominent/consistent feature among the three viral anterior uveitides",
+        "detail": "Elevated IOP is very common. CMV has been reported as a cause of Posner-Schlossman syndrome. This, combined with minimal ciliary injection/flare/cells and RARE posterior synechiae, helps distinguish CMV from more inflamed HSV/VZV anterior uveitis.",
+        "source_note": "Kanski Ch.12, Cytomegalovirus Anterior Uveitis section"
+      },
+      "kp_distribution": {
+        "pattern": "diffuse_beyond_midline, variable morphology",
+        "detail": "KP of variable morphology distributed diffusely (not confined to Arlt's triangle), often described as small/medium and sometimes coin-shaped endotheliitis-related lesions in the literature - contributes to the low-injection, low-flare, diffuse-KP picture typical of CMV anterior uveitis.",
+        "source_note": "Kanski Ch.12 (KP of a range of morphology) + cross-referenced literature on Arlt's triangle exceptions (non-Kanski)"
+      },
+      "differential_note": "vs HSV/VZV anterior uveitis: CMV has LESS injection, LESS flare, FEWER cells, PS RARE, and characteristically FAILS TO RESPOND to aciclovir/steroids - this non-response can itself be the diagnostic clue.",
+      "investigations": [
+        {
+          "name": "PCR and antibody assay of aqueous sample",
+          "tier": "referral",
+          "note": "should be considered if clinical suspicion"
+        },
+        {
+          "name": "Trial of aciclovir/steroid response (diagnostic by failure to respond)",
+          "tier": "basic"
+        }
+      ],
+      "treatment": {
+        "first_line": "Oral valganciclovir in proven infection - sometimes requires long-term continuation",
+        "note": "IOP elevation may be persistent despite antiviral treatment"
+      }
+    },
+    {
+      "id": "lens_induced_uveitis",
+      "name": "Lens-Induced (Phacogenic) Uveitis",
+      "anatomic_class": "anterior (may involve vitreous cavity)",
+      "etiology_group": "non-infectious (immune response to lens proteins)",
+      "course": "variable, often post-surgical",
+      "granulomatous": false,
+      "laterality": "unilateral, related to affected eye",
+      "key_features": [
+        "Immune response to lens proteins following incomplete cataract extraction, trauma, or rarely capsular degeneration in mature cataract",
+        "Most common modern scenario: RETAINED LENS FRAGMENTS after phacoemulsification (posterior segment after capsular rupture/zonular dehiscence, or overlooked fragment in AC)",
+        "Corneal oedema common adjacent to AC lens fragment",
+        "IOP FREQUENTLY ELEVATED",
+        "Lens fragments may be visible in anterior or posterior segment",
+        "Vitritis if fragments lie within vitreous cavity"
+      ],
+      "iop_pattern": {
+        "pattern": "elevated - frequently",
+        "detail": "IOP is frequently elevated in lens-induced uveitis, often with corneal oedema adjacent to an AC lens fragment.",
+        "source_note": "Kanski Ch.12, Lens-Induced Uveitis section"
+      },
+      "differential_note": "Must be differentiated from bacterial endophthalmitis, which is usually more severe.",
+      "investigations": [
+        {
+          "name": "OCT, B-scan and biomicroscopic ultrasonography",
+          "tier": "in_house_if_available"
+        },
+        {
+          "name": "History of recent cataract surgery/trauma",
+          "tier": "basic"
+        }
+      ],
+      "treatment": {
+        "first_line": "Steroids (route/intensity per clinical circumstances)",
+        "definitive": "Surgical removal of all lens material from AC or via pars plana vitrectomy as required",
+        "conservative_option": "Small lens fragments in posterior segment can often be managed conservatively - absorb slowly over months",
+        "adjunct": "Cycloplegia and IOP-lowering treatment commonly indicated",
+        "complications": "CMO, glaucoma, epiretinal membrane, rarely retinal detachment/cyclitic membrane"
+      }
     }
   ],
   "quick_pattern_matchers": [
+    {
+      "pattern": "KP diffuse across ENTIRE cornea, extending beyond Arlt's-triangle/midline + fine/stellate morphology + no posterior synechiae + eye white",
+      "differential": [
+        "fuchs_uveitis_syndrome"
+      ],
+      "note": "Fuchs is the classic textbook example of KP distribution violating the Arlt's-triangle rule. Combine with heterochromia + absent PS to strengthen."
+    },
+    {
+      "pattern": "KP diffuse across ENTIRE cornea, extending beyond Arlt's-triangle/midline + elevated IOP + sectoral/patchy iris atrophy (any of HSV/VZV/CMV pattern present)",
+      "differential": [
+        "herpes_simplex_anterior_uveitis",
+        "vzv_anterior_uveitis",
+        "cmv_anterior_uveitis"
+      ],
+      "note": "Diffuse/beyond-midline KP distribution is a group-level clue for VIRAL anterior uveitis as a whole (vs granulomatous non-viral). Use IOP intensity, injection level, flare/cell count, PS presence, and antiviral/steroid response to differentiate among the three - see the disease-specific quick_pattern_matchers above/below for that finer discrimination.",
+      "action": "Do NOT treat this pattern alone as conclusive - always combine with at least one more discriminating feature (IOP behaviour, injection degree, PS presence/absence, treatment response) before ranking a specific virus."
+    },
+    {
+      "pattern": "KP concentrated in classic inferior triangle (Arlt's triangle), mutton-fat/large, granulomatous",
+      "differential": [
+        "sarcoidosis_uveitis",
+        "vkh_syndrome",
+        "tb_uveitis",
+        "syphilitic_uveitis"
+      ],
+      "note": "Arlt's-triangle distribution is suggestive of granulomatous inflammation but is NOT etiology-specific by itself - it does not distinguish infectious (TB/syphilis) from non-infectious (sarcoid/VKH) granulomatous disease. Serology/CXR/IGRA still required to differentiate within this group.",
+      "action": "Never use Arlt's-triangle presence alone to rule OUT infectious causes (TB, syphilis) - always screen serology/IGRA regardless of a 'typical non-infectious-looking' granulomatous KP pattern."
+    },
+    {
+      "pattern": "anterior uveitis + elevated IOP + minimal ciliary injection + limited flare/few cells + poor response to steroid/aciclovir",
+      "differential": [
+        "cmv_anterior_uveitis"
+      ],
+      "note": "Consider Posner-Schlossman syndrome. Contrast with herpes_simplex_anterior_uveitis/vzv_anterior_uveitis which also raise IOP but usually with more prominent inflammation and a positive antiviral history/response."
+    },
+    {
+      "pattern": "unilateral recurrent anterior uveitis, SAME eye each time + elevated IOP + sectoral/patchy iris atrophy + past herpetic keratitis or cold sores",
+      "differential": [
+        "herpes_simplex_anterior_uveitis"
+      ]
+    },
+    {
+      "pattern": "anterior uveitis 1-3 weeks after ipsilateral shingles rash + elevated IOP + sectoral iris atrophy + reduced corneal sensation",
+      "differential": [
+        "vzv_anterior_uveitis"
+      ]
+    },
+    {
+      "pattern": "recent cataract surgery/trauma + elevated IOP + visible lens fragment + corneal oedema adjacent to fragment",
+      "differential": [
+        "lens_induced_uveitis"
+      ],
+      "must_exclude": "bacterial endophthalmitis (usually more severe/acute)"
+    },
+    {
+      "pattern": "elevated IOP noted, but patient currently ON topical/regional steroid therapy",
+      "action": "Consider IATROGENIC steroid-response IOP elevation before attributing to disease-specific mechanism - does not reliably discriminate between entities in this state",
+      "differential": []
+    },
     {
       "pattern": "hypopyon + mobile + white eye",
       "differential": [
@@ -843,6 +1165,91 @@
         "apmppe"
       ],
       "action": "urgent CNS imaging + lumbar puncture"
+    },
+    {
+      "pattern": "anterior uveitis + elevated IOP + minimal injection/flare/cells + PS rare + no response to aciclovir/steroid",
+      "differential": [
+        "cmv_anterior_uveitis"
+      ],
+      "note": "Non-response to treatment can itself be the diagnostic clue for CMV anterior uveitis"
+    },
+    {
+      "pattern": "anterior uveitis + elevated IOP + sectoral iris atrophy + history of ipsilateral HZO rash 1-3 weeks prior",
+      "differential": [
+        "vzv_anterior_uveitis"
+      ]
+    },
+    {
+      "pattern": "anterior uveitis + elevated IOP + patchy/sectoral iris atrophy + recurrent SAME eye + history of HSV keratitis/cold sores",
+      "differential": [
+        "herpes_simplex_anterior_uveitis"
+      ]
+    },
+    {
+      "pattern": "anterior uveitis + elevated IOP + recent cataract surgery + visible lens fragment",
+      "differential": [
+        "lens_induced_uveitis"
+      ],
+      "must_exclude": "bacterial endophthalmitis (usually more severe/acute)"
+    },
+    {
+      "pattern": "chronic unilateral anterior uveitis + heterochromia + stellate KP + NO PS + eye white + glaucoma present/developing",
+      "differential": [
+        "fuchs_uveitis_syndrome"
+      ],
+      "note": "Glaucoma in FUS develops in up to 60% of eyes, typically a LATE manifestation"
     }
-  ]
+  ],
+  "iop_reference_table": {
+    "purpose": "Quick-reference summary of IOP behaviour across uveitis entities in Kanski Ch.12 - useful as a scoring signal since tonometry is universally available even in resource-limited settings (unlike HLA typing, PCR, etc.)",
+    "general_principle": "Kanski notes IOP in anterior uveitis 'may be reduced as the result of impairment of aqueous secretion by the ciliary epithelium, or elevated due to a variety of mechanisms, including the use of topical steroids.' So IOP direction alone is not pathognomonic, but PATTERN + CONTEXT is discriminative.",
+    "entities_with_IOP_ELEVATION_as_a_notable_feature": [
+      {
+        "id": "cmv_anterior_uveitis",
+        "strength": "strong - very common, often with minimal other inflammatory signs; a hallmark feature"
+      },
+      {
+        "id": "herpes_simplex_anterior_uveitis",
+        "strength": "moderate - common finding alongside sectoral/patchy iris atrophy"
+      },
+      {
+        "id": "vzv_anterior_uveitis",
+        "strength": "moderate - common finding alongside sectoral iris atrophy, reduced corneal sensation"
+      },
+      {
+        "id": "lens_induced_uveitis",
+        "strength": "moderate-strong - frequently elevated, associated with corneal oedema near lens fragment"
+      },
+      {
+        "id": "syphilitic_uveitis",
+        "strength": "mentioned - IOP may be elevated with roseolae/secondary syphilis anterior uveitis"
+      },
+      {
+        "id": "toxoplasmosis_retinitis",
+        "strength": "mentioned - elevated IOP may follow spill-over anterior uveitis"
+      },
+      {
+        "id": "fuchs_uveitis_syndrome",
+        "strength": "strong but CHRONIC/LATE - glaucoma develops in up to 60% of eyes over time, not necessarily an early/acute sign"
+      },
+      {
+        "id": "jia_uveitis",
+        "strength": "complication-level - glaucoma is a common serious COMPLICATION of longstanding disease, not an early diagnostic clue"
+      },
+      {
+        "id": "sarcoidosis_uveitis",
+        "strength": "complication-level - glaucoma listed among typical complications"
+      },
+      {
+        "id": "vkh_syndrome",
+        "strength": "complication-level - glaucoma listed among ocular complications (with macular neovascularization, subretinal fibrosis, vitreous haemorrhage, cataract)"
+      },
+      {
+        "id": "behcet_uveitis",
+        "strength": "complication-level, END-STAGE only - glaucoma appears among end-stage disease complications (with optic/retinal atrophy, PS, cataract); NOT a feature of acute Behcet presentation"
+      }
+    ],
+    "iatrogenic_caution": "Topical/regional/intraocular steroid treatment itself commonly causes elevated IOP ('steroid responders') - this is a TREATMENT SIDE EFFECT, not a diagnostic clue, and must be distinguished from disease-related IOP elevation, especially in patients already on steroid therapy for their uveitis. Regional steroid injection carries up to 25% risk of refractory IOP elevation.",
+    "clinical_utility_note": "Because tonometry is essentially universally available (unlike HLA typing, PCR, ICGA), 'elevated IOP present/absent' is a HIGH-VALUE, LOW-COST checkbox to include prominently in the clinical input form - it meaningfully narrows the viral anterior uveitis differential (HSV/VZV/CMV) even when advanced investigations are not accessible."
+  }
 }
