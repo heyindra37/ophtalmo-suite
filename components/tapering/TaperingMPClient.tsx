@@ -87,9 +87,10 @@ function buildJadwalText(lines: ScheduleLine[], tanggalKontrol: Date): string {
   return rows.join("\n");
 }
 
-interface ResepRow { label: string; total: number }
+interface ResepRow { label: string; total: number; stok: number; perlu: number }
+interface StokSisa { s16: number; s8: number; s4: number }
 
-function buildResep(steps: TaperingStep[]): ResepRow[] {
+function buildResep(steps: TaperingStep[], stok: StokSisa): ResepRow[] {
   let total16 = 0, total8 = 0, total4 = 0;
   for (const s of steps) {
     const bd = breakdownTablet(s.dosis);
@@ -98,9 +99,9 @@ function buildResep(steps: TaperingStep[]): ResepRow[] {
     total4  += bd.n4  * s.frekuensi * s.durasi;
   }
   const rows: ResepRow[] = [];
-  if (total16 > 0) rows.push({ label: "16 mg", total: total16 });
-  if (total8  > 0) rows.push({ label: "8 mg",  total: total8  });
-  if (total4  > 0) rows.push({ label: "4 mg",  total: total4  });
+  if (total16 > 0) rows.push({ label: "16 mg", total: total16, stok: stok.s16, perlu: Math.max(0, total16 - stok.s16) });
+  if (total8  > 0) rows.push({ label: "8 mg",  total: total8,  stok: stok.s8,  perlu: Math.max(0, total8  - stok.s8)  });
+  if (total4  > 0) rows.push({ label: "4 mg",  total: total4,  stok: stok.s4,  perlu: Math.max(0, total4  - stok.s4)  });
   return rows;
 }
 
@@ -153,6 +154,7 @@ export default function TaperingMPClient() {
   const [steps, setSteps] = useState<TaperingStep[]>(DEFAULT_STEPS);
   const [copied, setCopied] = useState(false);
   const [nextId, setNextId] = useState(5);
+  const [stok, setStok] = useState<StokSisa>({ s16: 0, s8: 0, s4: 0 });
 
   const errors = useMemo(() => {
     const map: Record<number, string> = {};
@@ -174,9 +176,9 @@ export default function TaperingMPClient() {
     const kontrol = new Date(lastLine.akhir);
     kontrol.setDate(kontrol.getDate() + 1);
     const text = buildJadwalText(lines, kontrol);
-    const resep = buildResep(steps);
+    const resep = buildResep(steps, stok);
     return { jadwalText: text, resepRows: resep, tanggalKontrol: kontrol };
-  }, [tanggalMulai, steps, hasErrors]);
+  }, [tanggalMulai, steps, hasErrors, stok]);
 
   const updateStep = useCallback((id: number, field: keyof TaperingStep, value: number) => {
     setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
@@ -231,6 +233,46 @@ export default function TaperingMPClient() {
               onChange={(e) => setTanggalMulai(e.target.value)}
               style={S.input}
             />
+          </div>
+
+          {/* Stok sisa */}
+          <div style={S.card}>
+            <p style={S.sectionTitle}>Stok Obat Tersisa (Opsional)</p>
+            <p style={{ color: C.textDim, fontSize: 13, margin: "0 0 12px" }}>
+              Isi jika pasien masih punya sisa tablet — jumlah resep akan otomatis dikurangi supaya lebih ekonomis.
+            </p>
+            <div style={S.fieldRow}>
+              <div>
+                <label style={S.label}>Sisa 16 mg</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={stok.s16}
+                  onChange={(e) => setStok((s) => ({ ...s, s16: Math.max(0, Number(e.target.value)) }))}
+                  style={S.input}
+                />
+              </div>
+              <div>
+                <label style={S.label}>Sisa 8 mg</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={stok.s8}
+                  onChange={(e) => setStok((s) => ({ ...s, s8: Math.max(0, Number(e.target.value)) }))}
+                  style={S.input}
+                />
+              </div>
+              <div>
+                <label style={S.label}>Sisa 4 mg</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={stok.s4}
+                  onChange={(e) => setStok((s) => ({ ...s, s4: Math.max(0, Number(e.target.value)) }))}
+                  style={S.input}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Steps */}
@@ -327,14 +369,18 @@ export default function TaperingMPClient() {
                   <thead>
                     <tr>
                       <th style={S.th}>Kekuatan</th>
-                      <th style={{ ...S.th, textAlign: "right" }}>Total tablet</th>
+                      <th style={{ ...S.th, textAlign: "right" }}>Kebutuhan</th>
+                      <th style={{ ...S.th, textAlign: "right" }}>Stok</th>
+                      <th style={{ ...S.th, textAlign: "right" }}>Perlu diresepkan</th>
                     </tr>
                   </thead>
                   <tbody>
                     {resepRows.map((r) => (
                       <tr key={r.label}>
                         <td style={S.td}>Methylprednisolone {r.label}</td>
-                        <td style={{ ...S.tdNum, textAlign: "right" }}>{r.total} tab</td>
+                        <td style={{ ...S.td, textAlign: "right" }}>{r.total} tab</td>
+                        <td style={{ ...S.td, textAlign: "right" }}>{r.stok > 0 ? `${r.stok} tab` : "—"}</td>
+                        <td style={{ ...S.tdNum, textAlign: "right" }}>{r.perlu} tab</td>
                       </tr>
                     ))}
                   </tbody>
