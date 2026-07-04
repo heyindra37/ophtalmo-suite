@@ -49,6 +49,14 @@ const apps = [
     status: "Live" as const,
     route: "/tapering-mp",
   },
+  {
+    icon: "🔬",
+    name: "Uveitis Differential",
+    description:
+      "Alat bantu diagnosis banding uveitis berbasis Kanski's Clinical Ophthalmology — ranked differential, investigasi, dan terapi berjenjang.",
+    status: "Live" as const,
+    route: "/tools/uveitis-differential",
+  },
 ];
 
 export default function HomePage() {

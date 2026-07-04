@@ -1,0 +1,848 @@
+{
+  "meta": {
+    "source": "Kanski's Clinical Ophthalmology, 10th Ed., Chapter 12 (Uveitis)",
+    "purpose": "Structured knowledge base for a clinical decision-support tool (differential diagnosis + treatment pathway). Not a substitute for clinical judgment or specialist referral.",
+    "anatomic_classes": [
+      "anterior",
+      "intermediate",
+      "posterior",
+      "panuveitis"
+    ],
+    "etiology_groups": [
+      "infectious",
+      "non-infectious",
+      "masquerade"
+    ]
+  },
+  "input_schema": {
+    "description": "Suggested fields to collect from user in the tool before running matching logic",
+    "fields": [
+      "anatomic_class",
+      "onset (sudden/insidious)",
+      "course (acute/recurrent/chronic)",
+      "laterality (unilateral/bilateral/alternating)",
+      "granulomatous (true/false/unknown)",
+      "age_group (child/adult/elderly)",
+      "sex",
+      "pain (true/false)",
+      "hypopyon (true/false/mobile/immobile)",
+      "photophobia",
+      "systemic_symptoms (list of free text or checkboxes)",
+      "immune_status (immunocompetent/immunocompromised/HIV/pregnant)",
+      "travel_or_exposure_history",
+      "known_systemic_disease",
+      "fundus_findings (free text or checkboxes)",
+      "prior_trauma_or_surgery"
+    ]
+  },
+  "diseases": [
+    {
+      "id": "aau_idiopathic_hlab27",
+      "name": "Acute Anterior Uveitis (Idiopathic / HLA-B27-associated)",
+      "anatomic_class": "anterior",
+      "etiology_group": "non-infectious",
+      "course": "acute",
+      "granulomatous": false,
+      "laterality": "unilateral, may alternate sides",
+      "key_features": [
+        "Rapid onset pain, photophobia, redness, watery discharge",
+        "Ciliary injection, miosis",
+        "Fibrinous exudate common, hypopyon common (immobile, fibrin-rich)",
+        "Small non-granulomatous KP",
+        "HLA-B27 positive in ~50% otherwise-well AAU, ~90% if associated spondyloarthropathy"
+      ],
+      "associations": [
+        "Ankylosing spondylitis",
+        "Reactive arthritis",
+        "Psoriatic arthritis",
+        "IBD-associated arthropathy"
+      ],
+      "investigations": [
+        {
+          "name": "HLA-B27",
+          "tier": "referral"
+        },
+        {
+          "name": "Sacroiliac joint X-ray if spondyloarthropathy suspected",
+          "tier": "basic"
+        }
+      ],
+      "treatment": {
+        "first_line": "Topical steroid (prednisolone acetate 1% or dexamethasone 0.1%) tapered over 5-6 weeks",
+        "adjunct": "Cycloplegic (cyclopentolate/homatropine/atropine)",
+        "severe": "Intracameral tPA if dense fibrin; regional steroid if non-compliant",
+        "systemic": "Rarely required for isolated anterior disease"
+      },
+      "prognosis": "Generally good if managed adequately; more variable if underlying systemic/ocular disorder present"
+    },
+    {
+      "id": "behcet_uveitis",
+      "name": "Behçet Disease",
+      "anatomic_class": "panuveitis",
+      "etiology_group": "non-infectious",
+      "course": "recurrent, relapsing-remitting",
+      "granulomatous": false,
+      "laterality": "eventually bilateral",
+      "key_features": [
+        "Transient MOBILE hypopyon in a relatively WHITE eye (classic distinguishing sign)",
+        "Recurrent oral aphthous ulcers (>=3 times/12 months) + at least 2 of: genital ulceration, ocular inflammation, characteristic skin lesions, pathergy reaction",
+        "Retinal vasculitis (arteritis AND phlebitis, unlike pure venous in sarcoid)",
+        "Vitritis universal with active posterior disease"
+      ],
+      "associations": [
+        "HLA-B51",
+        "Turkey/Middle East/Far East ('Silk Road') higher prevalence"
+      ],
+      "investigations": [
+        {
+          "name": "HLA-B51",
+          "tier": "referral"
+        },
+        {
+          "name": "Pathergy test",
+          "tier": "referral"
+        },
+        {
+          "name": "Inflammatory markers (ESR, CRP)",
+          "tier": "basic"
+        },
+        {
+          "name": "FA",
+          "tier": "referral"
+        },
+        {
+          "name": "Systemic imaging if neuro/vascular involvement",
+          "tier": "referral"
+        }
+      ],
+      "treatment": {
+        "immediate_indication": "Behçet with retinal vasculitis = IMMEDIATE treatment, not early/delayed",
+        "first_line": "Systemic steroid + azathioprine (2.5 mg/kg/day) per EULAR 2008",
+        "severe": "Cyclosporine (2-5mg/kg/day) or infliximab + azathioprine + steroids for >2-line VA loss or macular/vasculitis involvement",
+        "alternative": "Interferon-alfa (6 million IU/day SC) with/without steroids",
+        "avoid": "Anticoagulants not recommended; azathioprine + IFN-alfa combo risk myelosuppression"
+      },
+      "prognosis": "Severe visual loss up to 2/3 of males at 10 years without aggressive treatment; better with early biologics"
+    },
+    {
+      "id": "fuchs_uveitis_syndrome",
+      "name": "Fuchs Uveitis Syndrome (Fuchs Heterochromic Iridocyclitis)",
+      "anatomic_class": "anterior",
+      "etiology_group": "non-infectious (possibly rubella-associated)",
+      "course": "chronic",
+      "granulomatous": false,
+      "laterality": "unilateral 90-95%",
+      "key_features": [
+        "Heterochromia iridis (affected eye often hypochromic)",
+        "Diffuse STELLATE KP over entire endothelium (pathognomonic pattern)",
+        "Diffuse iris atrophy with loss of crypts",
+        "POSTERIOR SYNECHIAE ABSENT (except rarely post-cataract surgery)",
+        "Eye virtually always WHITE even during exacerbation",
+        "Posterior subcapsular cataract extremely common",
+        "Glaucoma develops in up to 60%",
+        "Vitritis with anterior gel opacities can be dense"
+      ],
+      "critical_note": "Do NOT treat with long-term topical steroid for chronic low-grade inflammation - not helpful in this specific entity (exception to usual CAU management)",
+      "investigations": [
+        {
+          "name": "Usually clinical diagnosis; investigate only to exclude alternatives",
+          "tier": "basic"
+        }
+      ],
+      "treatment": {
+        "approach": "Long-term monitoring for glaucoma/cataract; topical steroid short-term only for moderate/severe exacerbations",
+        "cataract_surgery": "Increased complication risk (poor mydriasis, hyphema, zonular dehiscence)",
+        "glaucoma": "May need surgical (drainage device/trabeculectomy with mitomycin-C)"
+      }
+    },
+    {
+      "id": "jia_uveitis",
+      "name": "Uveitis in Juvenile Idiopathic Arthritis (JIA)",
+      "anatomic_class": "anterior",
+      "etiology_group": "non-infectious",
+      "course": "chronic",
+      "granulomatous": false,
+      "laterality": "bilateral in 70%",
+      "key_features": [
+        "INVARIABLY ASYMPTOMATIC - detected by slit lamp screening, NOT by complaint",
+        "Injection usually ABSENT even with severe uveitis",
+        "PS common in longstanding undetected cases",
+        "Band keratopathy and cataract common in severe cases",
+        "Oligoarticular JIA (ANA+ 75%) has highest uveitis risk (~20%)"
+      ],
+      "screening_schedule": {
+        "initial": "Within 6 weeks of JIA diagnosis",
+        "oligoarticular_psoriatic_polyarticular_enthesitis": "2-monthly x6 months, then 3-4 monthly until age 12",
+        "polyarticular_RF_negative": "every 3-4 months",
+        "systemic_onset_and_RF_positive": "at least initial exam, some suggest annual"
+      },
+      "investigations": [
+        {
+          "name": "ANA (risk stratification)",
+          "tier": "referral"
+        },
+        {
+          "name": "HLA-B27",
+          "tier": "referral"
+        },
+        {
+          "name": "Rheumatoid factor",
+          "tier": "basic"
+        }
+      ],
+      "treatment": {
+        "first_line": "Topical steroid (effective initially in 80%)",
+        "adjunct": "Short-acting cycloplegic (cyclopentolate) - avoid amblyopia in young children",
+        "escalation": "Systemic immunosuppressive (methotrexate, infliximab, adalimumab) considered EARLY - improves visual prognosis",
+        "avoid": "Etanercept - can cause severe worsening",
+        "emerging": "Tocilizumab (IL-6 blocker) shown effective in refractory JIA-uveitis"
+      }
+    },
+    {
+      "id": "vkh_syndrome",
+      "name": "Vogt-Koyanagi-Harada (VKH) Syndrome",
+      "anatomic_class": "panuveitis",
+      "etiology_group": "non-infectious (autoimmune, melanocyte-directed)",
+      "course": "phasic: prodromal -> acute uveitic -> convalescent -> chronic recurrent",
+      "granulomatous": true,
+      "laterality": "bilateral",
+      "key_features": [
+        "Prodromal: meningitis-like symptoms, tinnitus/vertigo/deafness",
+        "Acute: bilateral granulomatous anterior + multifocal posterior uveitis, Dalen-Fuchs nodules, exudative retinal detachment",
+        "Convalescent: alopecia, poliosis, vitiligo, 'sunset glow' fundus, Sugiura sign",
+        "OCT: subretinal septae; height of subretinal fluid correlates with disease activity"
+      ],
+      "diagnostic_criteria_table": "Complete VKH = criteria 1-5; Incomplete = 1-3 + (4 or 5); Probable (isolated ocular) = 1-3 only",
+      "associations": [
+        "HLA-DR1",
+        "HLA-DR4",
+        "Hispanic/Japanese/heavily pigmented individuals"
+      ],
+      "investigations": [
+        {
+          "name": "Lumbar puncture if uncertain (transient lymphocytic pleocytosis, melanin-laden macrophages)",
+          "tier": "referral"
+        },
+        {
+          "name": "FAF",
+          "tier": "referral"
+        },
+        {
+          "name": "FA",
+          "tier": "referral"
+        },
+        {
+          "name": "OCT",
+          "tier": "in_house_if_available"
+        },
+        {
+          "name": "ICGA",
+          "tier": "referral"
+        }
+      ],
+      "treatment": {
+        "first_line": "High-dose oral prednisolone 1-2mg/kg/day tapered over 3-6 months, may precede with IV methylprednisolone pulse 500-1000mg/day",
+        "adjunct": "Topical steroid + cycloplegic for anterior component",
+        "escalation": "Immunosuppressives for steroid-resistant; infliximab EARLY if no response to steroids"
+      },
+      "urgency_note": "Early treatment strongly recommended (listed among 'early treatment' indications)"
+    },
+    {
+      "id": "sympathetic_ophthalmia",
+      "name": "Sympathetic Ophthalmia (SO)",
+      "anatomic_class": "panuveitis",
+      "etiology_group": "non-infectious (post-traumatic autoimmune)",
+      "course": "onset 2 weeks to 3 months post-injury in 65%",
+      "granulomatous": true,
+      "laterality": "bilateral (exciting + sympathizing eye)",
+      "key_features": [
+        "History of penetrating trauma with uveal prolapse, OR multiple vitreoretinal surgeries",
+        "Dalen-Fuchs nodules (granulomas between Bruch membrane and RPE) - shared with VKH",
+        "Sympathizing eye: irritation, blurred vision, photophobia, loss of accommodation"
+      ],
+      "epidemiology": "Incidence ~0.2-0.5% after penetrating injury; 0.19% meta-analysis; 0.01% after intraocular surgery",
+      "prevention": "Enucleation of severely injured eye within 10-14 days considered historically effective if hopeless visual prognosis",
+      "investigations": [
+        {
+          "name": "OCT",
+          "tier": "in_house_if_available"
+        },
+        {
+          "name": "B-scan USG",
+          "tier": "in_house_if_available"
+        },
+        {
+          "name": "FA",
+          "tier": "referral"
+        },
+        {
+          "name": "ICGA",
+          "tier": "referral"
+        },
+        {
+          "name": "FAF",
+          "tier": "referral"
+        }
+      ],
+      "treatment": {
+        "first_line": "High-dose oral prednisolone, may start with IV methylprednisolone",
+        "escalation": "Immunomodulatory treatment should be considered EARLY"
+      },
+      "prognosis": "75% retain VA better than 6/60 with aggressive therapy; relapse in 50% (may be delayed years) - long-term follow-up mandatory"
+    },
+    {
+      "id": "sarcoidosis_uveitis",
+      "name": "Sarcoidosis (ocular)",
+      "anatomic_class": "any (anterior/intermediate/posterior/pan)",
+      "etiology_group": "non-infectious (granulomatous, unknown cause)",
+      "course": "AAU in acute-onset systemic disease; CAU (granulomatous) in older/chronic pulmonary disease",
+      "granulomatous": true,
+      "laterality": "variable",
+      "key_features": [
+        "IWOS 7 key intraocular signs: mutton-fat KP/nodules, trabecular meshwork nodules/tent-shaped PAS, vitreous snowballs/strings of pearls, multiple chorioretinal peripheral lesions, nodular/segmental periphlebitis with candle-wax drippings, optic disc/choroidal nodules, other (conjunctival nodules etc)",
+        "Lofgren syndrome: erythema nodosum + bilateral hilar lymphadenopathy + polyarthralgia (good prognosis, more common in women)"
+      ],
+      "epidemiology": "10:1 Black:White; more common colder climates",
+      "investigations": [
+        {
+          "name": "Negative tuberculin skin test (paradox - supports sarcoid)",
+          "tier": "basic"
+        },
+        {
+          "name": "Serum ACE +/- lysozyme",
+          "tier": "referral"
+        },
+        {
+          "name": "CXR (bilateral hilar lymphadenopathy in 90%)",
+          "tier": "basic"
+        },
+        {
+          "name": "Chest CT if CXR negative",
+          "tier": "referral"
+        },
+        {
+          "name": "Bronchoscopy+biopsy",
+          "tier": "referral"
+        },
+        {
+          "name": "Vitreous biopsy (CD4/CD8 ratio)",
+          "tier": "referral"
+        }
+      ],
+      "diagnostic_levels": [
+        "Definite (biopsy-supported)",
+        "Presumed (BHL + compatible uveitis, no biopsy)",
+        "Probable (no BHL, >=3/7 signs + >=2/5 positive labs)",
+        "Possible (biopsy negative, >=4/7 signs + >=2/5 positive labs)"
+      ],
+      "treatment": {
+        "anterior_intermediate": "Stepwise as idiopathic",
+        "posterior": "Systemic steroids +/- immunosuppressive (methotrexate, azathioprine, ciclosporin, TNF inhibitors e.g. adalimumab)",
+        "neovascularization": "Scatter photocoagulation to ischemic areas on FA",
+        "cmo": "Topical NSAID may help"
+      }
+    },
+    {
+      "id": "toxoplasmosis_retinitis",
+      "name": "Ocular Toxoplasmosis",
+      "anatomic_class": "posterior",
+      "etiology_group": "infectious (parasitic - Toxoplasma gondii)",
+      "course": "acute/subacute, recurrent (avg 2.7 attacks/patient)",
+      "granulomatous": "spill-over anterior uveitis may be granulomatous or resemble FUS",
+      "laterality": "unilateral typically",
+      "key_features": [
+        "Single focus of fluffy white retinitis adjacent to OLD PIGMENTED SCAR = 'satellite lesion' (classic, most common presentation)",
+        "'Headlight in the fog' = white retinal nidus viewed through vitritis",
+        "Optic disc oedema common",
+        "De novo foci (no old scar) more common in immunocompromised",
+        "Most common identifiable cause of focal retinitis"
+      ],
+      "epidemiology": "Responsible for 20-60% of posterior uveitis depending on country (85% in Brazil)",
+      "investigations": [
+        {
+          "name": "Toxoplasma IgG (exposure) / IgM (recent, critical in pregnancy)",
+          "tier": "basic"
+        },
+        {
+          "name": "PCR intraocular fluid (16-67% sensitive, highly specific)",
+          "tier": "referral"
+        },
+        {
+          "name": "Goldmann-Witmer coefficient (aqueous:serum IgG ratio, 48-90% sensitive)",
+          "tier": "referral"
+        },
+        {
+          "name": "OCT (macular oedema)",
+          "tier": "in_house_if_available"
+        },
+        {
+          "name": "B-scan if severe vitritis",
+          "tier": "in_house_if_available"
+        }
+      ],
+      "treatment": {
+        "indications_for_treatment": [
+          "Sight-threatening lesion (macula, papillomacular bundle, optic disc, major vessel)",
+          "Severe vitritis",
+          "Active disease in immunocompromised"
+        ],
+        "classic_triple_therapy": "Pyrimethamine (loading 75-100mg 1-2 days then 25-50mg/day x4wks) + sulfadiazine 1g QID + oral folinic acid + prednisolone 1mg/kg (started after 24-48h antimicrobial)",
+        "alternatives": [
+          "Azithromycin 250-500mg/day + pyrimethamine + folinic acid + prednisolone",
+          "Co-trimoxazole (low-cost, better tolerated, maybe slightly less effective)",
+          "Clindamycin 300mg QID added or instead of pyrimethamine",
+          "Intravitreal clindamycin+dexamethasone (as effective as triple therapy in reactivated infection)"
+        ],
+        "duration": "4-6 weeks treatment, complete healing over 4-6 months",
+        "prophylaxis": "Co-trimoxazole 160/800mg TID x12 months reduces recurrence from 22% to 3% for up to 3 years",
+        "pregnancy": "Careful selection; intravitreal therapy or azithromycin+clindamycin+/-prednisolone may be appropriate; spiramycin for prevention of transmission",
+        "avoid": "Depot intra/periocular steroids (e.g. triamcinolone) - can cause uncontrolled progression"
+      }
+    },
+    {
+      "id": "toxocariasis_ocular",
+      "name": "Ocular Toxocariasis",
+      "anatomic_class": "posterior/panuveitis",
+      "etiology_group": "infectious (parasitic - Toxocara canis/cati)",
+      "course": "chronic, unilateral typically",
+      "laterality": "unilateral in ~2/3 with permanent visual impairment",
+      "key_features": [
+        "Chronic endophthalmitis: leukocoria, strabismus, floaters, unilateral visual loss",
+        "Posterior pole or peripheral granuloma WITHOUT inflammation in older child/adult - incidental finding",
+        "CRITICAL DIFFERENTIAL: must distinguish from RETINOBLASTOMA"
+      ],
+      "investigations": [
+        {
+          "name": "Full blood count (eosinophilia)",
+          "tier": "basic"
+        },
+        {
+          "name": "Serology (only ~50% sensitive in ocular cases)",
+          "tier": "basic"
+        },
+        {
+          "name": "Ultrasonography",
+          "tier": "in_house_if_available"
+        },
+        {
+          "name": "Aqueous/vitreous sampling",
+          "tier": "referral"
+        }
+      ],
+      "treatment": {
+        "prevention": "Good hygiene, deworming pets",
+        "steroids": "Topical, regional, or systemic",
+        "antihelminthic": "Mebendazole/thiabendazole - caution, worm death may worsen inflammation",
+        "vitrectomy": "For sight-threatening tractional sequelae"
+      }
+    },
+    {
+      "id": "cmv_retinitis",
+      "name": "Cytomegalovirus (CMV) Retinitis",
+      "anatomic_class": "posterior",
+      "etiology_group": "infectious (viral, herpesvirus)",
+      "course": "progressive without treatment; indolent (peripheral) vs fulminant patterns",
+      "laterality": "one eye initially, bilateral in 50% if untreated",
+      "key_features": [
+        "Classic 'pizza pie'/'Margherita pizza' appearance: dense white retinal infiltration + flame-shaped haemorrhages along vascular arcades",
+        "Anterior uveitis usually mild",
+        "Strong association with LOW CD4+ count",
+        "Immune Recovery Uveitis (IRU) - severe inflammation post-ART reconstitution, can progress to phthisis"
+      ],
+      "context": "Common opportunistic infection in AIDS; also immunocompromised from other causes",
+      "screening": "Low CD4 counts: 3-monthly if <50/uL, 6-monthly 50-100/uL, yearly if >100/uL",
+      "treatment": {
+        "mainstay": "ART (restores ability to suppress CMV) - discontinue antiviral when CD4 >100-150/uL",
+        "systemic": "Valganciclovir oral - induction 900mg BID up to 3 weeks, maintenance 900mg daily (watch neutropenia, treat with filgrastim)",
+        "local": "Intravitreal ganciclovir (2mg), foscarnet (1.2mg), or cidofovir (20ug) for macula/optic nerve-threatening lesions",
+        "surgical": "Vitrectomy + endolaser + silicone oil for CMV-related RD (~75% success)"
+      },
+      "prognosis": "Poor if macula involved despite treatment"
+    },
+    {
+      "id": "progressive_retinal_necrosis",
+      "name": "Progressive Retinal Necrosis (PRN/PORN)",
+      "anatomic_class": "posterior",
+      "etiology_group": "infectious (viral, usually VZV)",
+      "course": "rapidly progressive",
+      "laterality": "unilateral or bilateral",
+      "key_features": [
+        "MINIMAL anterior uveitis and vitritis - KEY DIFFERENTIATOR from CMV retinitis and ARN",
+        "Multifocal deep yellow-white infiltrates, may involve macula early giving cherry-red spot",
+        "Predominantly in AIDS patients or other severe immunocompromise"
+      ],
+      "prognosis": "Extremely poor - no light perception outcome in >50% of eyes",
+      "treatment": {
+        "approach": "Immune rescue with ART + aggressive antiviral (IV+intravitreal ganciclovir and foscarnet)",
+        "surgery": "Vitreoretinal surgery for RD often yields poor results"
+      }
+    },
+    {
+      "id": "acute_retinal_necrosis",
+      "name": "Acute Retinal Necrosis (ARN)",
+      "anatomic_class": "panuveitis",
+      "etiology_group": "infectious (viral - HSV in younger, VZV in older patients)",
+      "course": "rapid progression without treatment",
+      "laterality": "initially unilateral",
+      "key_features": [
+        "PROMINENT anterior uveitis and vitritis (panuveitis) - contrast with PRN",
+        "Discrete peripheral retinal necrosis foci, well-defined borders",
+        "Circumferential spread, occlusive retinal vasculitis (arteritis)",
+        "Typically otherwise healthy individuals"
+      ],
+      "diagnostic_criteria": "American Uveitis Society criteria (panuveitis + peripheral necrosis foci + circumferential spread + occlusive vasculitis + rapid progression without treatment)",
+      "treatment": {
+        "first_line": "Aciclovir IV 15mg/kg q8h x10-14 days then oral 800mg 5x/day x6-12 weeks (reduces second-eye involvement risk)",
+        "alternative": "Oral valaciclovir or famciclovir (better tolerated)",
+        "adjunct": "Intravitreal ganciclovir/foscarnet may improve prognosis; systemic steroid 24h after antiviral start",
+        "avoid": "Laser retinopexy - no effect on RD rate"
+      },
+      "prognosis": "More than half achieve only 6/60 due to retinal/optic nerve ischemia or RD"
+    },
+    {
+      "id": "poh_syndrome",
+      "name": "Presumed Ocular Histoplasmosis Syndrome (POHS)",
+      "anatomic_class": "posterior",
+      "etiology_group": "infectious (fungal, Histoplasma capsulatum - presumed immune-mediated)",
+      "course": "asymptomatic unless macular neovascularization",
+      "laterality": "bilateral signs in 60%",
+      "key_features": [
+        "Classic triad: multiple white atrophic 'histo spots' (~200um), peripapillary atrophy, ABSENCE OF VITRITIS",
+        "Macular neovascularization (MNV) late manifestation in <5%"
+      ],
+      "epidemiology": "Endemic areas e.g. Mississippi river valley USA",
+      "associations": [
+        "HLA-B7",
+        "HLA-DRw2"
+      ],
+      "treatment": {
+        "monitoring": "Amsler grid weekly if macular histo spot present (25% MNV risk)",
+        "mnv": "Intravitreal anti-VEGF"
+      }
+    },
+    {
+      "id": "tb_uveitis",
+      "name": "Tuberculosis-associated Uveitis",
+      "anatomic_class": "any",
+      "etiology_group": "infectious (bacterial - Mycobacterium tuberculosis)",
+      "course": "variable",
+      "granulomatous": true,
+      "key_features": [
+        "Choroidal granuloma/tubercle (dome-shaped lesion), can form 'tuberculoma' (abscess-like)",
+        "Serpiginoid choroiditis pattern - mimics idiopathic serpiginous choroidopathy (important DD)",
+        "Retinal vasculitis preferentially VENOUS with occlusion/ischemia",
+        "Possible link to Eales disease as hypersensitivity reaction"
+      ],
+      "investigations": [
+        {
+          "name": "Tuberculin skin test",
+          "tier": "basic"
+        },
+        {
+          "name": "IGRA (T-SPOT.TB) - independent of BCG vaccination",
+          "tier": "referral"
+        },
+        {
+          "name": "Sputum PCR",
+          "tier": "referral"
+        },
+        {
+          "name": "CXR/CT/PET-CT",
+          "tier": "referral"
+        },
+        {
+          "name": "FAF (activity staging)",
+          "tier": "referral"
+        }
+      ],
+      "treatment": {
+        "first_line": "Prolonged multi-drug anti-TB therapy (often 4 drugs initially) under specialist supervision",
+        "adjunct": "Topical/systemic steroids concomitantly to reduce inflammation-induced damage, especially early weeks (retard paradoxical worsening)",
+        "monitor": "Optic neuropathy if ethambutol used; rifabutin can cause anterior uveitis",
+        "note": "Treating latent TB in uveitis patients with TB meds halves recurrence risk"
+      }
+    },
+    {
+      "id": "syphilitic_uveitis",
+      "name": "Ocular Syphilis (Acquired)",
+      "anatomic_class": "any (anterior, posterior, panuveitis)",
+      "etiology_group": "infectious (bacterial spirochete - Treponema pallidum)",
+      "course": "variable; can occur at any stage",
+      "key_features": [
+        "Roseolae = dilated iris capillaries -> yellowish nodules",
+        "Acute syphilitic posterior placoid chorioretinopathy (ASPPC) - large pale-yellowish subretinal lesions, more common in immunocompromised",
+        "'Ground glass' retinitis with occlusive vasculitis",
+        "Argyll Robertson pupils (CNS involvement)"
+      ],
+      "note": "The 'great masquerader' - always test for syphilis in atypical/unexplained uveitis",
+      "investigations": [
+        {
+          "name": "BOTH treponemal (ELISA, sensitive/specific but positive for life) AND non-treponemal (RPR/VDRL, tracks activity) tests required",
+          "tier": "basic"
+        },
+        {
+          "name": "Lumbar puncture to rule out neurosyphilis",
+          "tier": "referral"
+        },
+        {
+          "name": "HIV status",
+          "tier": "basic"
+        }
+      ],
+      "treatment": {
+        "first_line": "Extended course of parenteral penicillin under infectious disease specialist supervision",
+        "adjunct": "Topical/systemic steroids to reduce inflammatory damage",
+        "warning": "Jarisch-Herxheimer reaction - systemic response to treponemal antigen release on starting therapy, can include TRANSIENT WORSENING of ocular signs"
+      }
+    },
+    {
+      "id": "lyme_uveitis",
+      "name": "Lyme Disease (Borreliosis) - ocular",
+      "anatomic_class": "any (intermediate most common)",
+      "etiology_group": "infectious (bacterial spirochete - Borrelia burgdorferi)",
+      "key_features": [
+        "History of tick bite, erythema chronicum migrans rash",
+        "IU-associated Lyme disease often has SEVERE anterior uveitis",
+        "Facial nerve palsy in up to 25% of cases in endemic areas"
+      ],
+      "investigations": [
+        {
+          "name": "Serology (at least 1 month post-infection; false positives occur)",
+          "tier": "basic"
+        },
+        {
+          "name": "PCR of CSF/synovial fluid",
+          "tier": "referral"
+        }
+      ],
+      "treatment": {
+        "early": "Oral doxycycline (not in children/pregnancy), amoxicillin, or erythromycin",
+        "established": "Extended IV penicillin or ceftriaxone",
+        "note": "Systemic steroids should not be given without concomitant antibiotics"
+      }
+    },
+    {
+      "id": "endogenous_endophthalmitis",
+      "name": "Endogenous Bacterial/Fungal Endophthalmitis",
+      "anatomic_class": "panuveitis (endophthalmitis)",
+      "etiology_group": "infectious",
+      "key_features": [
+        "Risk factors: indwelling catheter, IV drug abuse, endocarditis, UTI, septic joint, immunosuppression",
+        "Retinal infiltrates may be an early sign reflecting hematogenous route",
+        "Mortality 5-10% - pneumonia and renal/UTI infection confer highest mortality risk"
+      ],
+      "critical_note": "SYSTEMIC antibiotics/antifungals are KEY (in contrast to postoperative endophthalmitis where intravitreal dominates) - search for septic focus with physician collaboration",
+      "investigations": [
+        {
+          "name": "Blood/urine cultures",
+          "tier": "basic"
+        },
+        {
+          "name": "Aqueous/vitreous microscopy and culture",
+          "tier": "referral"
+        },
+        {
+          "name": "Search for septic focus (endocarditis, lumbar puncture etc.)",
+          "tier": "referral"
+        }
+      ],
+      "treatment": {
+        "bacterial": "Systemic antibiotics per culture + intravitreal + oral fluoroquinolone; pars plana vitrectomy may improve prognosis",
+        "fungal_candida": "IV amphotericin-B + oral flucytosine OR voriconazole (broad spectrum, high ocular penetration) + intravitreal 100ug/0.1ml; early pars plana vitrectomy especially in severe/unresponsive disease"
+      }
+    },
+    {
+      "id": "mewds",
+      "name": "Multiple Evanescent White Dot Syndrome (MEWDS)",
+      "anatomic_class": "posterior (choriocapillaritis)",
+      "etiology_group": "non-infectious (idiopathic)",
+      "laterality": "typically unilateral, young adult females",
+      "key_features": [
+        "White dots may DISAPPEAR before exam - imaging (FAF/OCT/ICGA) is key to diagnosis",
+        "Characteristic orange granular fovea with dulled reflex",
+        "ICGA: hypofluorescent spots often MORE numerous than clinically visible",
+        "Self-limiting, improves spontaneously by 8-10 weeks"
+      ],
+      "treatment": {
+        "approach": "Generally not required - spontaneous resolution"
+      }
+    },
+    {
+      "id": "apmppe",
+      "name": "Acute Posterior Multifocal Placoid Pigment Epitheliopathy (APMPPE)",
+      "anatomic_class": "posterior (choriocapillaritis)",
+      "etiology_group": "non-infectious (idiopathic, possibly cell-mediated post-viral)",
+      "laterality": "bilateral",
+      "key_features": [
+        "Large deep yellow-white PLACOID lesions at posterior pole",
+        "Associated cerebral vasculitis possible - can cause STROKE",
+        "Poor prognostic factors: age >60, unilaterality at onset, >=6 month interval before fellow eye involved, recurrence, choroidal vein leakage"
+      ],
+      "critical_note": "Neurological symptoms (headache etc.) require urgent CNS imaging + lumbar puncture to rule out cerebral vasculitis",
+      "treatment": {
+        "approach": "Not usually required; consider steroids for macular involvement",
+        "cerebral_vasculitis": "Steroids +/- ciclosporin"
+      }
+    },
+    {
+      "id": "serpiginous_choroidopathy",
+      "name": "Serpiginous Choroidopathy",
+      "anatomic_class": "posterior (choriocapillaritis)",
+      "etiology_group": "non-infectious (idiopathic) - MUST exclude TB and syphilis (serpiginoid mimics)",
+      "key_features": [
+        "Starts around optic disc, extends serpentine/snake-like pattern",
+        "Recurrent over years, ~25% end with VA <6/60",
+        "Associated with HLA-B7"
+      ],
+      "differential": "TB and syphilis can cause identical 'serpiginoid' picture - therapeutic approach very different, must rule out both",
+      "treatment": {
+        "first_line": "Oral or IV steroids to control activity",
+        "escalation": "Immunosuppressives and infliximab, alone or combination"
+      }
+    },
+    {
+      "id": "birdshot_retinochoroidopathy",
+      "name": "Birdshot Retinochoroidopathy",
+      "anatomic_class": "posterior (stromal choroiditis)",
+      "etiology_group": "non-infectious (autoimmune)",
+      "laterality": "bilateral",
+      "key_features": [
+        "Middle-aged women, HLA-A29 positive in >95%",
+        "Cream-coloured ovoid choroidal patches radiating from disc, sparing macula",
+        "Vitritis, floaters, nyctalopia, dyschromatopsia, photopsia",
+        "MONITOR WITH VISUAL FIELD TESTING, not visual acuity"
+      ],
+      "prognosis": "~1/3 end with VA <6/60, though improving with aggressive sustained IMT; choroiditis responds better to treatment than the retinal component",
+      "treatment": {
+        "first_line": "Sub-Tenon triamcinolone especially if monocular disease",
+        "systemic": "Up to 90% need systemic treatment - early referral to uveitis specialist",
+        "agents": "Steroids initially, often needs cyclosporine or mycophenolate +/- infliximab"
+      }
+    },
+    {
+      "id": "punctate_inner_choroidopathy",
+      "name": "Punctate Inner Choroidopathy (PIC)",
+      "anatomic_class": "posterior (choriocapillaritis)",
+      "etiology_group": "non-infectious (idiopathic, likely spectrum with MFC)",
+      "laterality": "young myopic women, bilateral in 80% (often asymmetric)",
+      "key_features": [
+        "Minimal/absent anterior uveitis and vitritis (unlike MFC)",
+        "Small yellow-white macular spots, evolve to atrophic scars resembling POHS",
+        "MNV in up to 40% - major cause of visual loss"
+      ],
+      "treatment": {
+        "approach": "No treatment unless MNV present",
+        "mnv": "Anti-VEGF",
+        "recurrent": "Steroids/systemic immunosuppression for recurrent activity"
+      }
+    },
+    {
+      "id": "acute_macular_neuroretinopathy",
+      "name": "Acute Macular Neuroretinopathy (AMN)",
+      "anatomic_class": "posterior",
+      "etiology_group": "non-infectious (idiopathic, possibly vascular/inflammatory)",
+      "key_features": [
+        "Young healthy women, flu-like prodrome, increased incidence since COVID-19 era",
+        "Wedge-shaped parafoveal lesions best seen on INFRARED imaging",
+        "OCT: hyperreflectivity starting at outer plexiform layer",
+        "FA usually normal or faint hypofluorescence"
+      ],
+      "treatment": {
+        "approach": "No proven treatment; self-limited but scotoma often persists"
+      }
+    }
+  ],
+  "quick_pattern_matchers": [
+    {
+      "pattern": "hypopyon + mobile + white eye",
+      "differential": [
+        "behcet_uveitis",
+        "jia_uveitis"
+      ]
+    },
+    {
+      "pattern": "hypopyon + immobile + red painful eye",
+      "differential": [
+        "aau_idiopathic_hlab27"
+      ]
+    },
+    {
+      "pattern": "heterochromia + stellate KP + no PS + white eye",
+      "differential": [
+        "fuchs_uveitis_syndrome"
+      ]
+    },
+    {
+      "pattern": "child + asymptomatic uveitis + arthritis",
+      "differential": [
+        "jia_uveitis"
+      ]
+    },
+    {
+      "pattern": "satellite lesion adjacent to old chorioretinal scar",
+      "differential": [
+        "toxoplasmosis_retinitis"
+      ]
+    },
+    {
+      "pattern": "HIV/immunocompromised + pizza-pie retinitis",
+      "differential": [
+        "cmv_retinitis"
+      ]
+    },
+    {
+      "pattern": "immunocompromised + rapid necrosis + minimal inflammation",
+      "differential": [
+        "progressive_retinal_necrosis"
+      ]
+    },
+    {
+      "pattern": "healthy adult + necrotizing retinitis + prominent panuveitis",
+      "differential": [
+        "acute_retinal_necrosis"
+      ]
+    },
+    {
+      "pattern": "leukocoria or strabismus in child with retinal granuloma",
+      "differential": [
+        "toxocariasis_ocular"
+      ],
+      "must_exclude": "retinoblastoma"
+    },
+    {
+      "pattern": "tinnitus/vertigo + bilateral granulomatous panuveitis + exudative RD",
+      "differential": [
+        "vkh_syndrome"
+      ]
+    },
+    {
+      "pattern": "prior penetrating trauma + fellow eye now inflamed",
+      "differential": [
+        "sympathetic_ophthalmia"
+      ]
+    },
+    {
+      "pattern": "serpiginous/geographic choroiditis pattern",
+      "differential": [
+        "serpiginous_choroidopathy",
+        "tb_uveitis",
+        "syphilitic_uveitis"
+      ],
+      "note": "MUST rule out TB and syphilis before labeling idiopathic serpiginous choroidopathy"
+    },
+    {
+      "pattern": "young myopic woman + MEWDS-like but recurrent/overlapping",
+      "differential": [
+        "mewds",
+        "punctate_inner_choroidopathy"
+      ]
+    },
+    {
+      "pattern": "wide field placoid posterior lesions + neuro symptoms",
+      "differential": [
+        "apmppe"
+      ],
+      "action": "urgent CNS imaging + lumbar puncture"
+    }
+  ]
+}
