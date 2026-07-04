@@ -640,7 +640,7 @@ export default function SoapMataClient() {
 
       <div className="flex flex-col lg:flex-row gap-0 flex-1 max-w-7xl mx-auto w-full">
         {/* ── Left: Form ── */}
-        <div className="lg:w-[55%] overflow-y-auto p-4 space-y-4">
+        <div className="lg:w-[65%] overflow-y-auto p-4 space-y-4">
 
           {/* Kategori & Diagnosis */}
           <SectionCard title="Kategori & Diagnosis">
@@ -666,24 +666,20 @@ export default function SoapMataClient() {
             )}
           </SectionCard>
 
-          {/* Sa OD */}
-          <SectionCard title="Segmen Anterior OD">
-            <SaEyeForm label="OD" state={state.saOD} onChange={(s) => upd({ saOD: s })} />
+          {/* Segmen Anterior */}
+          <SectionCard title="Segmen Anterior">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <SaEyeForm label="OD" state={state.saOD} onChange={(s) => upd({ saOD: s })} />
+              <SaEyeForm label="OS" state={state.saOS} onChange={(s) => upd({ saOS: s })} />
+            </div>
           </SectionCard>
 
-          {/* Sa OS */}
-          <SectionCard title="Segmen Anterior OS">
-            <SaEyeForm label="OS" state={state.saOS} onChange={(s) => upd({ saOS: s })} />
-          </SectionCard>
-
-          {/* Fd OD */}
-          <SectionCard title="Segmen Posterior OD">
-            <FdEyeForm label="OD" state={state.fdOD} onChange={(s) => upd({ fdOD: s })} />
-          </SectionCard>
-
-          {/* Fd OS */}
-          <SectionCard title="Segmen Posterior OS">
-            <FdEyeForm label="OS" state={state.fdOS} onChange={(s) => upd({ fdOS: s })} />
+          {/* Segmen Posterior */}
+          <SectionCard title="Segmen Posterior">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <FdEyeForm label="OD" state={state.fdOD} onChange={(s) => upd({ fdOD: s })} />
+              <FdEyeForm label="OS" state={state.fdOS} onChange={(s) => upd({ fdOS: s })} />
+            </div>
           </SectionCard>
 
           {/* GBM */}
@@ -729,7 +725,7 @@ export default function SoapMataClient() {
         </div>
 
         {/* ── Right: Output ── */}
-        <div className="lg:w-[45%] bg-white border-l border-gray-100 flex flex-col sticky top-[57px] h-[calc(100vh-57px)]">
+        <div className="lg:w-[35%] bg-white border-l border-gray-100 flex flex-col sticky top-[57px] h-[calc(100vh-57px)]">
           <div className="px-4 pt-4 pb-2 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-sm font-bold text-slate-700">Output Preview</h2>
             <button
