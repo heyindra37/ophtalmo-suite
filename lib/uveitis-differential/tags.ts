@@ -22,9 +22,11 @@ export const TAG_GROUPS: TagGroup[] = [
       { id: "posterior_synechiae_absent", label: "Sinekia posterior tidak ada" },
       { id: "heterochromia", label: "Heterokromia iris" },
       { id: "iris_atrophy_diffuse", label: "Atrofi iris difus" },
+      { id: "iris_atrophy_sectoral", label: "Atrofi iris sektoral/patchy" },
       { id: "eye_white_quiet_looking", label: "Mata relatif putih/tenang" },
       { id: "injection_absent_despite_severity", label: "Tanpa injeksi walau inflamasi berat" },
       { id: "band_keratopathy", label: "Band keratopathy" },
+      { id: "recent_cataract_surgery_or_lens_trauma", label: "Riwayat operasi katarak baru / trauma lensa" },
     ],
   },
   {
@@ -124,6 +126,10 @@ export const DISEASE_TAGS: Record<string, string[]> = {
   birdshot_retinochoroidopathy: ["choroidal_patches_radiating_disc", "middle_aged_female", "vitritis_present"],
   punctate_inner_choroidopathy: ["macular_yellow_spots_atrophic", "vitritis_minimal", "young_myopic_female"],
   acute_macular_neuroretinopathy: ["wedge_parafoveal_lesion", "flu_like_prodrome"],
+  herpes_simplex_anterior_uveitis: ["iris_atrophy_sectoral"],
+  vzv_anterior_uveitis: ["iris_atrophy_sectoral"],
+  cmv_anterior_uveitis: ["posterior_synechiae_absent", "injection_absent_despite_severity"],
+  lens_induced_uveitis: ["recent_cataract_surgery_or_lens_trauma"],
 };
 
 export interface PatternMatcher {

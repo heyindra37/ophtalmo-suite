@@ -22,6 +22,16 @@ function anatomicMatches(disease: Disease, anatomic: string): boolean {
   return cls === anatomic || cls.includes(anatomic) || cls === "any (anterior/intermediate/posterior/pan)" || cls.includes("any");
 }
 
+// kp_distribution_reference.combination_rule_for_scoring: distribusi KP TIDAK BOLEH
+// dipakai sebagai fitur berdiri sendiri — hanya sah menaikkan skor jika minimal ada
+// 1 sinyal pendukung lain (IOP, pola atrofi iris, atau ada/tidaknya sinekia posterior).
+function hasKpSupportingSignal(input: ClinicalInput): boolean {
+  const hasIop = input.iop === "elevated" || input.iop === "reduced" || input.iop === "normal";
+  const hasIrisAtrophy = input.selectedTags.includes("iris_atrophy_diffuse") || input.selectedTags.includes("iris_atrophy_sectoral");
+  const hasPS = input.selectedTags.includes("posterior_synechiae_present") || input.selectedTags.includes("posterior_synechiae_absent");
+  return hasIop || hasIrisAtrophy || hasPS;
+}
+
 interface ScoreDetail {
   score: number;
   maxScore: number;
@@ -86,6 +96,24 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
     }
   }
 
+  // KP distribution — combination-gated (lihat hasKpSupportingSignal)
+  if (input.kpDistribution && input.kpDistribution !== "unknown" && disease.kp_distribution) {
+    maxScore += WEIGHT_TAG;
+    const diseasePattern = disease.kp_distribution.pattern.toLowerCase();
+    const patternMatches = diseasePattern.includes(input.kpDistribution);
+    if (patternMatches) {
+      if (hasKpSupportingSignal(input)) {
+        score += WEIGHT_TAG;
+        matched.push(`Distribusi KP cocok (${disease.kp_distribution.pattern}), didukung sinyal lain (IOP/atrofi iris/sinekia posterior)`);
+      }
+      // Cocok tapi tanpa sinyal pendukung -> tidak dihitung sama sekali (netral),
+      // sesuai combination_rule_for_scoring: tidak boleh menaikkan skor sendirian.
+    } else {
+      score += WEIGHT_CONTRADICTION;
+      contradicted.push(`Distribusi KP tidak cocok (disease: ${disease.kp_distribution.pattern})`);
+    }
+  }
+
   // Tag-based key features
   const diseaseTags = DISEASE_TAGS[disease.id] || [];
   maxScore += diseaseTags.length * WEIGHT_TAG;
@@ -118,6 +146,9 @@ export function computeDifferentialDiagnosis(input: ClinicalInput, kb: Knowledge
     !!input.laterality ||
     !!input.granulomatous ||
     !!input.ageGroup ||
+    !!input.iop ||
+    !!input.kpMorphology ||
+    !!input.kpDistribution ||
     input.selectedTags.length > 0;
 
   if (!hasAnyInput) return [];
