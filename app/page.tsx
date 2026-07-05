@@ -76,7 +76,7 @@ export default function HomePage() {
               Ophthalmology Suite
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              Ekosistem aplikasi klinis oftalmologi — RS Mata Solo
+              Ekosistem aplikasi klinis oftalmologi
             </p>
           </div>
         </div>
