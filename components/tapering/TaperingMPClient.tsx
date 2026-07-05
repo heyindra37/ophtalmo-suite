@@ -3,19 +3,19 @@
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 
-// ── Design tokens (dark navy per PRD) ────────────────────────────────────────
+// ── Design tokens (bright theme) ─────────────────────────────────────────────
 const C = {
-  bg: "#080e1a",
-  panel: "#0d1526",
-  panel2: "#111e35",
-  border: "rgba(54,217,200,0.18)",
-  accent: "#36d9c8",
-  accentDim: "rgba(54,217,200,0.12)",
-  text: "#e8f0fe",
-  textDim: "#9fb3d4",
-  textFaint: "#4a6380",
-  error: "#f87171",
-  errorBg: "rgba(248,113,113,0.10)",
+  bg: "#f8fafc",
+  panel: "#ffffff",
+  panel2: "#f1f5f9",
+  border: "#e2e8f0",
+  accent: "#0d9488",
+  accentDim: "rgba(13,148,136,0.10)",
+  text: "#0f172a",
+  textDim: "#475569",
+  textFaint: "#94a3b8",
+  error: "#dc2626",
+  errorBg: "rgba(220,38,38,0.08)",
 } as const;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -136,14 +136,14 @@ const S = {
   outputCard: { background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, padding: 24, display: "flex", flexDirection: "column" as const, gap: 20 } as React.CSSProperties,
   outputHeader: { display: "flex", justifyContent: "space-between", alignItems: "center" } as React.CSSProperties,
   copyBtn: { background: C.accent, border: "none", borderRadius: 8, color: C.bg, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "8px 18px" } as React.CSSProperties,
-  copyBtnDone: { background: "#34d399" } as React.CSSProperties,
+  copyBtnDone: { background: "#16a34a" } as React.CSSProperties,
   jadwalPre: { background: C.bg, border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 18px", fontFamily: "'DM Mono', monospace", fontSize: 13.5, color: C.text, whiteSpace: "pre-wrap" as const, lineHeight: 1.8, margin: 0 },
   divider: { border: "none", borderTop: `1px solid ${C.border}`, margin: "4px 0" },
   resepTitle: { fontFamily: "'Fraunces', serif", fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 12, marginTop: 0 },
   table: { width: "100%", borderCollapse: "collapse" as const, fontFamily: "'DM Mono', monospace", fontSize: 14 },
   th: { textAlign: "left" as const, fontSize: 11, fontWeight: 600, color: C.textDim, textTransform: "uppercase" as const, letterSpacing: "0.06em", padding: "6px 12px", borderBottom: `1px solid ${C.border}` },
-  td: { padding: "10px 12px", color: C.text, borderBottom: `1px solid rgba(54,217,200,0.08)` },
-  tdNum: { padding: "10px 12px", color: C.accent, fontWeight: 500, borderBottom: `1px solid rgba(54,217,200,0.08)` },
+  td: { padding: "10px 12px", color: C.text, borderBottom: `1px solid rgba(13,148,136,0.08)` },
+  tdNum: { padding: "10px 12px", color: C.accent, fontWeight: 500, borderBottom: `1px solid rgba(13,148,136,0.08)` },
   emptyState: { color: C.textFaint, fontSize: 14, textAlign: "center" as const, padding: "32px 0", fontStyle: "italic" },
   validErr: { background: C.errorBg, border: `1px solid ${C.error}`, borderRadius: 10, padding: "12px 16px", color: C.error, fontSize: 13, fontWeight: 500, marginBottom: 8 },
 };

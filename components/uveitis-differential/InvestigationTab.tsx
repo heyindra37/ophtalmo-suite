@@ -51,7 +51,7 @@ export default function InvestigationTab({
                 fontWeight: 700,
                 padding: "3px 8px",
                 borderRadius: 999,
-                background: available ? C.greenBg : "rgba(159,179,212,0.12)",
+                background: available ? C.greenBg : "rgba(71,85,105,0.08)",
                 color: available ? C.green : C.textDim,
                 whiteSpace: "nowrap",
               }}
