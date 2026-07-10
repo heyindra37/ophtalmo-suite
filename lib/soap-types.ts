@@ -185,6 +185,7 @@ export interface SoapState {
   showCoverTest: boolean;
   coverTest: CoverTestState;
   catatanTambahan: string;
+  postOpEye?: "OD" | "OS" | null;
 }
 
 export function defaultKonjungtiva(): KonjungtivaFields {
@@ -246,5 +247,6 @@ export function defaultSoapState(): SoapState {
     showCoverTest: false,
     coverTest: defaultCoverTest(),
     catatanTambahan: "",
+    postOpEye: null,
   };
 }

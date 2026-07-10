@@ -23,6 +23,14 @@ import { buildFullOutput } from "@/lib/soap-logic";
 
 const LS_KEY = "soap-mata-last-session";
 
+function colorForLine(line: string): string {
+  if (line.startsWith("SaOD")) return "text-sky-700";
+  if (line.startsWith("SaOS")) return "text-violet-700";
+  if (line.startsWith("FdOD")) return "text-emerald-700";
+  if (line.startsWith("FdOS")) return "text-amber-700";
+  return "text-slate-700";
+}
+
 // ── small helpers ────────────────────────────────────────────────────────────
 function Label({ children }: { children: React.ReactNode }) {
   return <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{children}</label>;
@@ -127,10 +135,14 @@ function SaEyeForm({
   label,
   state,
   onChange,
+  onCopyFromOther,
+  otherLabel,
 }: {
   label: string;
   state: SaEyeState;
   onChange: (s: SaEyeState) => void;
+  onCopyFromOther?: () => void;
+  otherLabel?: string;
 }) {
   const upd = (patch: Partial<SaEyeState>) => onChange({ ...state, ...patch });
 
@@ -161,6 +173,15 @@ function SaEyeForm({
             options={[{ value: "full", label: "Full" }, { value: "normal", label: "Normal" }, { value: "partial", label: "Partial" }]}
           />
         </div>
+        {onCopyFromOther && (
+          <button
+            type="button"
+            onClick={onCopyFromOther}
+            className="text-xs text-teal-600 hover:underline text-left"
+          >
+            Samakan detail segmen anterior seperti mata {otherLabel}
+          </button>
+        )}
         <p className="text-xs text-slate-400 italic">Output: Sa{label} : normal{state.catatanTambahan ? `. ${state.catatanTambahan}` : ""}</p>
         <CatatanField value={state.catatanTambahan} onChange={(v) => upd({ catatanTambahan: v })} />
       </div>
@@ -177,6 +198,15 @@ function SaEyeForm({
           options={[{ value: "full", label: "Full" }, { value: "normal", label: "Normal" }, { value: "partial", label: "Partial" }]}
         />
       </div>
+      {onCopyFromOther && (
+        <button
+          type="button"
+          onClick={onCopyFromOther}
+          className="text-xs text-teal-600 hover:underline block -mt-2"
+        >
+          Samakan detail segmen anterior seperti mata {otherLabel}
+        </button>
+      )}
 
       {/* Palpebra */}
       <div>
@@ -476,10 +506,14 @@ function FdEyeForm({
   label,
   state,
   onChange,
+  onCopyFromOther,
+  otherLabel,
 }: {
   label: string;
   state: FdEyeState;
   onChange: (s: FdEyeState) => void;
+  onCopyFromOther?: () => void;
+  otherLabel?: string;
 }) {
   const upd = (patch: Partial<FdEyeState>) => onChange({ ...state, ...patch });
 
@@ -498,6 +532,15 @@ function FdEyeForm({
             ]}
           />
         </div>
+        {onCopyFromOther && (
+          <button
+            type="button"
+            onClick={onCopyFromOther}
+            className="text-xs text-teal-600 hover:underline text-left"
+          >
+            Samakan detail segmen posterior seperti mata {otherLabel}
+          </button>
+        )}
         <p className="text-xs text-slate-400 italic">Output: Fd{label} : normal{state.catatanTambahan ? `. ${state.catatanTambahan}` : ""}</p>
         <CatatanField value={state.catatanTambahan} onChange={(v) => upd({ catatanTambahan: v })} />
       </div>
@@ -535,6 +578,15 @@ function FdEyeForm({
           ]}
         />
       </div>
+      {onCopyFromOther && (
+        <button
+          type="button"
+          onClick={onCopyFromOther}
+          className="text-xs text-teal-600 hover:underline block -mt-2"
+        >
+          Samakan detail segmen posterior seperti mata {otherLabel}
+        </button>
+      )}
 
       {/* FR */}
       <div>
@@ -839,8 +891,25 @@ export default function SoapMataClient() {
         fdOS: { ...defaultFdEye(preset.fdOS) },
         showGBM: preset.showGBM,
         showCoverTest: preset.showCoverTest,
+        postOpEye: preset.postOpEye || null,
       }));
     }
+  };
+
+  const copySaFields = (target: "OD" | "OS") => {
+    const src = target === "OD" ? state.saOS : state.saOD;
+    const dstMode = target === "OD" ? state.saOD.mode : state.saOS.mode;
+    const { mode: _ignored, ...fieldsOnly } = src;
+    const copied = { ...structuredClone(fieldsOnly), mode: dstMode } as SaEyeState;
+    if (target === "OD") upd({ saOD: copied }); else upd({ saOS: copied });
+  };
+
+  const copyFdFields = (target: "OD" | "OS") => {
+    const src = target === "OD" ? state.fdOS : state.fdOD;
+    const dstMode = target === "OD" ? state.fdOD.mode : state.fdOS.mode;
+    const { mode: _ignored, ...fieldsOnly } = src;
+    const copied = { ...structuredClone(fieldsOnly), mode: dstMode } as FdEyeState;
+    if (target === "OD") upd({ fdOD: copied }); else upd({ fdOS: copied });
   };
 
   const handleDiagnosisChange = (diag: string) => {
@@ -927,44 +996,56 @@ export default function SoapMataClient() {
 
           {/* Segmen Anterior */}
           <SectionCard title="Segmen Anterior">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <SaEyeForm label="OD" state={state.saOD} onChange={(s) => upd({ saOD: s })} />
-              <SaEyeForm label="OS" state={state.saOS} onChange={(s) => upd({ saOS: s })} />
-            </div>
-          </SectionCard>
-
-          {/* Segmen Posterior */}
-          <SectionCard title="Segmen Posterior">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <FdEyeForm label="OD" state={state.fdOD} onChange={(s) => upd({ fdOD: s })} />
-              <FdEyeForm label="OS" state={state.fdOS} onChange={(s) => upd({ fdOS: s })} />
-            </div>
-          </SectionCard>
-
-          {/* GBM */}
-          <SectionCard title="GBM — Gerak Bola Mata">
-            <label className="flex items-center gap-2 text-sm text-slate-700 mb-2 cursor-pointer">
-              <input type="checkbox" checked={state.showGBM} onChange={(e) => upd({ showGBM: e.target.checked })} className="accent-teal-600" />
-              Tampilkan seksi GBM
-            </label>
-            {state.showGBM && (
-              <div className="space-y-4">
-                <GBMForm label="OD" state={state.gbmOD} onChange={(s) => upd({ gbmOD: s })} />
-                <GBMForm label="OS" state={state.gbmOS} onChange={(s) => upd({ gbmOS: s })} />
+            {state.postOpEye ? (
+              <SaEyeForm
+                label={state.postOpEye}
+                state={state.postOpEye === "OD" ? state.saOD : state.saOS}
+                onChange={(s) => upd(state.postOpEye === "OD" ? { saOD: s } : { saOS: s })}
+              />
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <SaEyeForm label="OD" state={state.saOD} onChange={(s) => upd({ saOD: s })} onCopyFromOther={() => copySaFields("OD")} otherLabel="kiri" />
+                <SaEyeForm label="OS" state={state.saOS} onChange={(s) => upd({ saOS: s })} onCopyFromOther={() => copySaFields("OS")} otherLabel="kanan" />
               </div>
             )}
           </SectionCard>
 
-          {/* Cover Test */}
-          <SectionCard title="Cover/Uncover Test">
-            <label className="flex items-center gap-2 text-sm text-slate-700 mb-2 cursor-pointer">
-              <input type="checkbox" checked={state.showCoverTest} onChange={(e) => upd({ showCoverTest: e.target.checked })} className="accent-teal-600" />
-              Tampilkan Cover Test
-            </label>
-            {state.showCoverTest && (
-              <CoverTestForm state={state.coverTest} onChange={(s) => upd({ coverTest: s })} />
-            )}
-          </SectionCard>
+          {!state.postOpEye && (
+            <>
+              {/* Segmen Posterior */}
+              <SectionCard title="Segmen Posterior">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <FdEyeForm label="OD" state={state.fdOD} onChange={(s) => upd({ fdOD: s })} onCopyFromOther={() => copyFdFields("OD")} otherLabel="kiri" />
+                  <FdEyeForm label="OS" state={state.fdOS} onChange={(s) => upd({ fdOS: s })} onCopyFromOther={() => copyFdFields("OS")} otherLabel="kanan" />
+                </div>
+              </SectionCard>
+
+              {/* GBM */}
+              <SectionCard title="GBM — Gerak Bola Mata">
+                <label className="flex items-center gap-2 text-sm text-slate-700 mb-2 cursor-pointer">
+                  <input type="checkbox" checked={state.showGBM} onChange={(e) => upd({ showGBM: e.target.checked })} className="accent-teal-600" />
+                  Tampilkan seksi GBM
+                </label>
+                {state.showGBM && (
+                  <div className="space-y-4">
+                    <GBMForm label="OD" state={state.gbmOD} onChange={(s) => upd({ gbmOD: s })} />
+                    <GBMForm label="OS" state={state.gbmOS} onChange={(s) => upd({ gbmOS: s })} />
+                  </div>
+                )}
+              </SectionCard>
+
+              {/* Cover Test */}
+              <SectionCard title="Cover/Uncover Test">
+                <label className="flex items-center gap-2 text-sm text-slate-700 mb-2 cursor-pointer">
+                  <input type="checkbox" checked={state.showCoverTest} onChange={(e) => upd({ showCoverTest: e.target.checked })} className="accent-teal-600" />
+                  Tampilkan Cover Test
+                </label>
+                {state.showCoverTest && (
+                  <CoverTestForm state={state.coverTest} onChange={(s) => upd({ coverTest: s })} />
+                )}
+              </SectionCard>
+            </>
+          )}
 
           {/* Catatan */}
           <SectionCard title="Catatan Tambahan">
@@ -996,7 +1077,13 @@ export default function SoapMataClient() {
               className="text-sm text-slate-800 whitespace-pre-wrap font-mono leading-relaxed bg-gray-50 rounded-xl p-4 min-h-32"
               style={{ fontFamily: "var(--font-dm-mono, monospace)" }}
             >
-              {output || <span className="text-slate-400 italic">Output akan muncul di sini...</span>}
+              {output ? (
+                output.split("\n").map((line, i) => (
+                  <div key={i} className={colorForLine(line)}>{line || " "}</div>
+                ))
+              ) : (
+                <span className="text-slate-400 italic">Output akan muncul di sini...</span>
+              )}
             </pre>
           </div>
         </div>
