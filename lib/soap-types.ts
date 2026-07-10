@@ -65,6 +65,7 @@ export interface PupilFields {
   diameter?: string;
   rc?: string; // normal | lambat
   rapd: boolean;
+  diameterMaksimal?: string; // khusus pre-op katarak, diukur setelah dilatasi maksimal
   manual?: string;
   catatan?: string; // dirender dalam kurung, mis. "(tanpa midri)"
 }

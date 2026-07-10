@@ -187,6 +187,7 @@ function pupilText(f: PupilFields): string {
     }
   }
   if (f.rapd) base += ", RAPD (+)";
+  if (f.diameterMaksimal) base += `, diameter maksimal ${f.diameterMaksimal} mm (pre-op katarak)`;
   if (f.catatan) base += ` (${f.catatan})`;
   return base;
 }

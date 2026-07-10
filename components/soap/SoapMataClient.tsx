@@ -425,6 +425,10 @@ function SaEyeForm({
           RAPD (+)
         </label>
         <div className="mt-1">
+          <Label>Diameter Maksimal (khusus pre-op katarak)</Label>
+          <TextInput value={state.pupil.diameterMaksimal || ""} onChange={(v) => upd({ pupil: { ...state.pupil, diameterMaksimal: v } })} placeholder="mis. 7 mm" />
+        </div>
+        <div className="mt-1">
           <TextInput value={state.pupil.catatan || ""} onChange={(v) => upd({ pupil: { ...state.pupil, catatan: v } })} placeholder="Catatan dalam kurung, mis. tanpa midri" />
         </div>
       </div>
