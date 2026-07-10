@@ -17,6 +17,7 @@ import {
   CATEGORIES,
   CATEGORY_PRESETS,
   DIAGNOSIS_BY_CATEGORY,
+  POST_OP_PRESETS,
   type Category,
 } from "@/lib/soap-presets";
 import { buildFullOutput } from "@/lib/soap-logic";
@@ -136,15 +137,28 @@ function SaEyeForm({
   state,
   onChange,
   onCopyFromOther,
+  onCopyField,
   otherLabel,
 }: {
   label: string;
   state: SaEyeState;
   onChange: (s: SaEyeState) => void;
   onCopyFromOther?: () => void;
+  onCopyField?: (field: "palpebra" | "konjungtiva" | "kornea" | "bmd" | "iris" | "pupil" | "lensa") => void;
   otherLabel?: string;
 }) {
   const upd = (patch: Partial<SaEyeState>) => onChange({ ...state, ...patch });
+
+  const CopyFieldButton = ({ field }: { field: "palpebra" | "konjungtiva" | "kornea" | "bmd" | "iris" | "pupil" | "lensa" }) =>
+    onCopyField ? (
+      <button
+        type="button"
+        onClick={() => onCopyField(field)}
+        className="text-[11px] text-teal-600 hover:underline block mb-1"
+      >
+        Samakan detail dengan mata {otherLabel}
+      </button>
+    ) : null;
 
   const PALPEBRA_OPTIONS = [
     "normal","edema-ringan","edema-sedang","edema-berat","hiperemis","hiperemi-lid-margin",
@@ -211,6 +225,7 @@ function SaEyeForm({
       {/* Palpebra */}
       <div>
         <Label>Palpebra</Label>
+        <CopyFieldButton field="palpebra" />
         <Select value={state.palpebra.value} onChange={(v) => upd({ palpebra: { ...state.palpebra, value: v } })} options={PALPEBRA_OPTIONS} />
         {(state.palpebra.value === "ptosis-kongenital" || state.palpebra.value === "ptosis-aponeurotik") && (
           <TextInput
@@ -234,6 +249,7 @@ function SaEyeForm({
       {/* Konjungtiva */}
       <div>
         <Label>Konjungtiva / Sklera</Label>
+        <CopyFieldButton field="konjungtiva" />
         <div className="flex gap-2">
           <Select
             value={state.konjungtiva.hiperemi}
@@ -296,6 +312,7 @@ function SaEyeForm({
       {/* Kornea */}
       <div>
         <Label>Kornea</Label>
+        <CopyFieldButton field="kornea" />
         <Select value={state.kornea.value} onChange={(v) => upd({ kornea: { ...state.kornea, value: v } })} options={KORNEA_OPTIONS} />
         {state.kornea.value === "infiltrat" && (
           <div className="flex gap-2 mt-1">
@@ -381,6 +398,7 @@ function SaEyeForm({
       {/* BMD */}
       <div>
         <Label>BMD</Label>
+        <CopyFieldButton field="bmd" />
         <Select
           value={state.bmd.value}
           onChange={(v) => upd({ bmd: { ...state.bmd, value: v } })}
@@ -418,6 +436,7 @@ function SaEyeForm({
       {/* Iris */}
       <div>
         <Label>Iris</Label>
+        <CopyFieldButton field="iris" />
         <Select
           value={state.iris.value}
           onChange={(v) => upd({ iris: { ...state.iris, value: v } })}
@@ -434,6 +453,7 @@ function SaEyeForm({
       {/* Pupil */}
       <div>
         <Label>Pupil</Label>
+        <CopyFieldButton field="pupil" />
         <Select
           value={state.pupil.value}
           onChange={(v) => upd({ pupil: { ...state.pupil, value: v } })}
@@ -466,6 +486,7 @@ function SaEyeForm({
       {/* Lensa */}
       <div>
         <Label>Lensa</Label>
+        <CopyFieldButton field="lensa" />
         <Select value={state.lensa.value} onChange={(v) => upd({ lensa: { ...state.lensa, value: v } })} options={LENSA_OPTIONS} />
         {state.lensa.value.startsWith("katarak") && (
           <Select
@@ -891,9 +912,22 @@ export default function SoapMataClient() {
         fdOS: { ...defaultFdEye(preset.fdOS) },
         showGBM: preset.showGBM,
         showCoverTest: preset.showCoverTest,
-        postOpEye: preset.postOpEye || null,
       }));
     }
+  };
+
+  const handlePostOpToggle = (eye: "OD" | "OS") => {
+    if (state.postOpEye === eye) {
+      upd({ postOpEye: null });
+      return;
+    }
+    const preset = POST_OP_PRESETS[eye];
+    setState((s) => ({
+      ...s,
+      postOpEye: eye,
+      saOD: { ...defaultSaEye(preset.saOD) },
+      saOS: { ...defaultSaEye(preset.saOS) },
+    }));
   };
 
   const copySaFields = (target: "OD" | "OS") => {
@@ -902,6 +936,16 @@ export default function SoapMataClient() {
     const { mode: _ignored, ...fieldsOnly } = src;
     const copied = { ...structuredClone(fieldsOnly), mode: dstMode } as SaEyeState;
     if (target === "OD") upd({ saOD: copied }); else upd({ saOS: copied });
+  };
+
+  const copySaField = (
+    target: "OD" | "OS",
+    field: "palpebra" | "konjungtiva" | "kornea" | "bmd" | "iris" | "pupil" | "lensa"
+  ) => {
+    const src = target === "OD" ? state.saOS : state.saOD;
+    const dstKey = target === "OD" ? "saOD" : "saOS";
+    const dst = target === "OD" ? state.saOD : state.saOS;
+    upd({ [dstKey]: { ...dst, [field]: structuredClone(src[field]) } } as Partial<SoapState>);
   };
 
   const copyFdFields = (target: "OD" | "OS") => {
@@ -972,6 +1016,26 @@ export default function SoapMataClient() {
 
           {/* Kategori & Diagnosis */}
           <SectionCard title="Kategori & Diagnosis">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => handlePostOpToggle("OD")}
+                className={`flex-1 text-xs font-semibold px-3 py-2 rounded-lg transition-colors ${
+                  state.postOpEye === "OD" ? "bg-teal-600 text-white" : "bg-gray-100 text-slate-600 hover:bg-gray-200"
+                }`}
+              >
+                Post Op Mata Kanan H+1
+              </button>
+              <button
+                type="button"
+                onClick={() => handlePostOpToggle("OS")}
+                className={`flex-1 text-xs font-semibold px-3 py-2 rounded-lg transition-colors ${
+                  state.postOpEye === "OS" ? "bg-teal-600 text-white" : "bg-gray-100 text-slate-600 hover:bg-gray-200"
+                }`}
+              >
+                Post Op Mata Kiri H+1
+              </button>
+            </div>
             <div>
               <Label>Kategori</Label>
               <Select
@@ -1004,8 +1068,8 @@ export default function SoapMataClient() {
               />
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <SaEyeForm label="OD" state={state.saOD} onChange={(s) => upd({ saOD: s })} onCopyFromOther={() => copySaFields("OD")} otherLabel="kiri" />
-                <SaEyeForm label="OS" state={state.saOS} onChange={(s) => upd({ saOS: s })} onCopyFromOther={() => copySaFields("OS")} otherLabel="kanan" />
+                <SaEyeForm label="OD" state={state.saOD} onChange={(s) => upd({ saOD: s })} onCopyFromOther={() => copySaFields("OD")} onCopyField={(f) => copySaField("OD", f)} otherLabel="kiri" />
+                <SaEyeForm label="OS" state={state.saOS} onChange={(s) => upd({ saOS: s })} onCopyFromOther={() => copySaFields("OS")} onCopyField={(f) => copySaField("OS", f)} otherLabel="kanan" />
               </div>
             )}
           </SectionCard>

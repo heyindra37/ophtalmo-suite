@@ -9,7 +9,6 @@ export interface CategoryPreset {
   showGBM: boolean;
   showCoverTest: boolean;
   priorityFields: string[];
-  postOpEye?: "OD" | "OS";
 }
 
 export const CATEGORIES = [
@@ -23,11 +22,14 @@ export const CATEGORIES = [
   "Neuro-Ophthalmology",
   "Pediatric",
   "Okuloplasti & Rekonstruksi",
-  "Post Op Mata Kanan H+1",
-  "Post Op Mata Kiri H+1",
 ] as const;
 
 export type Category = (typeof CATEGORIES)[number];
+
+export const POST_OP_PRESETS: Record<"OD" | "OS", { saOD: SaMode; saOS: SaMode }> = {
+  OD: { saOD: "full", saOS: "normal" },
+  OS: { saOD: "normal", saOS: "full" },
+};
 
 export const CATEGORY_PRESETS: Record<Category, CategoryPreset> = {
   Katarak: {
@@ -79,18 +81,6 @@ export const CATEGORY_PRESETS: Record<Category, CategoryPreset> = {
     saOD: "full", saOS: "full", fdOD: "tidak", fdOS: "tidak",
     showGBM: false, showCoverTest: false,
     priorityFields: ["palpebra"],
-  },
-  "Post Op Mata Kanan H+1": {
-    saOD: "full", saOS: "normal", fdOD: "tidak", fdOS: "tidak",
-    showGBM: false, showCoverTest: false,
-    priorityFields: [],
-    postOpEye: "OD",
-  },
-  "Post Op Mata Kiri H+1": {
-    saOD: "normal", saOS: "full", fdOD: "tidak", fdOS: "tidak",
-    showGBM: false, showCoverTest: false,
-    priorityFields: [],
-    postOpEye: "OS",
   },
 };
 
@@ -203,6 +193,4 @@ export const DIAGNOSIS_BY_CATEGORY: Record<Category, DiagnosisPreset[]> = {
     { category: "Okuloplasti & Rekonstruksi", label: "Laserasi palpebra", overrides: {} },
     { category: "Okuloplasti & Rekonstruksi", label: "Anophthalmic socket", overrides: {} },
   ],
-  "Post Op Mata Kanan H+1": [],
-  "Post Op Mata Kiri H+1": [],
 };
