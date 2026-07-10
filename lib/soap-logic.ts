@@ -401,6 +401,11 @@ export function buildCoverTestOutput(ct: CoverTestState): string {
 }
 
 export function buildFullOutput(state: SoapState): string {
+  if (state.postOpEye) {
+    const eyeState = state.postOpEye === "OD" ? state.saOD : state.saOS;
+    return buildSaOutput(state.postOpEye, eyeState);
+  }
+
   const lines: string[] = [];
 
   // Sa OD dan OS
