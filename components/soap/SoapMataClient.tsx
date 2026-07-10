@@ -141,9 +141,10 @@ function SaEyeForm({
   ];
   const KORNEA_OPTIONS = [
     "jernih","edema","edema-bullosa","infiltrat","ulkus","sikatrik",
-    "PEE","PEK","dendrit","KP-halus","KP-mutton","KP-custom","flap",
+    "PEE","PEK","dendrit","flap",
     "erosi","haziness","keruh-minimal","manual",
   ];
+  const FL_STAINING_VALUES = ["infiltrat","ulkus","sikatrik","erosi"];
   const LENSA_OPTIONS = [
     "jernih","katarak-1","katarak-2","katarak-3","katarak-4",
     "pseudofakia","subluksasi","afakia","manual",
@@ -274,25 +275,74 @@ function SaEyeForm({
         )}
         {state.kornea.value === "erosi" && (
           <div className="space-y-1 mt-1">
-            <div className="flex gap-2">
-              <Select value={state.kornea.erosiKedalaman || "stroma"} onChange={(v) => upd({ kornea: { ...state.kornea, erosiKedalaman: v } })} options={["epitel","stroma"]} />
-              <Select value={state.kornea.flStaining || "positif"} onChange={(v) => upd({ kornea: { ...state.kornea, flStaining: v as typeof state.kornea.flStaining } })} options={["positif","negatif"]} />
-            </div>
+            <Select value={state.kornea.erosiKedalaman || "stroma"} onChange={(v) => upd({ kornea: { ...state.kornea, erosiKedalaman: v } })} options={["epitel","stroma"]} />
             <TextInput value={state.kornea.erosiCatatanFoto || ""} onChange={(v) => upd({ kornea: { ...state.kornea, erosiCatatanFoto: v } })} placeholder="Catatan (mis. sesuai foto/gambar)" />
           </div>
         )}
         {state.kornea.value === "haziness" && (
           <Select value={state.kornea.hazinessLokasi || "sentral"} onChange={(v) => upd({ kornea: { ...state.kornea, hazinessLokasi: v } })} options={["sentral","parasentral","perifer"]} />
         )}
-        {state.kornea.value === "KP-custom" && (
-          <div className="flex gap-2 mt-1">
-            <TextInput value={state.kornea.kpWarna || ""} onChange={(v) => upd({ kornea: { ...state.kornea, kpWarna: v } })} placeholder="Warna (mis. keputihan)" />
-            <TextInput value={state.kornea.kpLokasi || ""} onChange={(v) => upd({ kornea: { ...state.kornea, kpLokasi: v } })} placeholder="Lokasi (mis. endotel, melewati ekuator)" />
-          </div>
-        )}
         {state.kornea.value === "manual" && (
           <TextInput value={state.kornea.manual || ""} onChange={(v) => upd({ kornea: { ...state.kornea, manual: v } })} placeholder="Deskripsi bebas..." />
         )}
+        {FL_STAINING_VALUES.includes(state.kornea.value) && (
+          <div className="flex gap-3 mt-1">
+            <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={state.kornea.flStaining === "positif"}
+                onChange={(e) => upd({ kornea: { ...state.kornea, flStaining: e.target.checked ? "positif" : "" } })}
+                className="accent-teal-600"
+              />
+              FL staining (+)
+            </label>
+            <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={state.kornea.flStaining === "negatif"}
+                onChange={(e) => upd({ kornea: { ...state.kornea, flStaining: e.target.checked ? "negatif" : "" } })}
+                className="accent-teal-600"
+              />
+              FL staining (-)
+            </label>
+          </div>
+        )}
+
+        {/* KP — additive checkbox (pola sama BMD flare/cell) */}
+        <div className="mt-2 pt-2 border-t border-gray-50">
+          <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={state.kornea.kp || false}
+              onChange={(e) => upd({ kornea: { ...state.kornea, kp: e.target.checked } })}
+              className="accent-teal-600"
+            />
+            KP (Keratic Precipitates)
+          </label>
+          {state.kornea.kp && (
+            <div className="space-y-1 mt-1">
+              <Select
+                value={state.kornea.kpJenis || "halus"}
+                onChange={(v) => upd({ kornea: { ...state.kornea, kpJenis: v as typeof state.kornea.kpJenis } })}
+                options={["halus","mutton-fat","custom"]}
+              />
+              {state.kornea.kpJenis === "custom" && (
+                <TextInput value={state.kornea.kpJenisCustomDesc || ""} onChange={(v) => upd({ kornea: { ...state.kornea, kpJenisCustomDesc: v } })} placeholder="Deskripsi jenis KP" />
+              )}
+              <div className="flex gap-2">
+                <Select
+                  value={state.kornea.kpPigmentasi || ""}
+                  onChange={(v) => upd({ kornea: { ...state.kornea, kpPigmentasi: v as typeof state.kornea.kpPigmentasi } })}
+                  options={["pigmented","non-pigmented"]}
+                  placeholder="Pigmentasi (opsional)"
+                />
+              </div>
+              <TextInput value={state.kornea.kpPersebaran || ""} onChange={(v) => upd({ kornea: { ...state.kornea, kpPersebaran: v } })} placeholder="Persebaran (opsional)" />
+              <TextInput value={state.kornea.kpUkuran || ""} onChange={(v) => upd({ kornea: { ...state.kornea, kpUkuran: v } })} placeholder="Ukuran (opsional)" />
+            </div>
+          )}
+        </div>
+
         <div className="mt-1">
           <CatatanField value={state.kornea.catatan} onChange={(v) => upd({ kornea: { ...state.kornea, catatan: v } })} />
         </div>

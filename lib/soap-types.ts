@@ -25,15 +25,20 @@ export interface KonjungtivaFields {
 }
 
 export interface CorneaFields {
-  value: string; // "jernih" | "edema" | "edema-bullosa" | "infiltrat" | "ulkus" | "sikatrik" | "PEE" | "PEK" | "dendrit" | "KP-halus" | "KP-mutton" | "KP-custom" | "flap" | "erosi" | "haziness" | "keruh-minimal" | "manual"
+  value: string; // "jernih" | "edema" | "edema-bullosa" | "infiltrat" | "ulkus" | "sikatrik" | "PEE" | "PEK" | "dendrit" | "flap" | "erosi" | "haziness" | "keruh-minimal" | "manual"
   infiltratLokasi?: string;
   infiltratDesc?: string;
   erosiKedalaman?: string; // "epitel" | "stroma"
-  flStaining?: "" | "positif" | "negatif";
+  flStaining?: "" | "positif" | "negatif"; // berlaku utk value: infiltrat/ulkus/sikatrik/erosi
   erosiCatatanFoto?: string; // free text, mis. "sesuai foto"
   hazinessLokasi?: string; // "sentral" | "parasentral" | "perifer"
-  kpLokasi?: string; // free text, mis. "endotel, melewati ekuator"
-  kpWarna?: string; // free text, mis. "keputihan"
+  // KP (keratic precipitates) — additive checkbox, bisa co-occur dgn value manapun (pola sama BMD flare/cell)
+  kp?: boolean;
+  kpJenis?: "halus" | "mutton-fat" | "custom";
+  kpJenisCustomDesc?: string; // free text, hanya saat kpJenis === "custom"
+  kpPigmentasi?: "" | "pigmented" | "non-pigmented";
+  kpPersebaran?: string; // free text manual
+  kpUkuran?: string; // free text manual
   manual?: string;
   catatan?: string;
 }

@@ -96,9 +96,6 @@ function korneaText(f: CorneaFields): string {
       case "PEE": base = "defek epitel (PEE)"; break;
       case "PEK": base = "defek epitel (PEK)"; break;
       case "dendrit": base = "dendrit (fluoresein +)"; break;
-      case "KP-halus": base = "keratic precipitates halus (+)"; break;
-      case "KP-mutton": base = "keratic precipitates mutton-fat (+)"; break;
-      case "KP-custom": base = `tampak KP${f.kpWarna ? ` berwarna ${f.kpWarna}` : ""}${f.kpLokasi ? ` di ${f.kpLokasi}` : ""}`; break;
       case "flap": base = "flap in situ (post LASIK)"; break;
       case "erosi": {
         const kedalaman = f.erosiKedalaman ? ` sedalam ${f.erosiKedalaman}` : "";
@@ -112,6 +109,26 @@ function korneaText(f: CorneaFields): string {
       default: base = f.value;
     }
   }
+
+  // FL staining sbg klausa tambahan utk infiltrat/ulkus/sikatrik (erosi sudah tergabung di base di atas)
+  if (f.value === "infiltrat" || f.value === "ulkus" || f.value === "sikatrik") {
+    if (f.flStaining === "positif") base += ", fluorescein staining (+)";
+    else if (f.flStaining === "negatif") base += ", fluorescein staining (-)";
+  }
+
+  // KP — additive checkbox, bisa co-occur dgn value manapun (pola sama BMD flare/cell)
+  if (f.kp) {
+    const jenisLabel =
+      f.kpJenis === "halus" ? "KP halus" :
+      f.kpJenis === "mutton-fat" ? "KP mutton-fat" :
+      (f.kpJenisCustomDesc || "KP");
+    let seg = `${jenisLabel} (+)`;
+    if (f.kpPigmentasi) seg += `, ${f.kpPigmentasi}`;
+    if (f.kpPersebaran) seg += `, persebaran ${f.kpPersebaran}`;
+    if (f.kpUkuran) seg += `, ukuran ${f.kpUkuran}`;
+    base += `, ${seg}`;
+  }
+
   if (f.catatan) base += `, ${f.catatan}`;
   return base;
 }
