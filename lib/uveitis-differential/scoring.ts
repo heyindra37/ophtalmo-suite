@@ -2,6 +2,7 @@ import type { ClinicalInput, Disease, KnowledgeBase, RankedResult } from "./type
 import { DISEASE_TAGS, PATTERN_MATCHERS, TAG_LABELS } from "./tags";
 
 const WEIGHT_BASE_FIELD = 5;
+const WEIGHT_AGE = 3;
 const WEIGHT_TAG = 15;
 const WEIGHT_CONTRADICTION = -10;
 const WEIGHT_PATTERN_BONUS = 25;
@@ -17,9 +18,17 @@ function parseGranulomatous(value: Disease["granulomatous"]): boolean | null {
   return null;
 }
 
-function anatomicMatches(disease: Disease, anatomic: string): boolean {
-  const cls = disease.anatomic_class.toLowerCase();
-  return cls === anatomic || cls.includes(anatomic) || cls === "any (anterior/intermediate/posterior/pan)" || cls.includes("any");
+// anatomic_class di knowledge base v2 SELALU array (lihat kb.anatomic_class_reference).
+// Aturan resmi (dikutip dari revision_note & scoring_rule di reference itu, juga dikonfirmasi
+// oleh definisi SUN di kb.sun_official_reference): kalau array disease mengandung "panuveitis",
+// itu otomatis cocok terhadap checkbox anatomis TUNGGAL apa pun yang dicentang dokter (anterior/
+// intermediate/posterior), karena panuveitis by definition melibatkan semua kompartemen — TAPI
+// mencentang anterior+intermediate+posterior sekaligus TIDAK secara otomatis membuktikan
+// panuveitis untuk disease yang arraynya tidak mengandung "panuveitis" (mis. tidak ada lesi
+// korioretinal eksplisit) — cukup dengan tidak pernah men-set checkbox panuveitis secara implisit
+// dari kombinasi checkbox lain, aturan SUN ini sudah terpenuhi secara struktural.
+function anatomicMatches(diseaseClasses: string[], selected: string): boolean {
+  return diseaseClasses.includes(selected) || diseaseClasses.includes("panuveitis");
 }
 
 // kp_distribution_reference.combination_rule_for_scoring: distribusi KP TIDAK BOLEH
@@ -30,6 +39,11 @@ function hasKpSupportingSignal(input: ClinicalInput): boolean {
   const hasIrisAtrophy = input.selectedTags.includes("iris_atrophy_diffuse") || input.selectedTags.includes("iris_atrophy_sectoral");
   const hasPS = input.selectedTags.includes("posterior_synechiae_present") || input.selectedTags.includes("posterior_synechiae_absent");
   return hasIop || hasIrisAtrophy || hasPS;
+}
+
+function isMasqueradeSafetyNet(disease: Disease): boolean {
+  const note = disease.critical_note;
+  return typeof note === "string" && /masquerade|safety-net/i.test(note);
 }
 
 interface ScoreDetail {
@@ -45,17 +59,17 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
   const matched: string[] = [];
   const contradicted: string[] = [];
 
-  // Basic fields — anatomic_class, course, granulomatous, laterality
-  if (input.anatomic) {
+  // Kelas anatomis — multi-select, dinilai per checkbox yang dicentang (lihat anatomicMatches)
+  input.anatomic.forEach((sel) => {
     maxScore += WEIGHT_BASE_FIELD;
-    if (anatomicMatches(disease, input.anatomic)) {
+    if (anatomicMatches(disease.anatomic_class, sel)) {
       score += WEIGHT_BASE_FIELD;
-      matched.push(`Kelas anatomis: ${input.anatomic}`);
+      matched.push(`Kelas anatomis: ${sel}`);
     } else {
       score += WEIGHT_CONTRADICTION;
-      contradicted.push(`Kelas anatomis tidak cocok (disease: ${disease.anatomic_class})`);
+      contradicted.push(`Kelas anatomis ${sel} tidak cocok (disease: ${disease.anatomic_class.join("/")})`);
     }
-  }
+  });
 
   if (input.course && disease.course) {
     maxScore += WEIGHT_BASE_FIELD;
@@ -96,6 +110,18 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
     }
   }
 
+  // Kelompok usia — bobot rendah, skip (netral) kalau disease tidak punya data usia eksplisit,
+  // TIDAK ada penalti kontradiksi (sinyal lemah, per PRD: jangan naikkan bobot walau data makin banyak)
+  const diseaseAgeGroups = Array.isArray(disease.age_group) ? disease.age_group : [];
+  if (input.ageGroup && diseaseAgeGroups.length > 0) {
+    maxScore += WEIGHT_AGE;
+    const ageMatches = diseaseAgeGroups.some((a) => typeof a === "string" && a.toLowerCase().includes(input.ageGroup));
+    if (ageMatches) {
+      score += WEIGHT_AGE;
+      matched.push(`Kelompok usia: ${input.ageGroup}`);
+    }
+  }
+
   // KP distribution — combination-gated (lihat hasKpSupportingSignal)
   if (input.kpDistribution && input.kpDistribution !== "unknown" && disease.kp_distribution) {
     maxScore += WEIGHT_TAG;
@@ -128,8 +154,8 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
   PATTERN_MATCHERS.forEach((pm) => {
     if (!pm.differential.includes(disease.id)) return;
     maxScore += WEIGHT_PATTERN_BONUS;
-    const allPresent = pm.requiredTags.every((t) => input.selectedTags.includes(t));
-    if (allPresent && pm.requiredTags.length > 0) {
+    const allPresent = pm.requiredTags.length > 0 && pm.requiredTags.every((t) => input.selectedTags.includes(t));
+    if (allPresent) {
       score += WEIGHT_PATTERN_BONUS;
       matched.push(`Pola khas: ${pm.requiredTags.map((t) => TAG_LABELS[t] || t).join(" + ")}`);
     }
@@ -140,7 +166,7 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
 
 export function computeDifferentialDiagnosis(input: ClinicalInput, kb: KnowledgeBase): RankedResult[] {
   const hasAnyInput =
-    !!input.anatomic ||
+    input.anatomic.length > 0 ||
     !!input.onset ||
     !!input.course ||
     !!input.laterality ||
@@ -153,21 +179,49 @@ export function computeDifferentialDiagnosis(input: ClinicalInput, kb: Knowledge
 
   if (!hasAnyInput) return [];
 
-  const results: RankedResult[] = kb.diseases
+  // Filter kategori penyakit: 6 entitas disease_category==="scleritis" hanya disertakan kalau
+  // dokter mencentang "Sertakan Scleritis" — dikeluarkan total, bukan cuma diturunkan skornya,
+  // karena checkbox anatomis uveitis tidak applicable untuk klasifikasi lokasi sklera.
+  const candidateDiseases = kb.diseases.filter((d) => input.includeScleritis || d.disease_category !== "scleritis");
+
+  // Kumpulkan action alert & forced-include dari quick_pattern_matchers yang match secara global
+  // (lihat PRD section 4 poin 3-4: action = alert keselamatan, must_exclude = pengingat diferensial
+  // yang wajib tetap tampil walau skor rendah).
+  const actionAlertsByDisease = new Map<string, string[]>();
+  const forcedIncludeIds = new Set<string>();
+  PATTERN_MATCHERS.forEach((pm) => {
+    const allPresent = pm.requiredTags.length > 0 && pm.requiredTags.every((t) => input.selectedTags.includes(t));
+    if (!allPresent) return;
+    if (pm.action) {
+      pm.differential.forEach((id) => {
+        const existing = actionAlertsByDisease.get(id) || [];
+        existing.push(pm.action as string);
+        actionAlertsByDisease.set(id, existing);
+      });
+    }
+    if (pm.mustExclude) forcedIncludeIds.add(pm.mustExclude);
+  });
+
+  const results: RankedResult[] = candidateDiseases
     .map((disease) => {
       const { score, maxScore, matched, contradicted } = scoreDisease(disease, input);
       const scorePercent = maxScore > 0 ? Math.max(0, Math.round((score / maxScore) * 100)) : 0;
+      // critical_note masquerade override: kalau disease ditandai sebagai "safety-net" entity
+      // dan ADA partial match sama sekali, paksa tetap tampil walau di bawah threshold normal.
+      const forced = forcedIncludeIds.has(disease.id) || (isMasqueradeSafetyNet(disease) && matched.length > 0);
       return {
         diseaseId: disease.id,
         name: disease.name,
-        anatomicClass: disease.anatomic_class,
+        anatomicClass: disease.anatomic_class.join(" / "),
         scorePercent,
         matchedFeatures: matched,
         contradictedFeatures: contradicted,
         disease,
+        actionAlerts: actionAlertsByDisease.get(disease.id),
+        forcedInclude: forced,
       };
     })
-    .filter((r) => r.scorePercent > MIN_SCORE_PERCENT)
+    .filter((r) => r.scorePercent > MIN_SCORE_PERCENT || r.forcedInclude)
     .sort((a, b) => b.scorePercent - a.scorePercent);
 
   return results;

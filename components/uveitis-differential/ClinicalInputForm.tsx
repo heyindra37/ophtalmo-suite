@@ -1,9 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import type { ClinicalInput } from "@/lib/uveitis-differential/types";
+import type { AnatomicClass, ClinicalInput } from "@/lib/uveitis-differential/types";
 import { TAG_GROUPS } from "@/lib/uveitis-differential/tags";
+import ReviewOfSystemsChecklist, { type ReviewOfSystemsData } from "./ReviewOfSystemsChecklist";
 import { C } from "./tokens";
+
+const ANATOMIC_OPTIONS: { value: AnatomicClass; label: string }[] = [
+  { value: "anterior", label: "Anterior" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "posterior", label: "Posterior" },
+  { value: "panuveitis", label: "Panuveitis" },
+];
 
 const selectStyle: React.CSSProperties = {
   width: "100%",
@@ -67,15 +75,22 @@ function AccordionSection({
 export default function ClinicalInputForm({
   input,
   onChange,
+  reviewOfSystemsData,
 }: {
   input: ClinicalInput;
   onChange: (i: ClinicalInput) => void;
+  reviewOfSystemsData?: ReviewOfSystemsData;
 }) {
   const upd = (patch: Partial<ClinicalInput>) => onChange({ ...input, ...patch });
 
   const toggleTag = (tag: string) => {
     const has = input.selectedTags.includes(tag);
     upd({ selectedTags: has ? input.selectedTags.filter((t) => t !== tag) : [...input.selectedTags, tag] });
+  };
+
+  const toggleAnatomic = (value: AnatomicClass) => {
+    const has = input.anatomic.includes(value);
+    upd({ anatomic: has ? input.anatomic.filter((a) => a !== value) : [...input.anatomic, value] });
   };
 
   const historyGroups = TAG_GROUPS.filter((g) => g.group === "Riwayat & Sistemik" || g.group === "Demografi" || g.group === "Hasil Investigasi (jika sudah ada)");
@@ -85,17 +100,32 @@ export default function ClinicalInputForm({
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {/* A. Karakteristik Dasar */}
       <AccordionSection title="A. Karakteristik Dasar" defaultOpen>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
-          <div>
-            <label style={labelStyle}>Kelas Anatomis</label>
-            <select style={selectStyle} value={input.anatomic} onChange={(e) => upd({ anatomic: e.target.value as ClinicalInput["anatomic"] })}>
-              <option value="">Tidak tahu</option>
-              <option value="anterior">Anterior</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="posterior">Posterior</option>
-              <option value="panuveitis">Panuveitis</option>
-            </select>
+        <div style={{ marginBottom: 12 }}>
+          <label style={labelStyle}>Kelas Anatomis (bisa lebih dari satu)</label>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
+            {ANATOMIC_OPTIONS.map((opt) => (
+              <label key={opt.value} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.text, cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={input.anatomic.includes(opt.value)}
+                  onChange={() => toggleAnatomic(opt.value)}
+                  style={{ accentColor: C.accent }}
+                />
+                {opt.label}
+              </label>
+            ))}
           </div>
+          <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.text, cursor: "pointer", marginTop: 8 }}>
+            <input
+              type="checkbox"
+              checked={input.includeScleritis}
+              onChange={(e) => upd({ includeScleritis: e.target.checked })}
+              style={{ accentColor: C.accent }}
+            />
+            Sertakan Scleritis (klasifikasi lokasi sklera, bukan kompartemen intraokular — checkbox anatomis di atas tidak berlaku untuk entitas ini)
+          </label>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
           <div>
             <label style={labelStyle}>Onset</label>
             <select style={selectStyle} value={input.onset} onChange={(e) => upd({ onset: e.target.value as ClinicalInput["onset"] })}>
@@ -236,6 +266,12 @@ export default function ClinicalInputForm({
           ))}
         </div>
       </AccordionSection>
+
+      {reviewOfSystemsData && (
+        <AccordionSection title="D. Review of Systems (AAO, referensi)" defaultOpen={false}>
+          <ReviewOfSystemsChecklist data={reviewOfSystemsData} />
+        </AccordionSection>
+      )}
     </div>
   );
 }
