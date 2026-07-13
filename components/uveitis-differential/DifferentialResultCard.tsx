@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import type { RankedResult } from "@/lib/uveitis-differential/types";
+import type { RankedResult, SourceConflictLog } from "@/lib/uveitis-differential/types";
 import type { FacilityPrefs } from "./FacilityAvailabilitySettings";
 import InvestigationTab from "./InvestigationTab";
 import TreatmentTab from "./TreatmentTab";
+import ActionAlert from "./ActionAlert";
+import ConflictNotice from "./ConflictNotice";
 import { C } from "./tokens";
 
 function scoreColor(score: number): { bg: string; fg: string; border: string } {
@@ -16,9 +18,11 @@ function scoreColor(score: number): { bg: string; fg: string; border: string } {
 export default function DifferentialResultCard({
   result,
   facilityPrefs,
+  conflictLog,
 }: {
   result: RankedResult;
   facilityPrefs: FacilityPrefs;
+  conflictLog?: SourceConflictLog;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [tab, setTab] = useState<"info" | "investigasi" | "terapi">("info");
@@ -46,6 +50,23 @@ export default function DifferentialResultCard({
           >
             {result.anatomicClass}
           </span>
+          {result.forcedInclude && (
+            <span
+              style={{
+                display: "inline-block",
+                marginLeft: 6,
+                fontSize: 10.5,
+                fontWeight: 700,
+                color: C.warn,
+                background: C.warnBg,
+                border: `1px solid ${C.warn}`,
+                borderRadius: 999,
+                padding: "2px 10px",
+              }}
+            >
+              jangan lewatkan
+            </span>
+          )}
         </div>
         <span
           style={{
@@ -92,6 +113,8 @@ export default function DifferentialResultCard({
           Ada temuan yang kurang cocok: {result.contradictedFeatures.join("; ")}
         </div>
       )}
+
+      {result.actionAlerts && <ActionAlert messages={result.actionAlerts} />}
 
       <button
         onClick={() => setExpanded((e) => !e)}
@@ -162,6 +185,9 @@ export default function DifferentialResultCard({
                   <p style={{ fontSize: 13, color: C.text, margin: 0, lineHeight: 1.5 }}>{result.disease.prognosis}</p>
                 </div>
               )}
+              {result.disease.source_conflicts && (
+                <ConflictNotice diseaseId={result.diseaseId} conflictLog={conflictLog} />
+              )}
             </div>
           )}
 
@@ -170,7 +196,11 @@ export default function DifferentialResultCard({
           )}
 
           {tab === "terapi" && (
-            <TreatmentTab treatment={result.disease.treatment} criticalNote={result.disease.critical_note} />
+            <TreatmentTab
+              treatment={result.disease.treatment}
+              criticalNote={result.disease.critical_note}
+              differentialNote={result.disease.differential_note}
+            />
           )}
         </div>
       )}

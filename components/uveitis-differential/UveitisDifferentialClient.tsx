@@ -8,6 +8,8 @@ import { defaultClinicalInput } from "@/lib/uveitis-differential/types";
 import { computeDifferentialDiagnosis } from "@/lib/uveitis-differential/scoring";
 import ClinicalInputForm from "./ClinicalInputForm";
 import DifferentialResultCard from "./DifferentialResultCard";
+import ScleritisResultSection from "./ScleritisResultSection";
+import type { ReviewOfSystemsData } from "./ReviewOfSystemsChecklist";
 import Disclaimer from "./Disclaimer";
 import FacilityAvailabilitySettings, {
   type FacilityPrefs,
@@ -33,13 +35,16 @@ export default function UveitisDifferentialClient() {
     saveFacilityPrefs(p);
   };
 
-  const results = useMemo(() => {
+  const allResults = useMemo(() => {
     if (!hasComputed) return [];
     return computeDifferentialDiagnosis(input, typedKb);
   }, [input, hasComputed]);
 
+  const results = useMemo(() => allResults.filter((r) => r.disease.disease_category !== "scleritis"), [allResults]);
+  const scleritisResults = useMemo(() => allResults.filter((r) => r.disease.disease_category === "scleritis"), [allResults]);
+
   const hasAnyInput =
-    !!input.anatomic ||
+    input.anatomic.length > 0 ||
     !!input.onset ||
     !!input.course ||
     !!input.laterality ||
@@ -85,7 +90,11 @@ export default function UveitisDifferentialClient() {
 
         <FacilityAvailabilitySettings prefs={facilityPrefs} onChange={handleFacilityChange} />
 
-        <ClinicalInputForm input={input} onChange={setInput} />
+        <ClinicalInputForm
+          input={input}
+          onChange={setInput}
+          reviewOfSystemsData={typedKb.appendix_a_review_of_systems_checklist_aao as unknown as ReviewOfSystemsData}
+        />
 
         <button
           onClick={() => setHasComputed(true)}
@@ -115,9 +124,10 @@ export default function UveitisDifferentialClient() {
               </p>
             ) : (
               results.map((r) => (
-                <DifferentialResultCard key={r.diseaseId} result={r} facilityPrefs={facilityPrefs} />
+                <DifferentialResultCard key={r.diseaseId} result={r} facilityPrefs={facilityPrefs} conflictLog={typedKb.source_conflict_log} />
               ))
             )}
+            <ScleritisResultSection results={scleritisResults} facilityPrefs={facilityPrefs} conflictLog={typedKb.source_conflict_log} />
           </div>
         )}
 
