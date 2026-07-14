@@ -787,4 +787,16 @@ export const PATTERN_MATCHERS: PatternMatcher[] = [
     requiredTags: ["post_pterygium_excision_mitomycin_beta_radiation", "organic_matter_contaminated_wound"],
     differential: ["infectious_scleritis"],
   },
+
+  // ── Round 2 panel: red-flag pediatrik ────────────────────────────────────────
+  // Leukokoria pada anak adalah temuan pathognomonic yang biasa dilihat dokter DULUAN,
+  // sebelum sempat memeriksa detail lanjutan (pseudohipopion bergeser, kalsifikasi, dst).
+  // Sebelumnya kedua masquerade pediatrik ini cuma terpicu dari kombinasi 2+ tag detail,
+  // jadi kosong total kalau dokter baru sempat lihat leukokoria saja — gap keselamatan
+  // pasien (retinoblastoma tidak boleh terlewat), sekarang dipicu dari temuan awal itu sendiri.
+  {
+    requiredTags: ["leukocoria_or_strabismus_child"],
+    differential: ["retinoblastoma_masquerade", "toxocariasis_ocular"],
+    action: "Leukokoria/strabismus pada anak WAJIB disingkirkan retinoblastoma dulu — rujuk segera untuk funduskopi dilatasi + USG B-scan, jangan tunggu temuan tambahan sebelum merujuk.",
+  },
 ];
