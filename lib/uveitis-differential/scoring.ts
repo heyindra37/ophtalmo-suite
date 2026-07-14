@@ -9,6 +9,17 @@ const WEIGHT_CONTRADICTION = -10;
 const WEIGHT_PATTERN_BONUS = 25;
 const MIN_STRONG_SIGNALS = 2;
 
+// kb.diseases[].age_group pakai string Indonesia (lihat kb.age_group_reference.bucket_definitions:
+// anak 0-9, remaja 10-17, dewasa 18-60, lansia 61+); ClinicalInput.ageGroup pakai id bahasa Inggris
+// yang konsisten dengan field lain di form ini — mapping eksplisit di sini adalah satu-satunya
+// tempat konversi, jangan bandingkan langsung di tempat lain.
+const AGE_GROUP_ID_TO_INDO: Record<string, string> = {
+  child: "anak",
+  teen: "remaja",
+  adult: "dewasa",
+  elderly: "lansia",
+};
+
 function parseGranulomatous(value: Disease["granulomatous"]): boolean | null {
   if (typeof value === "boolean") return value;
   if (typeof value === "string") {
@@ -137,11 +148,17 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
   }
 
   // Kelompok usia — bobot rendah, skip (netral) kalau disease tidak punya data usia eksplisit,
-  // TIDAK ada penalti kontradiksi (sinyal lemah, per PRD: jangan naikkan bobot walau data makin banyak)
+  // TIDAK ada penalti kontradiksi (sinyal lemah, per PRD: jangan naikkan bobot walau data makin banyak).
+  // PENTING: kb.diseases[].age_group berisi string BAHASA INDONESIA ("anak"/"remaja"/"dewasa"/"lansia",
+  // lihat kb.age_group_reference.bucket_definitions), sedangkan ClinicalInput.ageGroup pakai id bahasa
+  // Inggris ("child"/"teen"/"adult"/"elderly") — wajib di-mapping eksplisit, TIDAK BOLEH dibandingkan
+  // langsung (bug lama: `diseaseAgeGroups.some(a => a.includes(input.ageGroup))` selalu false karena
+  // "adult" tidak pernah jadi substring dari "dewasa").
   const diseaseAgeGroups = Array.isArray(disease.age_group) ? disease.age_group : [];
-  if (input.ageGroup && diseaseAgeGroups.length > 0) {
+  const targetAgeGroupIndo = AGE_GROUP_ID_TO_INDO[input.ageGroup];
+  if (targetAgeGroupIndo && diseaseAgeGroups.length > 0) {
     maxScore += WEIGHT_AGE;
-    const ageMatches = diseaseAgeGroups.some((a) => typeof a === "string" && a.toLowerCase().includes(input.ageGroup));
+    const ageMatches = diseaseAgeGroups.some((a) => a === targetAgeGroupIndo);
     if (ageMatches) {
       score += WEIGHT_AGE;
       matched.push(`Kelompok usia: ${input.ageGroup}`);
@@ -197,13 +214,11 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
 export function computeDifferentialDiagnosis(input: ClinicalInput, kb: KnowledgeBase): RankedResult[] {
   const hasAnyInput =
     input.anatomic.length > 0 ||
-    !!input.onset ||
     !!input.course ||
     !!input.laterality ||
     !!input.granulomatous ||
     !!input.ageGroup ||
     !!input.iop ||
-    !!input.kpMorphology ||
     !!input.kpDistribution ||
     input.selectedTags.length > 0;
 

@@ -45,13 +45,11 @@ export default function UveitisDifferentialClient() {
 
   const hasAnyInput =
     input.anatomic.length > 0 ||
-    !!input.onset ||
     !!input.course ||
     !!input.laterality ||
     !!input.granulomatous ||
     !!input.ageGroup ||
     !!input.iop ||
-    !!input.kpMorphology ||
     !!input.kpDistribution ||
     input.selectedTags.length > 0;
 

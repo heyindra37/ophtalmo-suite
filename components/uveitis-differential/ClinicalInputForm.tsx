@@ -127,14 +127,6 @@ export default function ClinicalInputForm({
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
           <div>
-            <label style={labelStyle}>Onset</label>
-            <select style={selectStyle} value={input.onset} onChange={(e) => upd({ onset: e.target.value as ClinicalInput["onset"] })}>
-              <option value="">Tidak tahu</option>
-              <option value="sudden">Mendadak</option>
-              <option value="insidious">Insidious</option>
-            </select>
-          </div>
-          <div>
             <label style={labelStyle}>Course</label>
             <select style={selectStyle} value={input.course} onChange={(e) => upd({ course: e.target.value as ClinicalInput["course"] })}>
               <option value="">Tidak tahu</option>
@@ -164,17 +156,10 @@ export default function ClinicalInputForm({
             <label style={labelStyle}>Usia</label>
             <select style={selectStyle} value={input.ageGroup} onChange={(e) => upd({ ageGroup: e.target.value as ClinicalInput["ageGroup"] })}>
               <option value="">Tidak diisi</option>
-              <option value="child">Anak</option>
-              <option value="adult">Dewasa</option>
-              <option value="elderly">Lansia</option>
-            </select>
-          </div>
-          <div>
-            <label style={labelStyle}>Jenis Kelamin</label>
-            <select style={selectStyle} value={input.sex} onChange={(e) => upd({ sex: e.target.value as ClinicalInput["sex"] })}>
-              <option value="">Tidak diisi</option>
-              <option value="male">Laki-laki</option>
-              <option value="female">Perempuan</option>
+              <option value="child">Anak (0-9)</option>
+              <option value="teen">Remaja (10-17)</option>
+              <option value="adult">Dewasa (18-60)</option>
+              <option value="elderly">Lansia (61+)</option>
             </select>
           </div>
         </div>
@@ -193,17 +178,6 @@ export default function ClinicalInputForm({
                   <option value="elevated">Meningkat</option>
                   <option value="reduced">Menurun</option>
                   <option value="normal">Normal</option>
-                  <option value="unknown">Tidak tahu</option>
-                </select>
-              </div>
-              <div>
-                <label style={labelStyle}>Morfologi KP</label>
-                <select style={selectStyle} value={input.kpMorphology} onChange={(e) => upd({ kpMorphology: e.target.value as ClinicalInput["kpMorphology"] })}>
-                  <option value="">Tidak diperiksa</option>
-                  <option value="fine">Fine</option>
-                  <option value="stellate">Stellate</option>
-                  <option value="mutton_fat">Mutton-fat</option>
-                  <option value="large_greasy">Large/greasy</option>
                   <option value="unknown">Tidak tahu</option>
                 </select>
               </div>
