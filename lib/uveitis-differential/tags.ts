@@ -27,6 +27,13 @@ export const TAG_GROUPS: TagGroup[] = [
       { id: "injection_absent_despite_severity", label: "Tanpa injeksi walau inflamasi berat" },
       { id: "band_keratopathy", label: "Band keratopathy" },
       { id: "recent_cataract_surgery_or_lens_trauma", label: "Riwayat operasi katarak baru / trauma lensa" },
+      { id: "dendritiform_corneal_lesion", label: "Lesi kornea dendritiform" },
+      { id: "reduced_corneal_sensation", label: "Sensasi kornea menurun" },
+      { id: "kp_ring_shaped_or_scant_white_domed", label: "KP ring-shaped / scant white-domed (khas CMV)" },
+      { id: "recurrent_same_eye_episode", label: "Rekuren, selalu di mata yang sama" },
+      { id: "treatment_resistant_antiviral_steroid", label: "Tidak respon terhadap antivirus/steroid" },
+      { id: "very_high_iop_trabeculitis", label: "IOP sangat tinggi (50-60 mmHg), trabekulitis" },
+      { id: "recurrent_microhyphema", label: "Mikrohifema rekuren" },
     ],
   },
   {
@@ -75,6 +82,9 @@ export const TAG_GROUPS: TagGroup[] = [
       { id: "pregnancy", label: "Kehamilan" },
       { id: "chronic_diarrhea", label: "Diare kronis/nyeri perut" },
       { id: "flu_like_prodrome", label: "Prodromal flu-like" },
+      { id: "hzo_rash_1to3wk_before_uveitis", label: "Riwayat ruam zoster oftalmikus 1-3 minggu sebelumnya" },
+      { id: "hutchinson_sign", label: "Hutchinson sign (vesikel ujung hidung)" },
+      { id: "psoriasis_history", label: "Riwayat psoriasis" },
     ],
   },
   {
@@ -193,15 +203,15 @@ export const DISEASE_TAGS: Record<string, string[]> = {
   birdshot_retinochoroidopathy: ["choroidal_patches_radiating_disc", "middle_aged_female", "vitritis_present"],
   punctate_inner_choroidopathy: ["macular_yellow_spots_atrophic", "vitritis_minimal", "young_myopic_female"],
   acute_macular_neuroretinopathy: ["wedge_parafoveal_lesion", "flu_like_prodrome"],
-  herpes_simplex_anterior_uveitis: ["iris_atrophy_sectoral"],
-  vzv_anterior_uveitis: ["iris_atrophy_sectoral"],
-  cmv_anterior_uveitis: ["posterior_synechiae_absent", "injection_absent_despite_severity"],
+  herpes_simplex_anterior_uveitis: ["iris_atrophy_sectoral", "dendritiform_corneal_lesion", "reduced_corneal_sensation", "recurrent_same_eye_episode", "very_high_iop_trabeculitis"],
+  vzv_anterior_uveitis: ["iris_atrophy_sectoral", "hzo_rash_1to3wk_before_uveitis", "hutchinson_sign", "very_high_iop_trabeculitis"],
+  cmv_anterior_uveitis: ["posterior_synechiae_absent", "injection_absent_despite_severity", "kp_ring_shaped_or_scant_white_domed", "treatment_resistant_antiviral_steroid"],
   lens_induced_uveitis: ["recent_cataract_surgery_or_lens_trauma"],
 
   // ── 64 disease baru di knowledge base v2 (AAO BCSC) ──────────────────────────
   tinu_syndrome: ["renal_disease_with_uveitis_async"],
-  posner_schlossman_syndrome: ["recurrent_unilateral_iop_spike_mild_inflammation"],
-  uveitis_glaucoma_hyphema_syndrome: ["pseudophakic_iol_chafing"],
+  posner_schlossman_syndrome: ["recurrent_unilateral_iop_spike_mild_inflammation", "kp_fine", "recurrent_same_eye_episode"],
+  uveitis_glaucoma_hyphema_syndrome: ["pseudophakic_iol_chafing", "recurrent_microhyphema"],
   toxic_anterior_segment_syndrome: ["postop_sterile_acute_reaction"],
   chronic_postop_endophthalmitis_cutibacterium: ["postop_recurrent_indolent_with_plaques", "recent_cataract_surgery_or_lens_trauma"],
   granulomatosis_with_polyangiitis: ["ent_bloody_nasal_discharge", "mononeuritis_multiplex", "retinal_vasculitis_arteritis"],
@@ -346,5 +356,36 @@ export const PATTERN_MATCHERS: PatternMatcher[] = [
     requiredTags: ["normal_fundus_severe_field_loss"],
     differential: ["azoor"],
     mustExclude: "autoimmune_retinopathy",
+  },
+
+  // ── Batch 1: Anterior klasik & HLA-B27/spondyloarthropathy ──────────────────
+  {
+    requiredTags: ["dendritiform_corneal_lesion", "reduced_corneal_sensation"],
+    differential: ["herpes_simplex_anterior_uveitis", "vzv_anterior_uveitis"],
+  },
+  {
+    requiredTags: ["kp_ring_shaped_or_scant_white_domed"],
+    differential: ["cmv_anterior_uveitis"],
+  },
+  {
+    requiredTags: ["psoriasis_history"],
+    differential: ["aau_idiopathic_hlab27"],
+  },
+  {
+    requiredTags: ["recurrent_unilateral_iop_spike_mild_inflammation", "kp_fine"],
+    differential: ["posner_schlossman_syndrome"],
+  },
+  {
+    requiredTags: ["pseudophakic_iol_chafing", "recurrent_microhyphema"],
+    differential: ["uveitis_glaucoma_hyphema_syndrome"],
+  },
+  {
+    requiredTags: ["hzo_rash_1to3wk_before_uveitis"],
+    differential: ["vzv_anterior_uveitis"],
+    action: "Pertimbangkan tes HIV kalau pasien usia <50 tahun dengan lesi zoster wajah/kelopak mata — zoster di usia muda bisa jadi sentinel sign imunosupresi.",
+  },
+  {
+    requiredTags: ["reduced_corneal_sensation", "recurrent_same_eye_episode"],
+    differential: ["herpes_simplex_anterior_uveitis"],
   },
 ];

@@ -237,8 +237,13 @@ export function computeDifferentialDiagnosis(input: ClinicalInput, kb: Knowledge
       const { score, maxScore, matched, contradicted, strongSignals, patternMatched } = scoreDisease(disease, input);
       const scorePercent = maxScore > 0 ? Math.max(0, Math.round((score / maxScore) * 100)) : 0;
       // critical_note masquerade override: kalau disease ditandai sebagai "safety-net" entity
-      // dan ADA partial match sama sekali, paksa tetap tampil walau di bawah threshold normal.
-      const forced = forcedIncludeIds.has(disease.id) || (isMasqueradeSafetyNet(disease) && matched.length > 0);
+      // dan ADA minimal 2 sinyal KUAT, paksa tetap tampil walau di bawah threshold normal.
+      // Syarat `>= 2` (bukan `matched.length > 0`, dan bukan `> 0`) penting — 1 sinyal kuat
+      // bisa berupa exact-match anatomic_class SENDIRIAN, yang sangat non-spesifik (mis. cuma
+      // centang "anterior" langsung cocok ke lusinan disease). Tanpa syarat ini, disease apa pun
+      // yang critical_note-nya menyinggung kata "masquerade" sebagai CAVEAT (bukan sinyal aktif)
+      // ikut nampang di hampir semua hasil hanya lewat 1 checkbox anatomis generik.
+      const forced = forcedIncludeIds.has(disease.id) || (isMasqueradeSafetyNet(disease) && strongSignals >= 2);
       return {
         diseaseId: disease.id,
         name: disease.name,
