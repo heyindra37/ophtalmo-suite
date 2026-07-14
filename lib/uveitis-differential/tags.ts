@@ -111,6 +111,11 @@ export const TAG_GROUPS: TagGroup[] = [
       { id: "hfmd_coxsackievirus_exposure", label: "Riwayat/paparan HFMD atau coxsackievirus" },
       { id: "turbid_yellow_subretinal_fluid_macula", label: "Cairan subretina kuning keruh di makula" },
       { id: "photoaversion_dyschromatopsia_nyctalopia", label: "Fotoaversi, diskromatopsia, nyctalopia" },
+      { id: "unilateral_pars_planitis_like_child", label: "Pars planitis-like unilateral pada anak (toxocariasis)" },
+      { id: "peripapillary_pigment_changes_macular_cnv_pigment_ring", label: "Perubahan pigmen peripapiler + CNV makula bercincin pigmen" },
+      { id: "retained_lens_fragments_visible_elevated_iop", label: "Fragmen lensa tertinggal terlihat + IOP meningkat" },
+      { id: "recent_new_medication_started", label: "Baru mulai obat baru sebelum gejala muncul" },
+      { id: "resolves_after_drug_discontinuation", label: "Membaik setelah obat dihentikan" },
     ],
   },
   {
@@ -264,11 +269,11 @@ export const DISEASE_TAGS: Record<string, string[]> = {
   sympathetic_ophthalmia: ["prior_penetrating_trauma_or_vr_surgery", "chorioretinal_granuloma", "bilateral_after_unilateral_eye_injury"],
   sarcoidosis_uveitis: ["kp_mutton_fat", "snowballs", "chorioretinal_granuloma", "retinal_vasculitis_phlebitis", "ace_elevated_or_cxr_bhl", "koeppe_busacca_iris_nodules", "candlewax_drippings_periphlebitis"],
   toxoplasmosis_retinitis: ["retinitis_satellite_to_old_scar", "disc_edema", "vitritis_present", "toxoplasma_serology_positive"],
-  toxocariasis_ocular: ["chorioretinal_granuloma", "leukocoria_or_strabismus_child"],
+  toxocariasis_ocular: ["chorioretinal_granuloma", "leukocoria_or_strabismus_child", "unilateral_pars_planitis_like_child"],
   cmv_retinitis: ["retinitis_pizza_pie", "immunocompromised_hiv", "low_cd4_count", "immune_recovery_uveitis_post_art"],
   progressive_retinal_necrosis: ["retinitis_necrosis_minimal_inflammation", "vitritis_minimal", "immunocompromised_hiv", "posterior_pole_early_involvement"],
   acute_retinal_necrosis: ["retinitis_necrosis_prominent_inflammation", "vitritis_present", "retinal_vasculitis_arteritis", "rd_combined_tractional_rhegmatogenous"],
-  poh_syndrome: ["histo_spots_no_vitritis"],
+  poh_syndrome: ["histo_spots_no_vitritis", "peripapillary_pigment_changes_macular_cnv_pigment_ring"],
   tb_uveitis: ["chorioretinal_granuloma", "serpiginous_pattern", "retinal_vasculitis_phlebitis", "choroidal_tuberculoma_mass"],
   syphilitic_uveitis: ["placoid_lesion_posterior", "retinal_vasculitis_phlebitis", "syphilis_serology_positive", "iris_roseola_papulosa_nodosa"],
   lyme_uveitis: ["tick_bite_history", "punched_out_choroiditis_lesions"],
@@ -282,7 +287,7 @@ export const DISEASE_TAGS: Record<string, string[]> = {
   herpes_simplex_anterior_uveitis: ["iris_atrophy_sectoral", "dendritiform_corneal_lesion", "reduced_corneal_sensation", "recurrent_same_eye_episode", "very_high_iop_trabeculitis"],
   vzv_anterior_uveitis: ["iris_atrophy_sectoral", "hzo_rash_1to3wk_before_uveitis", "hutchinson_sign", "very_high_iop_trabeculitis"],
   cmv_anterior_uveitis: ["posterior_synechiae_absent", "injection_absent_despite_severity", "kp_ring_shaped_or_scant_white_domed", "treatment_resistant_antiviral_steroid"],
-  lens_induced_uveitis: ["recent_cataract_surgery_or_lens_trauma"],
+  lens_induced_uveitis: ["recent_cataract_surgery_or_lens_trauma", "retained_lens_fragments_visible_elevated_iop", "posterior_synechiae_present"],
 
   // ── 64 disease baru di knowledge base v2 (AAO BCSC) ──────────────────────────
   tinu_syndrome: ["renal_disease_with_uveitis_async", "posterior_synechiae_present"],
@@ -309,7 +314,7 @@ export const DISEASE_TAGS: Record<string, string[]> = {
   pigment_dispersion_syndrome_masquerade: ["pigment_cells_mimicking_inflammation"],
   phacolytic_uveitis: ["recent_cataract_surgery_or_lens_trauma", "posterior_synechiae_absent"],
   pars_planitis: ["snowballs", "snowbanking", "retinal_vasculitis_phlebitis"],
-  drug_induced_uveitis: [],
+  drug_induced_uveitis: ["recent_new_medication_started", "resolves_after_drug_discontinuation"],
   blau_syndrome: ["chorioretinal_granuloma", "child_asymptomatic_with_arthritis", "familial_autosomal_dominant_granulomatosis"],
   multifocal_choroiditis_panuveitis: ["vitritis_present", "punched_out_atrophic_scars_pigmented_border", "peripapillary_predominant_lesions"],
   subretinal_fibrosis_uveitis_syndrome: ["vitritis_present", "high_grade_ac_inflammation_anterior_prominent", "coalescing_subretinal_fibrosis"],
@@ -717,5 +722,29 @@ export const PATTERN_MATCHERS: PatternMatcher[] = [
     requiredTags: ["paraneoplastic_occult_malignancy", "minimal_inflammation_severe_vision_loss"],
     differential: ["autoimmune_retinopathy"],
     action: "Terapi keganasan primer adalah langkah pertama, bukan terapi mata lokal.",
+  },
+
+  // ── Batch 7: Pasca-operasi/iatrogenik & sisanya ─────────────────────────────
+  {
+    requiredTags: ["retained_lens_fragments_visible_elevated_iop", "posterior_synechiae_present"],
+    differential: ["lens_induced_uveitis"],
+    mustExclude: "endogenous_endophthalmitis",
+  },
+  {
+    requiredTags: ["snowballs", "snowbanking"],
+    differential: ["pars_planitis"],
+  },
+  {
+    requiredTags: ["recent_new_medication_started", "resolves_after_drug_discontinuation"],
+    differential: ["drug_induced_uveitis"],
+  },
+  {
+    requiredTags: ["unilateral_pars_planitis_like_child", "chorioretinal_granuloma"],
+    differential: ["toxocariasis_ocular"],
+    mustExclude: "retinoblastoma_masquerade",
+  },
+  {
+    requiredTags: ["histo_spots_no_vitritis", "peripapillary_pigment_changes_macular_cnv_pigment_ring"],
+    differential: ["poh_syndrome"],
   },
 ];
