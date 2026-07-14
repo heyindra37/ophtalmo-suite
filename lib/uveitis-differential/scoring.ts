@@ -2,11 +2,12 @@ import type { ClinicalInput, Disease, KnowledgeBase, RankedResult } from "./type
 import { DISEASE_TAGS, PATTERN_MATCHERS, TAG_LABELS } from "./tags";
 
 const WEIGHT_BASE_FIELD = 5;
+const WEIGHT_BASE_FIELD_IMPLICIT = 3;
 const WEIGHT_AGE = 3;
 const WEIGHT_TAG = 15;
 const WEIGHT_CONTRADICTION = -10;
 const WEIGHT_PATTERN_BONUS = 25;
-const MIN_SCORE_PERCENT = 15;
+const MIN_STRONG_SIGNALS = 2;
 
 function parseGranulomatous(value: Disease["granulomatous"]): boolean | null {
   if (typeof value === "boolean") return value;
@@ -27,8 +28,12 @@ function parseGranulomatous(value: Disease["granulomatous"]): boolean | null {
 // panuveitis untuk disease yang arraynya tidak mengandung "panuveitis" (mis. tidak ada lesi
 // korioretinal eksplisit) — cukup dengan tidak pernah men-set checkbox panuveitis secara implisit
 // dari kombinasi checkbox lain, aturan SUN ini sudah terpenuhi secara struktural.
-function anatomicMatches(diseaseClasses: string[], selected: string): boolean {
-  return diseaseClasses.includes(selected) || diseaseClasses.includes("panuveitis");
+type AnatomicMatchKind = "exact" | "implicit_panuveitis" | "none";
+
+function anatomicMatchKind(diseaseClasses: string[], selected: string): AnatomicMatchKind {
+  if (diseaseClasses.includes(selected)) return "exact";
+  if (diseaseClasses.includes("panuveitis")) return "implicit_panuveitis";
+  return "none";
 }
 
 // kp_distribution_reference.combination_rule_for_scoring: distribusi KP TIDAK BOLEH
@@ -51,20 +56,38 @@ interface ScoreDetail {
   maxScore: number;
   matched: string[];
   contradicted: string[];
+  /** Jumlah sinyal KUAT yang cocok (tag key_features, pattern khas, field dasar exact-match) —
+   * SENGAJA TIDAK menghitung anatomic-match yang cuma implicit dari aturan panuveitis, karena
+   * itu sinyal lemah (lihat kritik dummy-testing: disease bertag kosong bisa "100% match" hanya
+   * dari 1 checkbox anatomis via implicit-panuveitis-rule, tanpa bukti klinis lain apa pun). */
+  strongSignals: number;
+  /** true kalau ada minimal 1 quick_pattern_matcher yang match penuh untuk disease ini —
+   * pola klinis khas dianggap bukti kuat tersendiri walau cuma 1 sinyal. */
+  patternMatched: boolean;
 }
 
 function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
   let score = 0;
   let maxScore = 0;
+  let strongSignals = 0;
+  let patternMatched = false;
   const matched: string[] = [];
   const contradicted: string[] = [];
 
-  // Kelas anatomis — multi-select, dinilai per checkbox yang dicentang (lihat anatomicMatches)
+  // Kelas anatomis — multi-select, dinilai per checkbox yang dicentang. Implicit-panuveitis-match
+  // (disease tidak explicit mengandung checkbox yang dicentang, tapi arraynya mengandung
+  // "panuveitis") diberi bobot LEBIH RENDAH dan TIDAK dihitung sebagai strong signal — mencegah
+  // disease tanpa tag ter-kurasi otomatis "100% match" hanya dari 1 checkbox anatomis.
   input.anatomic.forEach((sel) => {
     maxScore += WEIGHT_BASE_FIELD;
-    if (anatomicMatches(disease.anatomic_class, sel)) {
+    const kind = anatomicMatchKind(disease.anatomic_class, sel);
+    if (kind === "exact") {
       score += WEIGHT_BASE_FIELD;
       matched.push(`Kelas anatomis: ${sel}`);
+      strongSignals += 1;
+    } else if (kind === "implicit_panuveitis") {
+      score += WEIGHT_BASE_FIELD_IMPLICIT;
+      matched.push(`Kelas anatomis: ${sel} (implisit dari panuveitis)`);
     } else {
       score += WEIGHT_CONTRADICTION;
       contradicted.push(`Kelas anatomis ${sel} tidak cocok (disease: ${disease.anatomic_class.join("/")})`);
@@ -77,6 +100,7 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
     if (courseLower.includes(input.course)) {
       score += WEIGHT_BASE_FIELD;
       matched.push(`Course: ${input.course}`);
+      strongSignals += 1;
     } else {
       score += WEIGHT_CONTRADICTION;
       contradicted.push(`Course tidak cocok (disease: ${disease.course})`);
@@ -91,6 +115,7 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
       if (userSaysGranulomatous === diseaseGranulomatous) {
         score += WEIGHT_BASE_FIELD;
         matched.push(`Granulomatous: ${input.granulomatous === "yes" ? "ya" : "tidak"}`);
+        strongSignals += 1;
       } else {
         score += WEIGHT_CONTRADICTION;
         contradicted.push("Status granulomatous tidak cocok");
@@ -104,6 +129,7 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
     if (latLower.includes(input.laterality)) {
       score += WEIGHT_BASE_FIELD;
       matched.push(`Lateralitas: ${input.laterality}`);
+      strongSignals += 1;
     } else {
       score += WEIGHT_CONTRADICTION;
       contradicted.push(`Lateralitas tidak cocok (disease: ${disease.laterality})`);
@@ -119,6 +145,7 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
     if (ageMatches) {
       score += WEIGHT_AGE;
       matched.push(`Kelompok usia: ${input.ageGroup}`);
+      // Sengaja TIDAK dihitung strongSignals — bobot rendah/sinyal lemah per desain.
     }
   }
 
@@ -131,6 +158,7 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
       if (hasKpSupportingSignal(input)) {
         score += WEIGHT_TAG;
         matched.push(`Distribusi KP cocok (${disease.kp_distribution.pattern}), didukung sinyal lain (IOP/atrofi iris/sinekia posterior)`);
+        strongSignals += 1;
       }
       // Cocok tapi tanpa sinyal pendukung -> tidak dihitung sama sekali (netral),
       // sesuai combination_rule_for_scoring: tidak boleh menaikkan skor sendirian.
@@ -147,6 +175,7 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
     if (input.selectedTags.includes(tag)) {
       score += WEIGHT_TAG;
       matched.push(TAG_LABELS[tag] || tag);
+      strongSignals += 1;
     }
   });
 
@@ -158,10 +187,11 @@ function scoreDisease(disease: Disease, input: ClinicalInput): ScoreDetail {
     if (allPresent) {
       score += WEIGHT_PATTERN_BONUS;
       matched.push(`Pola khas: ${pm.requiredTags.map((t) => TAG_LABELS[t] || t).join(" + ")}`);
+      patternMatched = true;
     }
   });
 
-  return { score, maxScore, matched, contradicted };
+  return { score, maxScore, matched, contradicted, strongSignals, patternMatched };
 }
 
 export function computeDifferentialDiagnosis(input: ClinicalInput, kb: KnowledgeBase): RankedResult[] {
@@ -204,11 +234,16 @@ export function computeDifferentialDiagnosis(input: ClinicalInput, kb: Knowledge
 
   const results: RankedResult[] = candidateDiseases
     .map((disease) => {
-      const { score, maxScore, matched, contradicted } = scoreDisease(disease, input);
+      const { score, maxScore, matched, contradicted, strongSignals, patternMatched } = scoreDisease(disease, input);
       const scorePercent = maxScore > 0 ? Math.max(0, Math.round((score / maxScore) * 100)) : 0;
       // critical_note masquerade override: kalau disease ditandai sebagai "safety-net" entity
-      // dan ADA partial match sama sekali, paksa tetap tampil walau di bawah threshold normal.
-      const forced = forcedIncludeIds.has(disease.id) || (isMasqueradeSafetyNet(disease) && matched.length > 0);
+      // dan ADA minimal 2 sinyal KUAT, paksa tetap tampil walau di bawah threshold normal.
+      // Syarat `>= 2` (bukan `matched.length > 0`, dan bukan `> 0`) penting — 1 sinyal kuat
+      // bisa berupa exact-match anatomic_class SENDIRIAN, yang sangat non-spesifik (mis. cuma
+      // centang "anterior" langsung cocok ke lusinan disease). Tanpa syarat ini, disease apa pun
+      // yang critical_note-nya menyinggung kata "masquerade" sebagai CAVEAT (bukan sinyal aktif)
+      // ikut nampang di hampir semua hasil hanya lewat 1 checkbox anatomis generik.
+      const forced = forcedIncludeIds.has(disease.id) || (isMasqueradeSafetyNet(disease) && strongSignals >= 2);
       return {
         diseaseId: disease.id,
         name: disease.name,
@@ -219,10 +254,32 @@ export function computeDifferentialDiagnosis(input: ClinicalInput, kb: Knowledge
         disease,
         actionAlerts: actionAlertsByDisease.get(disease.id),
         forcedInclude: forced,
+        strongSignals,
+        patternMatched,
       };
     })
-    .filter((r) => r.scorePercent > MIN_SCORE_PERCENT || r.forcedInclude)
-    .sort((a, b) => b.scorePercent - a.scorePercent);
+    // Evidence-based gate — MENGGANTIKAN filter persentase flat lama (`scorePercent > 15`).
+    // Alasan (lihat kritik dummy-testing): `scorePercent` per disease dinormalisasi terhadap
+    // maxScore-nya SENDIRI, yang timpang antar disease karena kedalaman kurasi tag manual
+    // berbeda-beda (0-6 tag). Itu membuat disease bertag kosong bisa "100% match" dari 1
+    // checkbox anatomis kebetulan cocok, sementara disease terkurasi lengkap yang match separuh
+    // dari BANYAK kriteria malah tersaring habis. Solusinya: syaratkan minimal 2 sinyal KUAT
+    // (bukan implicit-panuveitis/usia yang sinyal lemah), ATAU 1 pola klinis khas yang match
+    // penuh (patternMatched), ATAU forced-include (masquerade safety-net/must-exclude companion).
+    .filter((r) => r.forcedInclude || r.patternMatched || r.strongSignals >= MIN_STRONG_SIGNALS)
+    // Urutkan berdasar JUMLAH sinyal kuat dulu (bukan scorePercent langsung) — scorePercent
+    // tetap timpang antar disease utk RANKING (bukan cuma filtering) karena denominator
+    // (maxScore) beda-beda tergantung kedalaman kurasi tag manual. Disease dgn 7 tag ter-kurasi
+    // yang match 3 di antaranya (sinyal kuat secara absolut) bisa persentasenya lebih rendah
+    // dari disease bertag tipis (2 tag) yang match 1 — tapi yang match 3 kriteria lebih relevan
+    // secara klinis, jadi harus tetap di atas. Pattern-matcher penuh dihitung setara 2 sinyal
+    // kuat (pola klinis khas = bukti lebih kuat dari 1 tag individual).
+    .sort((a, b) => {
+      const aStrength = a.strongSignals + (a.patternMatched ? 2 : 0);
+      const bStrength = b.strongSignals + (b.patternMatched ? 2 : 0);
+      if (bStrength !== aStrength) return bStrength - aStrength;
+      return b.scorePercent - a.scorePercent;
+    });
 
   return results;
 }
