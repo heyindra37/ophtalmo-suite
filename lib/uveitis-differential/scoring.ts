@@ -267,7 +267,19 @@ export function computeDifferentialDiagnosis(input: ClinicalInput, kb: Knowledge
     // (bukan implicit-panuveitis/usia yang sinyal lemah), ATAU 1 pola klinis khas yang match
     // penuh (patternMatched), ATAU forced-include (masquerade safety-net/must-exclude companion).
     .filter((r) => r.forcedInclude || r.patternMatched || r.strongSignals >= MIN_STRONG_SIGNALS)
-    .sort((a, b) => b.scorePercent - a.scorePercent);
+    // Urutkan berdasar JUMLAH sinyal kuat dulu (bukan scorePercent langsung) — scorePercent
+    // tetap timpang antar disease utk RANKING (bukan cuma filtering) karena denominator
+    // (maxScore) beda-beda tergantung kedalaman kurasi tag manual. Disease dgn 7 tag ter-kurasi
+    // yang match 3 di antaranya (sinyal kuat secara absolut) bisa persentasenya lebih rendah
+    // dari disease bertag tipis (2 tag) yang match 1 — tapi yang match 3 kriteria lebih relevan
+    // secara klinis, jadi harus tetap di atas. Pattern-matcher penuh dihitung setara 2 sinyal
+    // kuat (pola klinis khas = bukti lebih kuat dari 1 tag individual).
+    .sort((a, b) => {
+      const aStrength = a.strongSignals + (a.patternMatched ? 2 : 0);
+      const bStrength = b.strongSignals + (b.patternMatched ? 2 : 0);
+      if (bStrength !== aStrength) return bStrength - aStrength;
+      return b.scorePercent - a.scorePercent;
+    });
 
   return results;
 }

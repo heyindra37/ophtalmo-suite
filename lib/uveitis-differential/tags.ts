@@ -34,6 +34,7 @@ export const TAG_GROUPS: TagGroup[] = [
       { id: "treatment_resistant_antiviral_steroid", label: "Tidak respon terhadap antivirus/steroid" },
       { id: "very_high_iop_trabeculitis", label: "IOP sangat tinggi (50-60 mmHg), trabekulitis" },
       { id: "recurrent_microhyphema", label: "Mikrohifema rekuren" },
+      { id: "koeppe_busacca_iris_nodules", label: "Nodul Koeppe/Busacca di iris" },
     ],
   },
   {
@@ -66,6 +67,11 @@ export const TAG_GROUPS: TagGroup[] = [
       { id: "retinal_vasculitis_phlebitis", label: "Vaskulitis retina — phlebitis" },
       { id: "white_dots_evanescent", label: "Bercak putih evanescent" },
       { id: "wedge_parafoveal_lesion", label: "Lesi wedge parafovea" },
+      { id: "candlewax_drippings_periphlebitis", label: "Candlewax drippings (taches de bougie)" },
+      { id: "sunset_glow_fundus", label: "Fundus 'sunset glow'" },
+      { id: "gass_plaques_arteriolar_deposits", label: "Gass plaques (deposit dinding arteriol)" },
+      { id: "boxcar_segmentation_retinal_vessels", label: "Segmentasi 'boxcar' pembuluh retina" },
+      { id: "lupus_choroidopathy_rpe_detachments", label: "Koroidopati lupus, detasemen RPE multifokal" },
     ],
   },
   {
@@ -85,6 +91,10 @@ export const TAG_GROUPS: TagGroup[] = [
       { id: "hzo_rash_1to3wk_before_uveitis", label: "Riwayat ruam zoster oftalmikus 1-3 minggu sebelumnya" },
       { id: "hutchinson_sign", label: "Hutchinson sign (vesikel ujung hidung)" },
       { id: "psoriasis_history", label: "Riwayat psoriasis" },
+      { id: "meningismus_prodrome", label: "Prodromal meningismus (nyeri kepala, kaku leher)" },
+      { id: "bilateral_after_unilateral_eye_injury", label: "Mata sebelahnya ikut meradang setelah cedera/operasi mata satunya" },
+      { id: "familial_autosomal_dominant_granulomatosis", label: "Riwayat keluarga granulomatosis autosomal dominan (anak)" },
+      { id: "cns_demyelinating_disease_history", label: "Riwayat/gejala penyakit demielinasi SSP" },
     ],
   },
   {
@@ -101,6 +111,7 @@ export const TAG_GROUPS: TagGroup[] = [
       { id: "ace_elevated_or_cxr_bhl", label: "ACE meningkat / CXR bilateral hilar lymphadenopathy" },
       { id: "syphilis_serology_positive", label: "Serologi sifilis positif" },
       { id: "toxoplasma_serology_positive", label: "Serologi toksoplasma IgG/IgM positif" },
+      { id: "c_anca_pr3_positive", label: "c-ANCA/PR3 positif" },
     ],
   },
   {
@@ -184,9 +195,9 @@ export const DISEASE_TAGS: Record<string, string[]> = {
   behcet_uveitis: ["hypopyon_mobile", "eye_white_quiet_looking", "oral_genital_ulcers", "retinal_vasculitis_arteritis", "retinal_vasculitis_phlebitis", "vitritis_present"],
   fuchs_uveitis_syndrome: ["kp_stellate", "posterior_synechiae_absent", "eye_white_quiet_looking", "heterochromia", "iris_atrophy_diffuse"],
   jia_uveitis: ["injection_absent_despite_severity", "posterior_synechiae_present", "band_keratopathy", "child_asymptomatic_with_arthritis"],
-  vkh_syndrome: ["tinnitus_vertigo_hearing_loss", "alopecia_vitiligo_poliosis", "exudative_rd", "chorioretinal_granuloma", "vitritis_present"],
-  sympathetic_ophthalmia: ["prior_penetrating_trauma_or_vr_surgery", "chorioretinal_granuloma"],
-  sarcoidosis_uveitis: ["kp_mutton_fat", "snowballs", "chorioretinal_granuloma", "retinal_vasculitis_phlebitis", "ace_elevated_or_cxr_bhl"],
+  vkh_syndrome: ["tinnitus_vertigo_hearing_loss", "alopecia_vitiligo_poliosis", "exudative_rd", "chorioretinal_granuloma", "vitritis_present", "sunset_glow_fundus", "meningismus_prodrome"],
+  sympathetic_ophthalmia: ["prior_penetrating_trauma_or_vr_surgery", "chorioretinal_granuloma", "bilateral_after_unilateral_eye_injury"],
+  sarcoidosis_uveitis: ["kp_mutton_fat", "snowballs", "chorioretinal_granuloma", "retinal_vasculitis_phlebitis", "ace_elevated_or_cxr_bhl", "koeppe_busacca_iris_nodules", "candlewax_drippings_periphlebitis"],
   toxoplasmosis_retinitis: ["retinitis_satellite_to_old_scar", "disc_edema", "vitritis_present", "toxoplasma_serology_positive"],
   toxocariasis_ocular: ["chorioretinal_granuloma", "leukocoria_or_strabismus_child"],
   cmv_retinitis: ["retinitis_pizza_pie", "immunocompromised_hiv"],
@@ -209,14 +220,14 @@ export const DISEASE_TAGS: Record<string, string[]> = {
   lens_induced_uveitis: ["recent_cataract_surgery_or_lens_trauma"],
 
   // ── 64 disease baru di knowledge base v2 (AAO BCSC) ──────────────────────────
-  tinu_syndrome: ["renal_disease_with_uveitis_async"],
+  tinu_syndrome: ["renal_disease_with_uveitis_async", "posterior_synechiae_present"],
   posner_schlossman_syndrome: ["recurrent_unilateral_iop_spike_mild_inflammation", "kp_fine", "recurrent_same_eye_episode"],
   uveitis_glaucoma_hyphema_syndrome: ["pseudophakic_iol_chafing", "recurrent_microhyphema"],
   toxic_anterior_segment_syndrome: ["postop_sterile_acute_reaction"],
   chronic_postop_endophthalmitis_cutibacterium: ["postop_recurrent_indolent_with_plaques", "recent_cataract_surgery_or_lens_trauma"],
-  granulomatosis_with_polyangiitis: ["ent_bloody_nasal_discharge", "mononeuritis_multiplex", "retinal_vasculitis_arteritis"],
-  systemic_lupus_erythematosus_uveitis: ["retinal_vasoocclusive_no_inflammation"],
-  multiple_sclerosis_uveitis: ["retinal_vasculitis_phlebitis", "vitritis_minimal"],
+  granulomatosis_with_polyangiitis: ["ent_bloody_nasal_discharge", "mononeuritis_multiplex", "retinal_vasculitis_arteritis", "c_anca_pr3_positive"],
+  systemic_lupus_erythematosus_uveitis: ["retinal_vasoocclusive_no_inflammation", "lupus_choroidopathy_rpe_detachments"],
+  multiple_sclerosis_uveitis: ["retinal_vasculitis_phlebitis", "vitritis_minimal", "cns_demyelinating_disease_history"],
   vitreoretinal_lymphoma: ["masquerade_older_patient_poor_steroid_response", "vitritis_present"],
   uveal_lymphoma: ["masquerade_older_patient_poor_steroid_response", "chorioretinal_granuloma"],
   ocular_manifestations_systemic_lymphoma: ["pseudohypopyon", "vitritis_present", "retinal_vasculitis_phlebitis"],
@@ -234,7 +245,7 @@ export const DISEASE_TAGS: Record<string, string[]> = {
   phacolytic_uveitis: ["recent_cataract_surgery_or_lens_trauma"],
   pars_planitis: ["snowballs", "snowbanking", "retinal_vasculitis_phlebitis"],
   drug_induced_uveitis: [],
-  blau_syndrome: ["chorioretinal_granuloma", "child_asymptomatic_with_arthritis"],
+  blau_syndrome: ["chorioretinal_granuloma", "child_asymptomatic_with_arthritis", "familial_autosomal_dominant_granulomatosis"],
   multifocal_choroiditis_panuveitis: ["young_myopic_female", "vitritis_present"],
   subretinal_fibrosis_uveitis_syndrome: ["vitritis_present"],
   relentless_placoid_chorioretinitis: ["placoid_lesion_posterior", "serpiginous_pattern"],
@@ -243,7 +254,7 @@ export const DISEASE_TAGS: Record<string, string[]> = {
   acute_idiopathic_maculopathy: ["flu_like_prodrome"],
   autoimmune_retinopathy: ["minimal_inflammation_severe_vision_loss"],
   polyarteritis_nodosa: ["mononeuritis_multiplex", "lung_sparing_vasculitis_skin_nodules", "retinal_vasculitis_arteritis"],
-  susac_syndrome: ["hearing_loss_encephalopathy_brao_triad", "vitritis_minimal"],
+  susac_syndrome: ["hearing_loss_encephalopathy_brao_triad", "vitritis_minimal", "gass_plaques_arteriolar_deposits", "boxcar_segmentation_retinal_vessels"],
   leptospirosis_uveitis: ["mosquito_borne_febrile_illness", "tropical_endemic_exposure", "retinal_vasculitis_phlebitis"],
   nocardiosis_uveitis: ["immunocompromised_hiv", "chorioretinal_granuloma"],
   cat_scratch_bartonellosis: ["animal_contact_exposure", "disc_edema"],
@@ -387,5 +398,56 @@ export const PATTERN_MATCHERS: PatternMatcher[] = [
   {
     requiredTags: ["reduced_corneal_sensation", "recurrent_same_eye_episode"],
     differential: ["herpes_simplex_anterior_uveitis"],
+  },
+
+  // ── Batch 2: Granulomatous & inflamasi sistemik ─────────────────────────────
+  {
+    requiredTags: ["prior_penetrating_trauma_or_vr_surgery", "bilateral_after_unilateral_eye_injury", "chorioretinal_granuloma"],
+    differential: ["sympathetic_ophthalmia", "vkh_syndrome"],
+  },
+  {
+    requiredTags: ["tinnitus_vertigo_hearing_loss", "meningismus_prodrome", "exudative_rd"],
+    differential: ["vkh_syndrome"],
+  },
+  {
+    requiredTags: ["sunset_glow_fundus", "alopecia_vitiligo_poliosis"],
+    differential: ["vkh_syndrome"],
+  },
+  {
+    requiredTags: ["familial_autosomal_dominant_granulomatosis", "child_asymptomatic_with_arthritis", "chorioretinal_granuloma"],
+    differential: ["blau_syndrome"],
+  },
+  {
+    requiredTags: ["koeppe_busacca_iris_nodules", "kp_mutton_fat"],
+    differential: ["sarcoidosis_uveitis"],
+  },
+  {
+    requiredTags: ["cns_demyelinating_disease_history"],
+    differential: ["multiple_sclerosis_uveitis"],
+    action: "Kalau uveitis intermediate 'idiopatik' akan diterapi TNF inhibitor, lakukan MRI otak dulu utk skrining demielinasi — TNF inhibitor kontraindikasi/bisa memperburuk MS walau tanpa gejala neurologis.",
+  },
+  {
+    requiredTags: ["retinal_vasculitis_phlebitis", "vitritis_minimal"],
+    differential: ["multiple_sclerosis_uveitis"],
+  },
+  {
+    requiredTags: ["ent_bloody_nasal_discharge", "c_anca_pr3_positive"],
+    differential: ["granulomatosis_with_polyangiitis"],
+  },
+  {
+    requiredTags: ["mononeuritis_multiplex", "lung_sparing_vasculitis_skin_nodules"],
+    differential: ["polyarteritis_nodosa"],
+  },
+  {
+    requiredTags: ["retinal_vasoocclusive_no_inflammation", "lupus_choroidopathy_rpe_detachments"],
+    differential: ["systemic_lupus_erythematosus_uveitis"],
+  },
+  {
+    requiredTags: ["gass_plaques_arteriolar_deposits", "boxcar_segmentation_retinal_vessels", "hearing_loss_encephalopathy_brao_triad"],
+    differential: ["susac_syndrome"],
+  },
+  {
+    requiredTags: ["renal_disease_with_uveitis_async"],
+    differential: ["tinu_syndrome"],
   },
 ];
