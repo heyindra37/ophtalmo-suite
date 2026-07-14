@@ -1,28 +1,23 @@
 export type AnatomicClass = "anterior" | "intermediate" | "posterior" | "panuveitis";
-export type Onset = "" | "sudden" | "insidious";
 export type Course = "" | "acute" | "recurrent" | "chronic";
 export type Laterality = "" | "unilateral" | "bilateral" | "alternating";
 export type TriState = "" | "yes" | "no";
-export type AgeGroup = "" | "child" | "adult" | "elderly";
-export type Sex = "" | "male" | "female";
+/** 4 bucket resmi sesuai kb.age_group_reference.bucket_definitions: anak(0-9)/remaja(10-17)/dewasa(18-60)/lansia(61+). */
+export type AgeGroup = "" | "child" | "teen" | "adult" | "elderly";
 export type FacilityTier = "basic" | "in_house_if_available" | "referral";
 
 export type IopStatus = "" | "elevated" | "reduced" | "normal" | "unknown";
-export type KpMorphology = "" | "fine" | "stellate" | "mutton_fat" | "large_greasy" | "unknown";
 export type KpDistributionPattern = "" | "arlt_triangle_inferior" | "diffuse_beyond_midline" | "linear_turks_line" | "unknown";
 
 export interface ClinicalInput {
   /** Multi-select checkbox — knowledge base v2 mengubah anatomic_class jadi array per disease
    * (lihat kb.anatomic_class_reference), jadi input dokter juga jadi checkbox, bukan dropdown. */
   anatomic: AnatomicClass[];
-  onset: Onset;
   course: Course;
   laterality: Laterality;
   granulomatous: TriState;
   ageGroup: AgeGroup;
-  sex: Sex;
   iop: IopStatus;
-  kpMorphology: KpMorphology;
   kpDistribution: KpDistributionPattern;
   selectedTags: string[];
   /** Kalau true, sertakan 6 entitas disease_category==="scleritis" dalam scoring (default false). */
@@ -32,14 +27,11 @@ export interface ClinicalInput {
 export function defaultClinicalInput(): ClinicalInput {
   return {
     anatomic: [],
-    onset: "",
     course: "",
     laterality: "",
     granulomatous: "",
     ageGroup: "",
-    sex: "",
     iop: "",
-    kpMorphology: "",
     kpDistribution: "",
     selectedTags: [],
     includeScleritis: false,
