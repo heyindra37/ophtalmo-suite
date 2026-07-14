@@ -109,6 +109,9 @@ export default function ClinicalInputForm({
       <AccordionSection title="A. Karakteristik Dasar" defaultOpen>
         <div style={{ marginBottom: 12 }}>
           <label style={labelStyle}>Kelas Anatomis (bisa lebih dari satu)</label>
+          <p style={{ fontSize: 11, color: C.textFaint, margin: "0 0 6px", fontStyle: "italic" }}>
+            Isi ini duluan — checkbox temuan klinis di bagian B/C paling efektif kalau dikombinasikan dengan kelas anatomis.
+          </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
             {ANATOMIC_OPTIONS.map((opt) => (
               <label key={opt.value} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.text, cursor: "pointer" }}>
@@ -220,7 +223,11 @@ export default function ClinicalInputForm({
                 <p style={{ ...labelStyle, marginBottom: 6 }}>{g.group}</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
                   {visibleTags.map((t) => (
-                    <label key={t.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.text, cursor: "pointer" }}>
+                    <label
+                      key={t.id}
+                      title={t.tooltip}
+                      style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.text, cursor: t.tooltip ? "help" : "pointer" }}
+                    >
                       <input
                         type="checkbox"
                         checked={input.selectedTags.includes(t.id)}
@@ -228,6 +235,7 @@ export default function ClinicalInputForm({
                         style={{ accentColor: C.accent }}
                       />
                       {t.label}
+                      {t.tooltip && <span style={{ color: C.textFaint, fontSize: 10 }}>ⓘ</span>}
                     </label>
                   ))}
                 </div>
@@ -248,7 +256,11 @@ export default function ClinicalInputForm({
                 <p style={{ ...labelStyle, marginBottom: 6 }}>{g.group}</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
                   {visibleTags.map((t) => (
-                    <label key={t.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.text, cursor: "pointer" }}>
+                    <label
+                      key={t.id}
+                      title={t.tooltip}
+                      style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.text, cursor: t.tooltip ? "help" : "pointer" }}
+                    >
                       <input
                         type="checkbox"
                         checked={input.selectedTags.includes(t.id)}
@@ -256,6 +268,7 @@ export default function ClinicalInputForm({
                         style={{ accentColor: C.accent }}
                       />
                       {t.label}
+                      {t.tooltip && <span style={{ color: C.textFaint, fontSize: 10 }}>ⓘ</span>}
                     </label>
                   ))}
                 </div>

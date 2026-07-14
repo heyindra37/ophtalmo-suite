@@ -4,47 +4,50 @@
 
 export interface TagGroup {
   group: string;
-  tags: { id: string; label: string }[];
+  /** `tooltip` opsional — penjelasan awam singkat untuk istilah teknis, ditampilkan sbg
+   * native browser tooltip (title attribute) di checkbox-nya. Cuma diisi utk istilah yang
+   * benar-benar jargon (KP morphology dsb), tidak semua 197 tag perlu tooltip. */
+  tags: { id: string; label: string; tooltip?: string }[];
 }
 
 export const TAG_GROUPS: TagGroup[] = [
   {
     group: "Segmen Anterior",
     tags: [
-      { id: "hypopyon_mobile", label: "Hipopion mobile" },
-      { id: "hypopyon_immobile", label: "Hipopion immobile" },
-      { id: "fibrin_ac", label: "Fibrin di bilik mata depan" },
+      { id: "hypopyon_mobile", label: "Hipopion mobile", tooltip: "Nanah steril di bilik mata depan yang bergerak/bergeser mengikuti posisi kepala (bukan menempel kaku)" },
+      { id: "hypopyon_immobile", label: "Hipopion immobile", tooltip: "Nanah steril di bilik mata depan yang menempel kaku/tidak bergeser walau posisi kepala berubah — biasanya krn fibrin" },
+      { id: "fibrin_ac", label: "Fibrin di bilik mata depan", tooltip: "Gumpalan protein bekuan (fibrin) terlihat mengambang/menempel di bilik mata depan, tanda inflamasi berat" },
       { id: "painful_red_eye", label: "Mata merah dan nyeri" },
-      { id: "kp_fine", label: "KP halus (non-granulomatous)" },
-      { id: "kp_stellate", label: "KP stellate difus" },
-      { id: "kp_mutton_fat", label: "KP mutton-fat" },
-      { id: "posterior_synechiae_present", label: "Sinekia posterior ada" },
+      { id: "kp_fine", label: "KP halus (non-granulomatous)", tooltip: "KP = keratic precipitates, endapan sel radang di bagian belakang kornea. Ukuran kecil/halus = pola non-granulomatous" },
+      { id: "kp_stellate", label: "KP stellate difus", tooltip: "Endapan sel radang di kornea (KP) berbentuk bintang, tersebar merata di seluruh permukaan endotel — khas Fuchs" },
+      { id: "kp_mutton_fat", label: "KP mutton-fat", tooltip: "Endapan sel radang di kornea (KP) besar, berminyak/lengket seperti lemak domba — tanda granulomatous" },
+      { id: "posterior_synechiae_present", label: "Sinekia posterior ada", tooltip: "Perlengketan tepi pupil (iris) ke permukaan depan lensa akibat inflamasi" },
       { id: "posterior_synechiae_absent", label: "Sinekia posterior tidak ada" },
-      { id: "heterochromia", label: "Heterokromia iris" },
-      { id: "iris_atrophy_diffuse", label: "Atrofi iris difus" },
-      { id: "iris_atrophy_sectoral", label: "Atrofi iris sektoral/patchy" },
-      { id: "eye_white_quiet_looking", label: "Mata relatif putih/tenang" },
-      { id: "injection_absent_despite_severity", label: "Tanpa injeksi walau inflamasi berat" },
-      { id: "band_keratopathy", label: "Band keratopathy" },
+      { id: "heterochromia", label: "Heterokromia iris", tooltip: "Warna iris kedua mata berbeda, atau mata yang sakit terlihat lebih terang/pucat dari yang sehat" },
+      { id: "iris_atrophy_diffuse", label: "Atrofi iris difus", tooltip: "Jaringan iris menipis merata di seluruh permukaan (bukan cuma sebagian)" },
+      { id: "iris_atrophy_sectoral", label: "Atrofi iris sektoral/patchy", tooltip: "Jaringan iris menipis hanya di sebagian area (berbentuk sektor/bercak), khas infeksi virus herpes" },
+      { id: "eye_white_quiet_looking", label: "Mata relatif putih/tenang", tooltip: "Mata terlihat tidak merah/tidak meradang dari luar walau inflamasi di dalam sebenarnya aktif — tanda khas beberapa penyakit (mis. Fuchs, JIA)" },
+      { id: "injection_absent_despite_severity", label: "Tanpa injeksi walau inflamasi berat", tooltip: "Pembuluh darah konjungtiva/sklera tidak tampak melebar-merah, padahal pemeriksaan dalam menunjukkan inflamasi cukup berat" },
+      { id: "band_keratopathy", label: "Band keratopathy", tooltip: "Endapan kalsium berbentuk pita horizontal di permukaan kornea, biasanya akibat inflamasi kronis lama" },
       { id: "recent_cataract_surgery_or_lens_trauma", label: "Riwayat operasi katarak baru / trauma lensa" },
-      { id: "dendritiform_corneal_lesion", label: "Lesi kornea dendritiform" },
-      { id: "reduced_corneal_sensation", label: "Sensasi kornea menurun" },
-      { id: "kp_ring_shaped_or_scant_white_domed", label: "KP ring-shaped / scant white-domed (khas CMV)" },
+      { id: "dendritiform_corneal_lesion", label: "Lesi kornea dendritiform", tooltip: "Luka di permukaan kornea berbentuk bercabang seperti ranting/akar pohon — khas infeksi herpes" },
+      { id: "reduced_corneal_sensation", label: "Sensasi kornea menurun", tooltip: "Kornea kurang peka saat disentuh (tes sensasi kornea) — tanda kerusakan saraf akibat infeksi virus herpes berulang" },
+      { id: "kp_ring_shaped_or_scant_white_domed", label: "KP ring-shaped / scant white-domed (khas CMV)", tooltip: "Endapan sel radang di kornea (KP) berbentuk cincin, atau sedikit dan berbentuk kubah putih — pola khas infeksi CMV" },
       { id: "recurrent_same_eye_episode", label: "Rekuren, selalu di mata yang sama" },
       { id: "treatment_resistant_antiviral_steroid", label: "Tidak respon terhadap antivirus/steroid" },
-      { id: "very_high_iop_trabeculitis", label: "IOP sangat tinggi (50-60 mmHg), trabekulitis" },
-      { id: "recurrent_microhyphema", label: "Mikrohifema rekuren" },
-      { id: "koeppe_busacca_iris_nodules", label: "Nodul Koeppe/Busacca di iris" },
+      { id: "very_high_iop_trabeculitis", label: "IOP sangat tinggi (50-60 mmHg), trabekulitis", tooltip: "Tekanan bola mata melonjak sangat tinggi akibat peradangan pada jalur drainase cairan mata (trabecular meshwork)" },
+      { id: "recurrent_microhyphema", label: "Mikrohifema rekuren", tooltip: "Perdarahan kecil berulang di bilik mata depan, sering pada pasien pasca operasi katarak dengan lensa tanam (IOL)" },
+      { id: "koeppe_busacca_iris_nodules", label: "Nodul Koeppe/Busacca di iris", tooltip: "Benjolan kecil granulomatous di iris — Koeppe di tepi pupil, Busacca di permukaan iris — tanda uveitis granulomatous" },
     ],
   },
   {
     group: "Vitreous",
     tags: [
-      { id: "vitritis_present", label: "Vitritis ada" },
-      { id: "vitritis_dense", label: "Vitritis dense/berat" },
+      { id: "vitritis_present", label: "Vitritis ada", tooltip: "Sel-sel radang terlihat di badan kaca (vitreous), biasanya tampak sebagai kekeruhan saat pemeriksaan" },
+      { id: "vitritis_dense", label: "Vitritis dense/berat", tooltip: "Kekeruhan sel radang di badan kaca cukup padat sampai mengganggu penglihatan fundus" },
       { id: "vitritis_minimal", label: "Vitritis minimal/tidak ada" },
-      { id: "snowballs", label: "Snowballs" },
-      { id: "snowbanking", label: "Snowbanking" },
+      { id: "snowballs", label: "Snowballs", tooltip: "Gumpalan sel radang di badan kaca berbentuk bulat seperti bola salju kecil, khas uveitis intermediate" },
+      { id: "snowbanking", label: "Snowbanking", tooltip: "Endapan sel radang putih seperti gundukan salju di bagian bawah pars plana (tepi retina) — khas pars planitis berat" },
     ],
   },
   {

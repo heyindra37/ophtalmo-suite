@@ -118,7 +118,9 @@ export default function UveitisDifferentialClient() {
               </p>
             ) : results.length === 0 ? (
               <p style={{ color: C.textFaint, fontSize: 14, textAlign: "center", padding: "20px 0", fontStyle: "italic" }}>
-                Data belum cukup spesifik, pertimbangkan kumpulkan temuan tambahan.
+                {input.anatomic.length === 0
+                  ? "Coba isi Kelas Anatomis di bagian A dulu — kombinasi itu dengan temuan klinis biasanya cukup untuk memunculkan hasil."
+                  : "Data belum cukup spesifik, pertimbangkan kumpulkan temuan tambahan."}
               </p>
             ) : (
               results.map((r) => (
