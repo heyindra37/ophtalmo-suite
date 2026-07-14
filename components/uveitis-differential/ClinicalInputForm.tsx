@@ -82,6 +82,7 @@ export default function ClinicalInputForm({
   reviewOfSystemsData?: ReviewOfSystemsData;
 }) {
   const upd = (patch: Partial<ClinicalInput>) => onChange({ ...input, ...patch });
+  const [tagSearch, setTagSearch] = useState("");
 
   const toggleTag = (tag: string) => {
     const has = input.selectedTags.includes(tag);
@@ -95,6 +96,12 @@ export default function ClinicalInputForm({
 
   const historyGroups = TAG_GROUPS.filter((g) => g.group === "Riwayat & Sistemik" || g.group === "Demografi" || g.group === "Hasil Investigasi (jika sudah ada)");
   const clinicalGroups = TAG_GROUPS.filter((g) => !historyGroups.includes(g));
+
+  // Search hanya menyaring TAMPILAN checkbox (197 tag total di seluruh grup B+C) — tag yang sudah
+  // dicentang tetap tersimpan di input.selectedTags walau sedang tersembunyi krn tidak cocok filter.
+  const needle = tagSearch.trim().toLowerCase();
+  const filterGroupTags = (g: (typeof TAG_GROUPS)[number]) =>
+    needle ? g.tags.filter((t) => t.label.toLowerCase().includes(needle)) : g.tags;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -169,6 +176,15 @@ export default function ClinicalInputForm({
       <AccordionSection title="B. Gejala & Tanda Klinis" defaultOpen>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
+            <input
+              type="search"
+              value={tagSearch}
+              onChange={(e) => setTagSearch(e.target.value)}
+              placeholder="Cari temuan klinis... (menyaring bagian B & C sekaligus)"
+              style={selectStyle}
+            />
+          </div>
+          <div>
             <p style={{ ...labelStyle, marginBottom: 6 }}>IOP & Keratic Precipitates</p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
               <div>
@@ -196,48 +212,56 @@ export default function ClinicalInputForm({
               Distribusi KP tidak dipakai sebagai fitur berdiri sendiri — hanya menaikkan skor jika dikombinasikan dengan IOP, pola atrofi iris, atau status sinekia posterior.
             </p>
           </div>
-          {clinicalGroups.map((g) => (
-            <div key={g.group}>
-              <p style={{ ...labelStyle, marginBottom: 6 }}>{g.group}</p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
-                {g.tags.map((t) => (
-                  <label key={t.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.text, cursor: "pointer" }}>
-                    <input
-                      type="checkbox"
-                      checked={input.selectedTags.includes(t.id)}
-                      onChange={() => toggleTag(t.id)}
-                      style={{ accentColor: C.accent }}
-                    />
-                    {t.label}
-                  </label>
-                ))}
+          {clinicalGroups.map((g) => {
+            const visibleTags = filterGroupTags(g);
+            if (needle && visibleTags.length === 0) return null;
+            return (
+              <div key={g.group}>
+                <p style={{ ...labelStyle, marginBottom: 6 }}>{g.group}</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
+                  {visibleTags.map((t) => (
+                    <label key={t.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.text, cursor: "pointer" }}>
+                      <input
+                        type="checkbox"
+                        checked={input.selectedTags.includes(t.id)}
+                        onChange={() => toggleTag(t.id)}
+                        style={{ accentColor: C.accent }}
+                      />
+                      {t.label}
+                    </label>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </AccordionSection>
 
       {/* C+D. Riwayat, Sistemik, Demografi, Hasil Investigasi */}
       <AccordionSection title="C. Riwayat & Hasil Investigasi" defaultOpen>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {historyGroups.map((g) => (
-            <div key={g.group}>
-              <p style={{ ...labelStyle, marginBottom: 6 }}>{g.group}</p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
-                {g.tags.map((t) => (
-                  <label key={t.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.text, cursor: "pointer" }}>
-                    <input
-                      type="checkbox"
-                      checked={input.selectedTags.includes(t.id)}
-                      onChange={() => toggleTag(t.id)}
-                      style={{ accentColor: C.accent }}
-                    />
-                    {t.label}
-                  </label>
-                ))}
+          {historyGroups.map((g) => {
+            const visibleTags = filterGroupTags(g);
+            if (needle && visibleTags.length === 0) return null;
+            return (
+              <div key={g.group}>
+                <p style={{ ...labelStyle, marginBottom: 6 }}>{g.group}</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
+                  {visibleTags.map((t) => (
+                    <label key={t.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: C.text, cursor: "pointer" }}>
+                      <input
+                        type="checkbox"
+                        checked={input.selectedTags.includes(t.id)}
+                        onChange={() => toggleTag(t.id)}
+                        style={{ accentColor: C.accent }}
+                      />
+                      {t.label}
+                    </label>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </AccordionSection>
 
