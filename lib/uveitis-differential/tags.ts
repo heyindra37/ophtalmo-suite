@@ -116,6 +116,17 @@ export const TAG_GROUPS: TagGroup[] = [
       { id: "retained_lens_fragments_visible_elevated_iop", label: "Fragmen lensa tertinggal terlihat + IOP meningkat" },
       { id: "recent_new_medication_started", label: "Baru mulai obat baru sebelum gejala muncul" },
       { id: "resolves_after_drug_discontinuation", label: "Membaik setelah obat dihentikan" },
+      { id: "pain_worsens_eye_movement_radiates_jaw", label: "Nyeri memberat saat gerak mata, menjalar ke wajah/rahang" },
+      { id: "deep_episcleral_plexus_dilation_no_nodule", label: "Dilatasi pleksus episklera dalam, tanpa nodul" },
+      { id: "risk_progression_to_necrotizing", label: "Berisiko progresi ke skleritis nekrotikan" },
+      { id: "systemic_vasculitis_association_high", label: "Asosiasi vaskulitis sistemik tinggi (50-60%)" },
+      { id: "highest_vision_loss_risk_scleritis", label: "Risiko kehilangan visus tertinggi di antara skleritis" },
+      { id: "elderly_woman_longstanding_ra", label: "Wanita lansia, riwayat RA lama" },
+      { id: "staphyloma_progressive_destruction", label: "Destruksi sklera progresif, staphyloma" },
+      { id: "choroidal_folds_detachment_disc_edema", label: "Lipatan/detasemen koroid + edema diskus" },
+      { id: "angle_closure_from_ciliary_body_rotation", label: "Angle closure akibat rotasi badan siliar ke depan" },
+      { id: "post_pterygium_excision_mitomycin_beta_radiation", label: "Pasca-eksisi pterigium + mitomycin/radiasi beta" },
+      { id: "organic_matter_contaminated_wound", label: "Luka terkontaminasi bahan organik/vegetasi" },
     ],
   },
   {
@@ -348,12 +359,12 @@ export const DISEASE_TAGS: Record<string, string[]> = {
   cryptococcal_choroiditis: ["hiv_aids_opportunistic_ocular", "chorioretinal_granuloma", "fungal_meningitis_history"],
   endogenous_candida_endophthalmitis: ["immunocompromised_hiv", "vitritis_present", "string_of_pearls_vitreous_opacities", "multiple_bilateral_small_white_lesions"],
   endogenous_aspergillus_endophthalmitis: ["immunocompromised_hiv", "hypopyon_immobile", "rapid_onset_severe_pain_vision_loss", "disseminated_fungal_infection_risk_factors"],
-  diffuse_anterior_scleritis: ["scleritis_violaceous_diffuse"],
-  nodular_anterior_scleritis: ["scleritis_nodule_tender"],
-  necrotizing_scleritis: ["scleritis_necrotizing_avascular"],
-  scleromalacia_perforans: ["scleritis_painless_white_patches"],
-  posterior_scleritis: ["scleritis_posterior_boring_pain"],
-  infectious_scleritis: ["scleritis_postsurgical_or_contaminated_wound", "scleritis_necrotizing_avascular"],
+  diffuse_anterior_scleritis: ["scleritis_violaceous_diffuse", "pain_worsens_eye_movement_radiates_jaw", "deep_episcleral_plexus_dilation_no_nodule"],
+  nodular_anterior_scleritis: ["scleritis_nodule_tender", "risk_progression_to_necrotizing"],
+  necrotizing_scleritis: ["scleritis_necrotizing_avascular", "systemic_vasculitis_association_high", "highest_vision_loss_risk_scleritis"],
+  scleromalacia_perforans: ["scleritis_painless_white_patches", "elderly_woman_longstanding_ra", "staphyloma_progressive_destruction"],
+  posterior_scleritis: ["scleritis_posterior_boring_pain", "choroidal_folds_detachment_disc_edema", "angle_closure_from_ciliary_body_rotation"],
+  infectious_scleritis: ["scleritis_postsurgical_or_contaminated_wound", "scleritis_necrotizing_avascular", "post_pterygium_excision_mitomycin_beta_radiation", "organic_matter_contaminated_wound"],
 };
 
 export interface PatternMatcher {
@@ -746,5 +757,31 @@ export const PATTERN_MATCHERS: PatternMatcher[] = [
   {
     requiredTags: ["histo_spots_no_vitritis", "peripapillary_pigment_changes_macular_cnv_pigment_ring"],
     differential: ["poh_syndrome"],
+  },
+
+  // ── Batch 8: Scleritis ────────────────────────────────────────────────────────
+  {
+    requiredTags: ["pain_worsens_eye_movement_radiates_jaw", "deep_episcleral_plexus_dilation_no_nodule"],
+    differential: ["diffuse_anterior_scleritis"],
+  },
+  {
+    requiredTags: ["scleritis_nodule_tender", "risk_progression_to_necrotizing"],
+    differential: ["nodular_anterior_scleritis"],
+  },
+  {
+    requiredTags: ["elderly_woman_longstanding_ra", "scleritis_painless_white_patches"],
+    differential: ["scleromalacia_perforans"],
+  },
+  {
+    requiredTags: ["choroidal_folds_detachment_disc_edema", "scleritis_posterior_boring_pain"],
+    differential: ["posterior_scleritis"],
+  },
+  {
+    requiredTags: ["systemic_vasculitis_association_high", "scleritis_necrotizing_avascular"],
+    differential: ["necrotizing_scleritis", "granulomatosis_with_polyangiitis", "polyarteritis_nodosa"],
+  },
+  {
+    requiredTags: ["post_pterygium_excision_mitomycin_beta_radiation", "organic_matter_contaminated_wound"],
+    differential: ["infectious_scleritis"],
   },
 ];
