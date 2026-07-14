@@ -72,6 +72,10 @@ export const TAG_GROUPS: TagGroup[] = [
       { id: "gass_plaques_arteriolar_deposits", label: "Gass plaques (deposit dinding arteriol)" },
       { id: "boxcar_segmentation_retinal_vessels", label: "Segmentasi 'boxcar' pembuluh retina" },
       { id: "lupus_choroidopathy_rpe_detachments", label: "Koroidopati lupus, detasemen RPE multifokal" },
+      { id: "rd_combined_tractional_rhegmatogenous", label: "Ablasio retina kombinasi traksi-regmatogen" },
+      { id: "posterior_pole_early_involvement", label: "Polus posterior terlibat sejak awal (bukan perifer dulu)" },
+      { id: "birdshot_like_chorioretinopathy_mimic", label: "Korioretinopati mirip birdshot" },
+      { id: "bilateral_occlusive_retinitis", label: "Retinitis oklusif bilateral" },
     ],
   },
   {
@@ -95,6 +99,14 @@ export const TAG_GROUPS: TagGroup[] = [
       { id: "bilateral_after_unilateral_eye_injury", label: "Mata sebelahnya ikut meradang setelah cedera/operasi mata satunya" },
       { id: "familial_autosomal_dominant_granulomatosis", label: "Riwayat keluarga granulomatosis autosomal dominan (anak)" },
       { id: "cns_demyelinating_disease_history", label: "Riwayat/gejala penyakit demielinasi SSP" },
+      { id: "htlv1_associated_myelopathy_ham_tsp", label: "Riwayat HAM/TSP (mielopati terkait HTLV-1)" },
+      { id: "delayed_uveitis_weeks_after_viremia_resolution", label: "Uveitis muncul berminggu-minggu setelah viremia sistemik sembuh" },
+      { id: "ebola_survivor_history", label: "Riwayat penyintas infeksi Ebola" },
+      { id: "recent_covid19_infection_or_vaccination", label: "Riwayat infeksi/vaksinasi COVID-19 baru-baru ini" },
+      { id: "infectious_mononucleosis_history", label: "Riwayat mononukleosis infeksiosa (EBV)" },
+      { id: "low_cd4_count", label: "CD4+ rendah" },
+      { id: "immune_recovery_uveitis_post_art", label: "Uveitis pasca-mulai ART (immune recovery uveitis)" },
+      { id: "retinal_vascular_occlusion_covid_context", label: "Oklusi vaskular retina pada konteks COVID-19" },
     ],
   },
   {
@@ -200,9 +212,9 @@ export const DISEASE_TAGS: Record<string, string[]> = {
   sarcoidosis_uveitis: ["kp_mutton_fat", "snowballs", "chorioretinal_granuloma", "retinal_vasculitis_phlebitis", "ace_elevated_or_cxr_bhl", "koeppe_busacca_iris_nodules", "candlewax_drippings_periphlebitis"],
   toxoplasmosis_retinitis: ["retinitis_satellite_to_old_scar", "disc_edema", "vitritis_present", "toxoplasma_serology_positive"],
   toxocariasis_ocular: ["chorioretinal_granuloma", "leukocoria_or_strabismus_child"],
-  cmv_retinitis: ["retinitis_pizza_pie", "immunocompromised_hiv"],
-  progressive_retinal_necrosis: ["retinitis_necrosis_minimal_inflammation", "vitritis_minimal", "immunocompromised_hiv"],
-  acute_retinal_necrosis: ["retinitis_necrosis_prominent_inflammation", "vitritis_present", "retinal_vasculitis_arteritis"],
+  cmv_retinitis: ["retinitis_pizza_pie", "immunocompromised_hiv", "low_cd4_count", "immune_recovery_uveitis_post_art"],
+  progressive_retinal_necrosis: ["retinitis_necrosis_minimal_inflammation", "vitritis_minimal", "immunocompromised_hiv", "posterior_pole_early_involvement"],
+  acute_retinal_necrosis: ["retinitis_necrosis_prominent_inflammation", "vitritis_present", "retinal_vasculitis_arteritis", "rd_combined_tractional_rhegmatogenous"],
   poh_syndrome: ["histo_spots_no_vitritis"],
   tb_uveitis: ["chorioretinal_granuloma", "serpiginous_pattern", "retinal_vasculitis_phlebitis"],
   syphilitic_uveitis: ["placoid_lesion_posterior", "retinal_vasculitis_phlebitis", "syphilis_serology_positive"],
@@ -265,11 +277,11 @@ export const DISEASE_TAGS: Record<string, string[]> = {
   zika_virus_uveitis: ["mosquito_borne_febrile_illness", "tropical_endemic_exposure", "mild_self_limited_febrile_illness"],
   west_nile_virus_uveitis: ["mosquito_borne_febrile_illness", "retinal_vasculitis_arteritis", "linear_chorioretinal_lesions_nerve_fiber_pattern"],
   rift_valley_fever_uveitis: ["mosquito_borne_febrile_illness", "animal_contact_exposure", "macular_retinitis_sparing_fovea"],
-  htlv1_uveitis: ["retinal_vasculitis_phlebitis"],
-  ebola_virus_uveitis: ["chronic_indolent_unilateral_uveitis_unexplained"],
-  covid19_uveitis: [],
-  epstein_barr_virus_uveitis: ["kp_mutton_fat", "flu_like_prodrome"],
-  nonnecrotizing_herpetic_retinopathy: ["retinal_vasculitis_arteritis"],
+  htlv1_uveitis: ["retinal_vasculitis_phlebitis", "htlv1_associated_myelopathy_ham_tsp"],
+  ebola_virus_uveitis: ["chronic_indolent_unilateral_uveitis_unexplained", "delayed_uveitis_weeks_after_viremia_resolution", "ebola_survivor_history"],
+  covid19_uveitis: ["recent_covid19_infection_or_vaccination", "retinal_vascular_occlusion_covid_context"],
+  epstein_barr_virus_uveitis: ["kp_mutton_fat", "flu_like_prodrome", "infectious_mononucleosis_history"],
+  nonnecrotizing_herpetic_retinopathy: ["retinal_vasculitis_arteritis", "birdshot_like_chorioretinopathy_mimic", "treatment_resistant_antiviral_steroid", "bilateral_occlusive_retinitis"],
   cysticercosis_ocular: ["worm_visualized_subretinal", "tropical_endemic_exposure"],
   dusn: ["worm_visualized_subretinal"],
   onchocerciasis_ocular: ["tropical_endemic_exposure"],
@@ -449,5 +461,52 @@ export const PATTERN_MATCHERS: PatternMatcher[] = [
   {
     requiredTags: ["renal_disease_with_uveitis_async"],
     differential: ["tinu_syndrome"],
+  },
+
+  // ── Batch 3: Infeksi viral ───────────────────────────────────────────────────
+  {
+    requiredTags: ["low_cd4_count", "retinitis_pizza_pie"],
+    differential: ["cmv_retinitis"],
+  },
+  {
+    requiredTags: ["mosquito_borne_febrile_illness", "delayed_foveolitis_1month_post_fever"],
+    differential: ["dengue_uveitis"],
+  },
+  {
+    requiredTags: ["prominent_arthralgia_polyarthropathy", "posterior_pole_retinitis_minimal_vitritis"],
+    differential: ["chikungunya_uveitis"],
+  },
+  {
+    requiredTags: ["mosquito_borne_febrile_illness", "mild_self_limited_febrile_illness"],
+    differential: ["zika_virus_uveitis", "dengue_uveitis", "chikungunya_uveitis"],
+  },
+  {
+    requiredTags: ["linear_chorioretinal_lesions_nerve_fiber_pattern"],
+    differential: ["west_nile_virus_uveitis"],
+  },
+  {
+    requiredTags: ["macular_retinitis_sparing_fovea", "animal_contact_exposure"],
+    differential: ["rift_valley_fever_uveitis"],
+  },
+  {
+    requiredTags: ["htlv1_associated_myelopathy_ham_tsp", "retinal_vasculitis_phlebitis"],
+    differential: ["htlv1_uveitis"],
+  },
+  {
+    requiredTags: ["ebola_survivor_history", "delayed_uveitis_weeks_after_viremia_resolution"],
+    differential: ["ebola_virus_uveitis"],
+  },
+  {
+    requiredTags: ["birdshot_like_chorioretinopathy_mimic", "treatment_resistant_antiviral_steroid"],
+    differential: ["nonnecrotizing_herpetic_retinopathy"],
+    action: "Coba antivirus sistemik kalau workup viral positif atau kecurigaan klinis tetap tinggi meski workup negatif.",
+  },
+  {
+    requiredTags: ["immunocompromised_hiv", "retinitis_necrosis_minimal_inflammation", "posterior_pole_early_involvement"],
+    differential: ["progressive_retinal_necrosis"],
+  },
+  {
+    requiredTags: ["retinitis_necrosis_prominent_inflammation", "vitritis_present"],
+    differential: ["acute_retinal_necrosis"],
   },
 ];
