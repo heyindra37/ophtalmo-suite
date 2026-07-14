@@ -206,6 +206,9 @@ export default function DifferentialResultCard({
               treatment={result.disease.treatment}
               criticalNote={result.disease.critical_note}
               differentialNote={result.disease.differential_note}
+              diseaseId={result.diseaseId}
+              hasSourceConflicts={!!result.disease.source_conflicts}
+              conflictLog={conflictLog}
             />
           )}
         </div>

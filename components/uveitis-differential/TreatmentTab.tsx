@@ -1,5 +1,6 @@
-import type { DiseaseTreatment } from "@/lib/uveitis-differential/types";
+import type { DiseaseTreatment, SourceConflictLog } from "@/lib/uveitis-differential/types";
 import { normalizeDifferentialNote } from "@/lib/uveitis-differential/normalize";
+import ConflictNotice from "./ConflictNotice";
 import { C } from "./tokens";
 
 function humanizeKey(key: string): string {
@@ -41,16 +42,27 @@ export default function TreatmentTab({
   treatment,
   criticalNote,
   differentialNote,
+  diseaseId,
+  hasSourceConflicts,
+  conflictLog,
 }: {
   treatment: DiseaseTreatment;
   criticalNote?: string;
   differentialNote?: unknown;
+  diseaseId: string;
+  hasSourceConflicts?: boolean;
+  conflictLog?: SourceConflictLog;
 }) {
   const entries = Object.entries(treatment || {}).filter(([, v]) => !!v);
   const note = normalizeDifferentialNote(differentialNote);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {/* Framing konflik sumber HARUS tetap terlihat di tab Terapi (bukan cuma tab Info) —
+          field mentah spt "kanski_eular_2008_position" bisa muncul di entries di bawah tanpa
+          penanda ini, dan dokter yang cuma buka tab Terapi berisiko salah kira 2 posisi sumber
+          yang berbeda pendapat sbg 2 langkah terapi berurutan. */}
+      {hasSourceConflicts && <ConflictNotice diseaseId={diseaseId} conflictLog={conflictLog} />}
       {criticalNote && (
         <div
           style={{
