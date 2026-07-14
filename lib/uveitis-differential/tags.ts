@@ -148,6 +148,16 @@ export const TAG_GROUPS: TagGroup[] = [
       { id: "animal_contact_exposure", label: "Riwayat kontak hewan (cakaran kucing/ternak/anjing)" },
       { id: "worm_visualized_subretinal", label: "Cacing/larva terlihat di subretina/vitreous" },
       { id: "hiv_aids_opportunistic_ocular", label: "AIDS dengan infeksi oportunistik okular" },
+      // Tag pembeda spesifik per-arbovirus (sebelumnya dengue/chikungunya/zika/west nile/rift
+      // valley cuma dipetakan ke 2 tag generik di atas dan selalu tampil seri di skor identik —
+      // lihat kritik dummy-testing)
+      { id: "subconjunctival_petechial_hemorrhage", label: "Perdarahan subkonjungtiva petekie" },
+      { id: "delayed_foveolitis_1month_post_fever", label: "Foveolitis/skotoma sentral ~1 bulan pasca demam" },
+      { id: "prominent_arthralgia_polyarthropathy", label: "Artralgia menonjol/poliartropati" },
+      { id: "posterior_pole_retinitis_minimal_vitritis", label: "Retinitis posterior pole, vitritis minimal" },
+      { id: "mild_self_limited_febrile_illness", label: "Demam ringan, sembuh sendiri dalam seminggu" },
+      { id: "linear_chorioretinal_lesions_nerve_fiber_pattern", label: "Lesi korioretina linear mengikuti serat saraf" },
+      { id: "macular_retinitis_sparing_fovea", label: "Retinitis makula/paramakula, fovea relatif terhindar" },
     ],
   },
 ];
@@ -229,11 +239,11 @@ export const DISEASE_TAGS: Record<string, string[]> = {
   cat_scratch_bartonellosis: ["animal_contact_exposure", "disc_edema"],
   whipple_disease_uveitis: ["chronic_diarrhea", "vitritis_present"],
   eales_disease: ["retinal_vasculitis_phlebitis"],
-  dengue_uveitis: ["mosquito_borne_febrile_illness", "tropical_endemic_exposure"],
-  chikungunya_uveitis: ["mosquito_borne_febrile_illness", "tropical_endemic_exposure"],
-  zika_virus_uveitis: ["mosquito_borne_febrile_illness", "tropical_endemic_exposure"],
-  west_nile_virus_uveitis: ["mosquito_borne_febrile_illness", "retinal_vasculitis_arteritis"],
-  rift_valley_fever_uveitis: ["mosquito_borne_febrile_illness", "animal_contact_exposure"],
+  dengue_uveitis: ["mosquito_borne_febrile_illness", "tropical_endemic_exposure", "subconjunctival_petechial_hemorrhage", "delayed_foveolitis_1month_post_fever"],
+  chikungunya_uveitis: ["mosquito_borne_febrile_illness", "tropical_endemic_exposure", "prominent_arthralgia_polyarthropathy", "posterior_pole_retinitis_minimal_vitritis"],
+  zika_virus_uveitis: ["mosquito_borne_febrile_illness", "tropical_endemic_exposure", "mild_self_limited_febrile_illness"],
+  west_nile_virus_uveitis: ["mosquito_borne_febrile_illness", "retinal_vasculitis_arteritis", "linear_chorioretinal_lesions_nerve_fiber_pattern"],
+  rift_valley_fever_uveitis: ["mosquito_borne_febrile_illness", "animal_contact_exposure", "macular_retinitis_sparing_fovea"],
   htlv1_uveitis: ["retinal_vasculitis_phlebitis"],
   ebola_virus_uveitis: ["chronic_indolent_unilateral_uveitis_unexplained"],
   covid19_uveitis: [],

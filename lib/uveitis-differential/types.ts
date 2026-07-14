@@ -196,4 +196,9 @@ export interface RankedResult {
   /** true kalau hasil ini dipaksa tampil (must_exclude companion atau critical_note masquerade),
    * walau skornya di bawah threshold normal. */
   forcedInclude?: boolean;
+  /** Jumlah sinyal kuat yang cocok (lihat scoring.ts) — dipakai gate tampilan, juga berguna
+   * untuk transparansi UI ("N dari M kriteria") kalau nanti diperlukan. */
+  strongSignals?: number;
+  /** true kalau minimal 1 quick_pattern_matcher match penuh untuk disease ini. */
+  patternMatched?: boolean;
 }

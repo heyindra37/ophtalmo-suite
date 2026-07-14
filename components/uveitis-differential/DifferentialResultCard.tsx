@@ -68,21 +68,27 @@ export default function DifferentialResultCard({
             </span>
           )}
         </div>
-        <span
-          style={{
-            flexShrink: 0,
-            fontFamily: "'DM Mono', monospace",
-            fontSize: 13,
-            fontWeight: 700,
-            padding: "5px 12px",
-            borderRadius: 999,
-            background: sc.bg,
-            color: sc.fg,
-            border: `1.5px solid ${sc.border}`,
-          }}
-        >
-          {result.scorePercent}% match
-        </span>
+        <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
+          <span
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: 13,
+              fontWeight: 700,
+              padding: "5px 12px",
+              borderRadius: 999,
+              background: sc.bg,
+              color: sc.fg,
+              border: `1.5px solid ${sc.border}`,
+            }}
+          >
+            {result.scorePercent}% match
+          </span>
+          {typeof result.strongSignals === "number" && (
+            <span style={{ fontSize: 10, color: C.textFaint }}>
+              {result.strongSignals} sinyal kuat{result.patternMatched ? " + pola khas" : ""}
+            </span>
+          )}
+        </div>
       </div>
 
       {result.matchedFeatures.length > 0 && (
