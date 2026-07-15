@@ -7,6 +7,7 @@ import {
   type SaEyeState,
   type FdEyeState,
   type GBMEyeState,
+  type CoverTestState,
   defaultSoapState,
   defaultSaEye,
   defaultFdEye,
@@ -16,11 +17,20 @@ import {
   CATEGORIES,
   CATEGORY_PRESETS,
   DIAGNOSIS_BY_CATEGORY,
+  POST_OP_PRESETS,
   type Category,
 } from "@/lib/soap-presets";
 import { buildFullOutput } from "@/lib/soap-logic";
 
 const LS_KEY = "soap-mata-last-session";
+
+function colorForLine(line: string): string {
+  if (line.startsWith("SaOD")) return "text-sky-700";
+  if (line.startsWith("SaOS")) return "text-violet-700";
+  if (line.startsWith("FdOD")) return "text-emerald-700";
+  if (line.startsWith("FdOS")) return "text-amber-700";
+  return "text-slate-700";
+}
 
 // ── small helpers ────────────────────────────────────────────────────────────
 function Label({ children }: { children: React.ReactNode }) {
@@ -111,33 +121,56 @@ function TextInput({
   );
 }
 
+function CatatanField({ value, onChange }: { value?: string; onChange: (v: string) => void }) {
+  return (
+    <TextInput
+      value={value || ""}
+      onChange={onChange}
+      placeholder="Catatan tambahan (opsional)"
+    />
+  );
+}
+
 // ── Sa Eye Form ──────────────────────────────────────────────────────────────
 function SaEyeForm({
   label,
   state,
   onChange,
+  onCopyFromOther,
+  onCopyField,
+  otherLabel,
 }: {
   label: string;
   state: SaEyeState;
   onChange: (s: SaEyeState) => void;
+  onCopyFromOther?: () => void;
+  onCopyField?: (field: "palpebra" | "konjungtiva" | "kornea" | "bmd" | "iris" | "pupil" | "lensa") => void;
+  otherLabel?: string;
 }) {
   const upd = (patch: Partial<SaEyeState>) => onChange({ ...state, ...patch });
 
+  const CopyFieldButton = ({ field }: { field: "palpebra" | "konjungtiva" | "kornea" | "bmd" | "iris" | "pupil" | "lensa" }) =>
+    onCopyField ? (
+      <button
+        type="button"
+        onClick={() => onCopyField(field)}
+        className="text-[11px] text-teal-600 hover:underline block mb-1"
+      >
+        Samakan detail dengan mata {otherLabel}
+      </button>
+    ) : null;
+
   const PALPEBRA_OPTIONS = [
-    "normal","edema-ringan","edema-sedang","edema-berat","hiperemis",
+    "normal","edema-ringan","edema-sedang","edema-berat","hiperemis","hiperemi-lid-margin",
     "ptosis-kongenital","ptosis-aponeurotik","entropion-sup","entropion-inf",
     "ektropion","trikiasis","hordeolum","chalazion","massa","hematom","laserasi","manual",
   ];
-  const KONJ_OPTIONS = [
-    "tidak-hiperemi","hiperemi-ringan","hiperemi-sedang","hiperemi-berat",
-    "injeksi-konj","injeksi-siliar","injeksi-mix","kemosis",
-    "sekret-mukoid","sekret-mukopurulen","sekret-purulen",
-    "perdarahan-subkonj","pterigium","epifora","manual",
-  ];
   const KORNEA_OPTIONS = [
     "jernih","edema","edema-bullosa","infiltrat","ulkus","sikatrik",
-    "PEE","PEK","dendrit","KP-halus","KP-mutton","flap","manual",
+    "PEE","PEK","dendrit","flap",
+    "erosi","haziness","keruh-minimal","manual",
   ];
+  const FL_STAINING_VALUES = ["infiltrat","ulkus","sikatrik","erosi"];
   const LENSA_OPTIONS = [
     "jernih","katarak-1","katarak-2","katarak-3","katarak-4",
     "pseudofakia","subluksasi","afakia","manual",
@@ -154,7 +187,17 @@ function SaEyeForm({
             options={[{ value: "full", label: "Full" }, { value: "normal", label: "Normal" }, { value: "partial", label: "Partial" }]}
           />
         </div>
-        <p className="text-xs text-slate-400 italic">Output: Sa{label} : normal</p>
+        {onCopyFromOther && (
+          <button
+            type="button"
+            onClick={onCopyFromOther}
+            className="text-xs text-teal-600 hover:underline text-left"
+          >
+            Samakan detail segmen anterior seperti mata {otherLabel}
+          </button>
+        )}
+        <p className="text-xs text-slate-400 italic">Output: Sa{label} : normal{state.catatanTambahan ? `. ${state.catatanTambahan}` : ""}</p>
+        <CatatanField value={state.catatanTambahan} onChange={(v) => upd({ catatanTambahan: v })} />
       </div>
     );
   }
@@ -169,10 +212,20 @@ function SaEyeForm({
           options={[{ value: "full", label: "Full" }, { value: "normal", label: "Normal" }, { value: "partial", label: "Partial" }]}
         />
       </div>
+      {onCopyFromOther && (
+        <button
+          type="button"
+          onClick={onCopyFromOther}
+          className="text-xs text-teal-600 hover:underline block -mt-2"
+        >
+          Samakan detail segmen anterior seperti mata {otherLabel}
+        </button>
+      )}
 
       {/* Palpebra */}
       <div>
         <Label>Palpebra</Label>
+        <CopyFieldButton field="palpebra" />
         <Select value={state.palpebra.value} onChange={(v) => upd({ palpebra: { ...state.palpebra, value: v } })} options={PALPEBRA_OPTIONS} />
         {(state.palpebra.value === "ptosis-kongenital" || state.palpebra.value === "ptosis-aponeurotik") && (
           <TextInput
@@ -188,26 +241,78 @@ function SaEyeForm({
             placeholder="Deskripsi bebas..."
           />
         )}
+        <div className="mt-1">
+          <CatatanField value={state.palpebra.catatan} onChange={(v) => upd({ palpebra: { ...state.palpebra, catatan: v } })} />
+        </div>
       </div>
 
       {/* Konjungtiva */}
       <div>
         <Label>Konjungtiva / Sklera</Label>
-        <Select value={state.konjungtiva.value} onChange={(v) => upd({ konjungtiva: { ...state.konjungtiva, value: v } })} options={KONJ_OPTIONS} />
-        {state.konjungtiva.value === "pterigium" && (
+        <CopyFieldButton field="konjungtiva" />
+        <div className="flex gap-2">
+          <Select
+            value={state.konjungtiva.hiperemi}
+            onChange={(v) => upd({ konjungtiva: { ...state.konjungtiva, hiperemi: v as typeof state.konjungtiva.hiperemi } })}
+            options={["tidak","ringan","sedang","berat"]}
+          />
+          <Select
+            value={state.konjungtiva.injeksi}
+            onChange={(v) => upd({ konjungtiva: { ...state.konjungtiva, injeksi: v as typeof state.konjungtiva.injeksi } })}
+            options={["none","konjungtiva","siliar","mix"]}
+            placeholder="Injeksi: tidak ada"
+          />
+        </div>
+        <div className="flex gap-2 mt-1">
+          <Select
+            value={state.konjungtiva.sekret}
+            onChange={(v) => upd({ konjungtiva: { ...state.konjungtiva, sekret: v as typeof state.konjungtiva.sekret } })}
+            options={["none","tidak-ada","mukoid","mukopurulen","purulen"]}
+            placeholder="Sekret: tidak disebut"
+          />
+          <Select
+            value={state.konjungtiva.reaksi}
+            onChange={(v) => upd({ konjungtiva: { ...state.konjungtiva, reaksi: v as typeof state.konjungtiva.reaksi } })}
+            options={["none","papil","folikel"]}
+            placeholder="Reaksi: tidak ada"
+          />
+        </div>
+        <div className="mt-1 flex flex-wrap gap-2">
+          {[
+            { key: "kemosis", label: "Kemosis (+)" },
+            { key: "perdarahanSubkonj", label: "Perdarahan subkonj (+)" },
+            { key: "pterigium", label: "Pterigium" },
+            { key: "epifora", label: "Epifora (+)" },
+          ].map(({ key, label: lbl }) => (
+            <label key={key} className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={state.konjungtiva[key as keyof typeof state.konjungtiva] as boolean}
+                onChange={(e) => upd({ konjungtiva: { ...state.konjungtiva, [key]: e.target.checked } })}
+                className="accent-teal-600"
+              />
+              {lbl}
+            </label>
+          ))}
+        </div>
+        {state.konjungtiva.pterigium && (
           <div className="flex gap-2 mt-1">
             <Select value={state.konjungtiva.pterigiumGrade || "I"} onChange={(v) => upd({ konjungtiva: { ...state.konjungtiva, pterigiumGrade: v } })} options={["I","II","III"]} />
             <Select value={state.konjungtiva.pterigiumLokasi || "nasal"} onChange={(v) => upd({ konjungtiva: { ...state.konjungtiva, pterigiumLokasi: v } })} options={["nasal","temporal"]} />
           </div>
         )}
-        {state.konjungtiva.value === "manual" && (
-          <TextInput value={state.konjungtiva.manual || ""} onChange={(v) => upd({ konjungtiva: { ...state.konjungtiva, manual: v } })} placeholder="Deskripsi bebas..." />
-        )}
+        <div className="mt-1">
+          <TextInput value={state.konjungtiva.manual || ""} onChange={(v) => upd({ konjungtiva: { ...state.konjungtiva, manual: v } })} placeholder="Override manual (opsional, mengganti seluruh kalimat)" />
+        </div>
+        <div className="mt-1">
+          <CatatanField value={state.konjungtiva.catatan} onChange={(v) => upd({ konjungtiva: { ...state.konjungtiva, catatan: v } })} />
+        </div>
       </div>
 
       {/* Kornea */}
       <div>
         <Label>Kornea</Label>
+        <CopyFieldButton field="kornea" />
         <Select value={state.kornea.value} onChange={(v) => upd({ kornea: { ...state.kornea, value: v } })} options={KORNEA_OPTIONS} />
         {state.kornea.value === "infiltrat" && (
           <div className="flex gap-2 mt-1">
@@ -215,14 +320,85 @@ function SaEyeForm({
             <TextInput value={state.kornea.infiltratDesc || ""} onChange={(v) => upd({ kornea: { ...state.kornea, infiltratDesc: v } })} placeholder="Deskripsi tambahan" />
           </div>
         )}
+        {state.kornea.value === "erosi" && (
+          <div className="space-y-1 mt-1">
+            <Select value={state.kornea.erosiKedalaman || "stroma"} onChange={(v) => upd({ kornea: { ...state.kornea, erosiKedalaman: v } })} options={["epitel","stroma"]} />
+            <TextInput value={state.kornea.erosiCatatanFoto || ""} onChange={(v) => upd({ kornea: { ...state.kornea, erosiCatatanFoto: v } })} placeholder="Catatan (mis. sesuai foto/gambar)" />
+          </div>
+        )}
+        {state.kornea.value === "haziness" && (
+          <Select value={state.kornea.hazinessLokasi || "sentral"} onChange={(v) => upd({ kornea: { ...state.kornea, hazinessLokasi: v } })} options={["sentral","parasentral","perifer"]} />
+        )}
         {state.kornea.value === "manual" && (
           <TextInput value={state.kornea.manual || ""} onChange={(v) => upd({ kornea: { ...state.kornea, manual: v } })} placeholder="Deskripsi bebas..." />
         )}
+        {FL_STAINING_VALUES.includes(state.kornea.value) && (
+          <div className="flex gap-3 mt-1">
+            <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={state.kornea.flStaining === "positif"}
+                onChange={(e) => upd({ kornea: { ...state.kornea, flStaining: e.target.checked ? "positif" : "" } })}
+                className="accent-teal-600"
+              />
+              FL staining (+)
+            </label>
+            <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={state.kornea.flStaining === "negatif"}
+                onChange={(e) => upd({ kornea: { ...state.kornea, flStaining: e.target.checked ? "negatif" : "" } })}
+                className="accent-teal-600"
+              />
+              FL staining (-)
+            </label>
+          </div>
+        )}
+
+        {/* KP — additive checkbox (pola sama BMD flare/cell) */}
+        <div className="mt-2 pt-2 border-t border-gray-50">
+          <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={state.kornea.kp || false}
+              onChange={(e) => upd({ kornea: { ...state.kornea, kp: e.target.checked } })}
+              className="accent-teal-600"
+            />
+            KP (Keratic Precipitates)
+          </label>
+          {state.kornea.kp && (
+            <div className="space-y-1 mt-1">
+              <Select
+                value={state.kornea.kpJenis || "halus"}
+                onChange={(v) => upd({ kornea: { ...state.kornea, kpJenis: v as typeof state.kornea.kpJenis } })}
+                options={["halus","mutton-fat","custom"]}
+              />
+              {state.kornea.kpJenis === "custom" && (
+                <TextInput value={state.kornea.kpJenisCustomDesc || ""} onChange={(v) => upd({ kornea: { ...state.kornea, kpJenisCustomDesc: v } })} placeholder="Deskripsi jenis KP" />
+              )}
+              <div className="flex gap-2">
+                <Select
+                  value={state.kornea.kpPigmentasi || ""}
+                  onChange={(v) => upd({ kornea: { ...state.kornea, kpPigmentasi: v as typeof state.kornea.kpPigmentasi } })}
+                  options={["pigmented","non-pigmented"]}
+                  placeholder="Pigmentasi (opsional)"
+                />
+              </div>
+              <TextInput value={state.kornea.kpPersebaran || ""} onChange={(v) => upd({ kornea: { ...state.kornea, kpPersebaran: v } })} placeholder="Persebaran (opsional)" />
+              <TextInput value={state.kornea.kpUkuran || ""} onChange={(v) => upd({ kornea: { ...state.kornea, kpUkuran: v } })} placeholder="Ukuran (opsional)" />
+            </div>
+          )}
+        </div>
+
+        <div className="mt-1">
+          <CatatanField value={state.kornea.catatan} onChange={(v) => upd({ kornea: { ...state.kornea, catatan: v } })} />
+        </div>
       </div>
 
       {/* BMD */}
       <div>
         <Label>BMD</Label>
+        <CopyFieldButton field="bmd" />
         <Select
           value={state.bmd.value}
           onChange={(v) => upd({ bmd: { ...state.bmd, value: v } })}
@@ -250,13 +426,17 @@ function SaEyeForm({
           <Select value={state.bmd.flareGrade || "ringan"} onChange={(v) => upd({ bmd: { ...state.bmd, flareGrade: v } })} options={["ringan","+1","+2","+3","+4"]} />
         )}
         {state.bmd.cell && (
-          <Select value={state.bmd.cellGrade || "+1"} onChange={(v) => upd({ bmd: { ...state.bmd, cellGrade: v } })} options={["+1","+2","+3","+4"]} />
+          <Select value={state.bmd.cellGrade || "ringan"} onChange={(v) => upd({ bmd: { ...state.bmd, cellGrade: v } })} options={["ringan","+1","+2","+3","+4"]} />
         )}
+        <div className="mt-1">
+          <CatatanField value={state.bmd.catatan} onChange={(v) => upd({ bmd: { ...state.bmd, catatan: v } })} />
+        </div>
       </div>
 
       {/* Iris */}
       <div>
         <Label>Iris</Label>
+        <CopyFieldButton field="iris" />
         <Select
           value={state.iris.value}
           onChange={(v) => upd({ iris: { ...state.iris, value: v } })}
@@ -265,11 +445,15 @@ function SaEyeForm({
         {state.iris.value === "manual" && (
           <TextInput value={state.iris.manual || ""} onChange={(v) => upd({ iris: { ...state.iris, manual: v } })} placeholder="Deskripsi bebas..." />
         )}
+        <div className="mt-1">
+          <CatatanField value={state.iris.catatan} onChange={(v) => upd({ iris: { ...state.iris, catatan: v } })} />
+        </div>
       </div>
 
       {/* Pupil */}
       <div>
         <Label>Pupil</Label>
+        <CopyFieldButton field="pupil" />
         <Select
           value={state.pupil.value}
           onChange={(v) => upd({ pupil: { ...state.pupil, value: v } })}
@@ -290,11 +474,19 @@ function SaEyeForm({
           <input type="checkbox" checked={state.pupil.rapd} onChange={(e) => upd({ pupil: { ...state.pupil, rapd: e.target.checked } })} className="accent-teal-600" />
           RAPD (+)
         </label>
+        <div className="mt-1">
+          <Label>Diameter Maksimal (khusus pre-op katarak)</Label>
+          <TextInput value={state.pupil.diameterMaksimal || ""} onChange={(v) => upd({ pupil: { ...state.pupil, diameterMaksimal: v } })} placeholder="mis. 7 mm" />
+        </div>
+        <div className="mt-1">
+          <TextInput value={state.pupil.catatan || ""} onChange={(v) => upd({ pupil: { ...state.pupil, catatan: v } })} placeholder="Catatan dalam kurung, mis. tanpa midri" />
+        </div>
       </div>
 
       {/* Lensa */}
       <div>
         <Label>Lensa</Label>
+        <CopyFieldButton field="lensa" />
         <Select value={state.lensa.value} onChange={(v) => upd({ lensa: { ...state.lensa, value: v } })} options={LENSA_OPTIONS} />
         {state.lensa.value.startsWith("katarak") && (
           <Select
@@ -316,6 +508,15 @@ function SaEyeForm({
         {state.lensa.value === "manual" && (
           <TextInput value={state.lensa.manual || ""} onChange={(v) => upd({ lensa: { ...state.lensa, manual: v } })} placeholder="Deskripsi bebas..." />
         )}
+        <div className="mt-1">
+          <CatatanField value={state.lensa.catatan} onChange={(v) => upd({ lensa: { ...state.lensa, catatan: v } })} />
+        </div>
+      </div>
+
+      {/* Catatan tambahan level mata */}
+      <div className="pt-2 border-t border-gray-100">
+        <Label>Catatan Tambahan Sa{label}</Label>
+        <CatatanField value={state.catatanTambahan} onChange={(v) => upd({ catatanTambahan: v })} />
       </div>
     </div>
   );
@@ -326,26 +527,43 @@ function FdEyeForm({
   label,
   state,
   onChange,
+  onCopyFromOther,
+  otherLabel,
 }: {
   label: string;
   state: FdEyeState;
   onChange: (s: FdEyeState) => void;
+  onCopyFromOther?: () => void;
+  otherLabel?: string;
 }) {
   const upd = (patch: Partial<FdEyeState>) => onChange({ ...state, ...patch });
 
   if (state.mode === "normal") {
     return (
-      <div className="flex items-center justify-between">
-        <span className="font-semibold text-slate-700">Fd{label}</span>
-        <ModeToggle
-          value={state.mode}
-          onChange={(v) => upd({ mode: v as FdEyeState["mode"] })}
-          options={[
-            { value: "full", label: "Full" },
-            { value: "normal", label: "Normal" },
-            { value: "tidak", label: "Tidak diperiksa" },
-          ]}
-        />
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-slate-700">Fd{label}</span>
+          <ModeToggle
+            value={state.mode}
+            onChange={(v) => upd({ mode: v as FdEyeState["mode"] })}
+            options={[
+              { value: "full", label: "Full" },
+              { value: "normal", label: "Normal" },
+              { value: "tidak", label: "Tidak diperiksa" },
+            ]}
+          />
+        </div>
+        {onCopyFromOther && (
+          <button
+            type="button"
+            onClick={onCopyFromOther}
+            className="text-xs text-teal-600 hover:underline text-left"
+          >
+            Samakan detail segmen posterior seperti mata {otherLabel}
+          </button>
+        )}
+        <p className="text-xs text-slate-400 italic">Output: Fd{label} : normal{state.catatanTambahan ? `. ${state.catatanTambahan}` : ""}</p>
+        <CatatanField value={state.catatanTambahan} onChange={(v) => upd({ catatanTambahan: v })} />
       </div>
     );
   }
@@ -381,6 +599,15 @@ function FdEyeForm({
           ]}
         />
       </div>
+      {onCopyFromOther && (
+        <button
+          type="button"
+          onClick={onCopyFromOther}
+          className="text-xs text-teal-600 hover:underline block -mt-2"
+        >
+          Samakan detail segmen posterior seperti mata {otherLabel}
+        </button>
+      )}
 
       {/* FR */}
       <div>
@@ -407,9 +634,18 @@ function FdEyeForm({
                 options={[{ value: "Papil N. II", label: "Papil N. II" }, { value: "ONH", label: "ONH" }]}
               />
             </div>
+            <label className="flex items-center gap-1 text-xs text-slate-600 mb-1 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={state.onh.quickNormal || false}
+                onChange={(e) => upd({ onh: { ...state.onh, quickNormal: e.target.checked } })}
+                className="accent-teal-600"
+              />
+              ONH Normal (ringkas, tanpa breakdown batas/warna/CDR)
+            </label>
             {state.onh.manual !== undefined && state.onh.manual !== "" ? (
               <TextInput value={state.onh.manual || ""} onChange={(v) => upd({ onh: { ...state.onh, manual: v } })} placeholder="Override manual ONH..." />
-            ) : (
+            ) : !state.onh.quickNormal && (
               <div className="space-y-1">
                 <div className="flex gap-2">
                   <Select value={state.onh.batas} onChange={(v) => upd({ onh: { ...state.onh, batas: v } })} options={["tegas","kabur","kabur-sebagian"]} />
@@ -434,6 +670,9 @@ function FdEyeForm({
             >
               {state.onh.manual ? "← Kembali ke preset" : "✏️ Override manual"}
             </button>
+            <div className="mt-1">
+              <CatatanField value={state.onh.catatan} onChange={(v) => upd({ onh: { ...state.onh, catatan: v } })} />
+            </div>
           </div>
 
           {/* Vitreous */}
@@ -442,14 +681,20 @@ function FdEyeForm({
             <Select
               value={state.vitreous.value}
               onChange={(v) => upd({ vitreous: { ...state.vitreous, value: v } })}
-              options={["jernih","floaters","perdarahan","sel","pvd","vitritis","snowball","sulit","manual"]}
+              options={["jernih","floaters","perdarahan","sel","pvd","vitritis","snowball","opacity-nussenblatt","sulit","manual"]}
             />
             {state.vitreous.value === "perdarahan" && (
               <Select value={state.vitreous.perdarahanLokasi || "diffuse"} onChange={(v) => upd({ vitreous: { ...state.vitreous, perdarahanLokasi: v } })} options={["diffuse","inferior","superior"]} />
             )}
+            {state.vitreous.value === "opacity-nussenblatt" && (
+              <Select value={state.vitreous.nussenblattGrade || "1"} onChange={(v) => upd({ vitreous: { ...state.vitreous, nussenblattGrade: v } })} options={["trace","0","1","2","3","4"]} />
+            )}
             {state.vitreous.value === "manual" && (
               <TextInput value={state.vitreous.manual || ""} onChange={(v) => upd({ vitreous: { ...state.vitreous, manual: v } })} placeholder="Deskripsi bebas..." />
             )}
+            <div className="mt-1">
+              <CatatanField value={state.vitreous.catatan} onChange={(v) => upd({ vitreous: { ...state.vitreous, catatan: v } })} />
+            </div>
           </div>
 
           {/* Makula */}
@@ -466,6 +711,28 @@ function FdEyeForm({
             {state.makula.value === "manual" && (
               <TextInput value={state.makula.manual || ""} onChange={(v) => upd({ makula: { ...state.makula, manual: v } })} placeholder="Deskripsi bebas..." />
             )}
+            <div className="mt-1 flex flex-wrap gap-2">
+              <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
+                <input type="checkbox" checked={state.makula.drusen} onChange={(e) => upd({ makula: { ...state.makula, drusen: e.target.checked } })} className="accent-teal-600" />
+                Drusen (+)
+              </label>
+              <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
+                <input type="checkbox" checked={state.makula.pigmenBerubah} onChange={(e) => upd({ makula: { ...state.makula, pigmenBerubah: e.target.checked } })} className="accent-teal-600" />
+                Perubahan pigmen
+              </label>
+            </div>
+            {state.makula.drusen && (
+              <Select value={state.makula.drusenLokasi || "sentral"} onChange={(v) => upd({ makula: { ...state.makula, drusenLokasi: v } })} options={["sentral","perifer"]} />
+            )}
+            {state.makula.pigmenBerubah && (
+              <TextInput value={state.makula.pigmenDesc || ""} onChange={(v) => upd({ makula: { ...state.makula, pigmenDesc: v } })} placeholder="Deskripsi warna (mis. kehitaman)" />
+            )}
+            <div className="mt-1">
+              <TextInput value={state.makula.catatanOCT || ""} onChange={(v) => upd({ makula: { ...state.makula, catatanOCT: v } })} placeholder="Catatan OCT (opsional, mis. menunjukkan dry AMD)" />
+            </div>
+            <div className="mt-1">
+              <CatatanField value={state.makula.catatan} onChange={(v) => upd({ makula: { ...state.makula, catatan: v } })} />
+            </div>
           </div>
 
           {/* Retina */}
@@ -474,7 +741,7 @@ function FdEyeForm({
             <Select
               value={state.retina.value}
               onChange={(v) => upd({ retina: { ...state.retina, value: v } })}
-              options={["attached","dot-blot","flame","eksudat","cws","ablasio","nve","mikroaneurisma","vaskulitis","robekan","sulit","manual"]}
+              options={["attached","dot-blot","flame","eksudat","cws","ablasio","nve","mikroaneurisma","vaskulitis","robekan","chorioretinal-aktif","chorioretinal-scar","sulit","manual"]}
             />
             {state.retina.value === "ablasio" && (
               <Select value={state.retina.ablasioArea || "temporal"} onChange={(v) => upd({ retina: { ...state.retina, ablasioArea: v } })} options={["temporal","nasal","superior","inferior","total"]} />
@@ -486,12 +753,32 @@ function FdEyeForm({
                 placeholder="Lokasi/kuadran"
               />
             )}
+            {(state.retina.value === "chorioretinal-aktif" || state.retina.value === "chorioretinal-scar") && (
+              <div className="space-y-1 mt-1">
+                <TextInput value={state.retina.crLokasi || ""} onChange={(v) => upd({ retina: { ...state.retina, crLokasi: v } })} placeholder="Lokasi/kuadran" />
+                {state.retina.value === "chorioretinal-aktif" && (
+                  <>
+                    <TextInput value={state.retina.crWarna || ""} onChange={(v) => upd({ retina: { ...state.retina, crWarna: v } })} placeholder="Warna (default: putih kekuningan)" />
+                    <TextInput value={state.retina.crEtiologi || ""} onChange={(v) => upd({ retina: { ...state.retina, crEtiologi: v } })} placeholder="Etiologi (mis. suspek toxoplasmosis)" />
+                  </>
+                )}
+              </div>
+            )}
             {state.retina.value === "manual" && (
               <TextInput value={state.retina.manual || ""} onChange={(v) => upd({ retina: { ...state.retina, manual: v } })} placeholder="Deskripsi bebas..." />
             )}
+            <div className="mt-1">
+              <CatatanField value={state.retina.catatan} onChange={(v) => upd({ retina: { ...state.retina, catatan: v } })} />
+            </div>
           </div>
         </>
       )}
+
+      {/* Catatan tambahan level mata */}
+      <div className="pt-2 border-t border-gray-100">
+        <Label>Catatan Tambahan Fd{label}</Label>
+        <CatatanField value={state.catatanTambahan} onChange={(v) => upd({ catatanTambahan: v })} />
+      </div>
     </div>
   );
 }
@@ -531,6 +818,51 @@ function GBMForm({ label, state, onChange }: { label: string; state: GBMEyeState
         <input type="checkbox" checked={state.nyeri} onChange={(e) => upd({ nyeri: e.target.checked })} className="accent-teal-600" />
         Nyeri (+)
       </label>
+    </div>
+  );
+}
+
+// ── Cover Test Form ──────────────────────────────────────────────────────────
+function CoverTestForm({ state, onChange }: { state: CoverTestState; onChange: (s: CoverTestState) => void }) {
+  const upd = (patch: Partial<CoverTestState>) => onChange({ ...state, ...patch });
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-2">
+        <Select
+          value={state.deviasi}
+          onChange={(v) => upd({ deviasi: v as CoverTestState["deviasi"] })}
+          options={["ortoforia","esotropia","eksotropia","hipertropia","hipotropia"]}
+          placeholder="— Pilih deviasi —"
+        />
+        <Select
+          value={state.laterality}
+          onChange={(v) => upd({ laterality: v as CoverTestState["laterality"] })}
+          options={["OD","OS","ODS"]}
+        />
+      </div>
+      {state.deviasi && state.deviasi !== "ortoforia" && (
+        <>
+          <div className="flex gap-2">
+            <Select
+              value={state.frequency}
+              onChange={(v) => upd({ frequency: v as CoverTestState["frequency"] })}
+              options={["constant","intermittent"]}
+              placeholder="Frequency: tidak disebut"
+            />
+            {state.frequency === "intermittent" && (
+              <Select
+                value={state.control}
+                onChange={(v) => upd({ control: v as CoverTestState["control"] })}
+                options={["poor","intermediate","good"]}
+                placeholder="Control: tidak disebut"
+              />
+            )}
+          </div>
+          <TextInput value={state.catatan || ""} onChange={(v) => upd({ catatan: v })} placeholder="Catatan (mis. mata kanan lebih sering)" />
+        </>
+      )}
+      <TextInput value={state.manual || ""} onChange={(v) => upd({ manual: v })} placeholder="Override manual (opsional, mengganti seluruh kalimat)" />
     </div>
   );
 }
@@ -582,6 +914,46 @@ export default function SoapMataClient() {
         showCoverTest: preset.showCoverTest,
       }));
     }
+  };
+
+  const handlePostOpToggle = (eye: "OD" | "OS") => {
+    if (state.postOpEye === eye) {
+      upd({ postOpEye: null });
+      return;
+    }
+    const preset = POST_OP_PRESETS[eye];
+    setState((s) => ({
+      ...s,
+      postOpEye: eye,
+      saOD: { ...defaultSaEye(preset.saOD) },
+      saOS: { ...defaultSaEye(preset.saOS) },
+    }));
+  };
+
+  const copySaFields = (target: "OD" | "OS") => {
+    const src = target === "OD" ? state.saOS : state.saOD;
+    const dstMode = target === "OD" ? state.saOD.mode : state.saOS.mode;
+    const { mode: _ignored, ...fieldsOnly } = src;
+    const copied = { ...structuredClone(fieldsOnly), mode: dstMode } as SaEyeState;
+    if (target === "OD") upd({ saOD: copied }); else upd({ saOS: copied });
+  };
+
+  const copySaField = (
+    target: "OD" | "OS",
+    field: "palpebra" | "konjungtiva" | "kornea" | "bmd" | "iris" | "pupil" | "lensa"
+  ) => {
+    const src = target === "OD" ? state.saOS : state.saOD;
+    const dstKey = target === "OD" ? "saOD" : "saOS";
+    const dst = target === "OD" ? state.saOD : state.saOS;
+    upd({ [dstKey]: { ...dst, [field]: structuredClone(src[field]) } } as Partial<SoapState>);
+  };
+
+  const copyFdFields = (target: "OD" | "OS") => {
+    const src = target === "OD" ? state.fdOS : state.fdOD;
+    const dstMode = target === "OD" ? state.fdOD.mode : state.fdOS.mode;
+    const { mode: _ignored, ...fieldsOnly } = src;
+    const copied = { ...structuredClone(fieldsOnly), mode: dstMode } as FdEyeState;
+    if (target === "OD") upd({ fdOD: copied }); else upd({ fdOS: copied });
   };
 
   const handleDiagnosisChange = (diag: string) => {
@@ -640,10 +1012,30 @@ export default function SoapMataClient() {
 
       <div className="flex flex-col lg:flex-row gap-0 flex-1 max-w-7xl mx-auto w-full">
         {/* ── Left: Form ── */}
-        <div className="lg:w-[55%] overflow-y-auto p-4 space-y-4">
+        <div className="lg:w-[65%] overflow-y-auto p-4 space-y-4">
 
           {/* Kategori & Diagnosis */}
           <SectionCard title="Kategori & Diagnosis">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => handlePostOpToggle("OD")}
+                className={`flex-1 text-xs font-semibold px-3 py-2 rounded-lg transition-colors ${
+                  state.postOpEye === "OD" ? "bg-teal-600 text-white" : "bg-gray-100 text-slate-600 hover:bg-gray-200"
+                }`}
+              >
+                Post Op Mata Kanan H+1
+              </button>
+              <button
+                type="button"
+                onClick={() => handlePostOpToggle("OS")}
+                className={`flex-1 text-xs font-semibold px-3 py-2 rounded-lg transition-colors ${
+                  state.postOpEye === "OS" ? "bg-teal-600 text-white" : "bg-gray-100 text-slate-600 hover:bg-gray-200"
+                }`}
+              >
+                Post Op Mata Kiri H+1
+              </button>
+            </div>
             <div>
               <Label>Kategori</Label>
               <Select
@@ -666,55 +1058,58 @@ export default function SoapMataClient() {
             )}
           </SectionCard>
 
-          {/* Sa OD */}
-          <SectionCard title="Segmen Anterior OD">
-            <SaEyeForm label="OD" state={state.saOD} onChange={(s) => upd({ saOD: s })} />
-          </SectionCard>
-
-          {/* Sa OS */}
-          <SectionCard title="Segmen Anterior OS">
-            <SaEyeForm label="OS" state={state.saOS} onChange={(s) => upd({ saOS: s })} />
-          </SectionCard>
-
-          {/* Fd OD */}
-          <SectionCard title="Segmen Posterior OD">
-            <FdEyeForm label="OD" state={state.fdOD} onChange={(s) => upd({ fdOD: s })} />
-          </SectionCard>
-
-          {/* Fd OS */}
-          <SectionCard title="Segmen Posterior OS">
-            <FdEyeForm label="OS" state={state.fdOS} onChange={(s) => upd({ fdOS: s })} />
-          </SectionCard>
-
-          {/* GBM */}
-          <SectionCard title="GBM — Gerak Bola Mata">
-            <label className="flex items-center gap-2 text-sm text-slate-700 mb-2 cursor-pointer">
-              <input type="checkbox" checked={state.showGBM} onChange={(e) => upd({ showGBM: e.target.checked })} className="accent-teal-600" />
-              Tampilkan seksi GBM
-            </label>
-            {state.showGBM && (
-              <div className="space-y-4">
-                <GBMForm label="OD" state={state.gbmOD} onChange={(s) => upd({ gbmOD: s })} />
-                <GBMForm label="OS" state={state.gbmOS} onChange={(s) => upd({ gbmOS: s })} />
+          {/* Segmen Anterior */}
+          <SectionCard title="Segmen Anterior">
+            {state.postOpEye ? (
+              <SaEyeForm
+                label={state.postOpEye}
+                state={state.postOpEye === "OD" ? state.saOD : state.saOS}
+                onChange={(s) => upd(state.postOpEye === "OD" ? { saOD: s } : { saOS: s })}
+              />
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <SaEyeForm label="OD" state={state.saOD} onChange={(s) => upd({ saOD: s })} onCopyFromOther={() => copySaFields("OD")} onCopyField={(f) => copySaField("OD", f)} otherLabel="kiri" />
+                <SaEyeForm label="OS" state={state.saOS} onChange={(s) => upd({ saOS: s })} onCopyFromOther={() => copySaFields("OS")} onCopyField={(f) => copySaField("OS", f)} otherLabel="kanan" />
               </div>
             )}
           </SectionCard>
 
-          {/* Cover Test */}
-          <SectionCard title="Cover/Uncover Test">
-            <label className="flex items-center gap-2 text-sm text-slate-700 mb-2 cursor-pointer">
-              <input type="checkbox" checked={state.showCoverTest} onChange={(e) => upd({ showCoverTest: e.target.checked })} className="accent-teal-600" />
-              Tampilkan Cover Test
-            </label>
-            {state.showCoverTest && (
-              <Select
-                value={state.coverTest}
-                onChange={(v) => upd({ coverTest: v as SoapState["coverTest"] })}
-                options={["ortoforia","esotropia-OD","esotropia-OS","esotropia-ODS","eksotropia-OD","eksotropia-OS","eksotropia-ODS","hipertropia-OD","hipertropia-OS"]}
-                placeholder="— Pilih hasil —"
-              />
-            )}
-          </SectionCard>
+          {!state.postOpEye && (
+            <>
+              {/* Segmen Posterior */}
+              <SectionCard title="Segmen Posterior">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <FdEyeForm label="OD" state={state.fdOD} onChange={(s) => upd({ fdOD: s })} onCopyFromOther={() => copyFdFields("OD")} otherLabel="kiri" />
+                  <FdEyeForm label="OS" state={state.fdOS} onChange={(s) => upd({ fdOS: s })} onCopyFromOther={() => copyFdFields("OS")} otherLabel="kanan" />
+                </div>
+              </SectionCard>
+
+              {/* GBM */}
+              <SectionCard title="GBM — Gerak Bola Mata">
+                <label className="flex items-center gap-2 text-sm text-slate-700 mb-2 cursor-pointer">
+                  <input type="checkbox" checked={state.showGBM} onChange={(e) => upd({ showGBM: e.target.checked })} className="accent-teal-600" />
+                  Tampilkan seksi GBM
+                </label>
+                {state.showGBM && (
+                  <div className="space-y-4">
+                    <GBMForm label="OD" state={state.gbmOD} onChange={(s) => upd({ gbmOD: s })} />
+                    <GBMForm label="OS" state={state.gbmOS} onChange={(s) => upd({ gbmOS: s })} />
+                  </div>
+                )}
+              </SectionCard>
+
+              {/* Cover Test */}
+              <SectionCard title="Cover/Uncover Test">
+                <label className="flex items-center gap-2 text-sm text-slate-700 mb-2 cursor-pointer">
+                  <input type="checkbox" checked={state.showCoverTest} onChange={(e) => upd({ showCoverTest: e.target.checked })} className="accent-teal-600" />
+                  Tampilkan Cover Test
+                </label>
+                {state.showCoverTest && (
+                  <CoverTestForm state={state.coverTest} onChange={(s) => upd({ coverTest: s })} />
+                )}
+              </SectionCard>
+            </>
+          )}
 
           {/* Catatan */}
           <SectionCard title="Catatan Tambahan">
@@ -729,7 +1124,7 @@ export default function SoapMataClient() {
         </div>
 
         {/* ── Right: Output ── */}
-        <div className="lg:w-[45%] bg-white border-l border-gray-100 flex flex-col sticky top-[57px] h-[calc(100vh-57px)]">
+        <div className="lg:w-[35%] bg-white border-l border-gray-100 flex flex-col sticky top-[57px] h-[calc(100vh-57px)]">
           <div className="px-4 pt-4 pb-2 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-sm font-bold text-slate-700">Output Preview</h2>
             <button
@@ -746,7 +1141,13 @@ export default function SoapMataClient() {
               className="text-sm text-slate-800 whitespace-pre-wrap font-mono leading-relaxed bg-gray-50 rounded-xl p-4 min-h-32"
               style={{ fontFamily: "var(--font-dm-mono, monospace)" }}
             >
-              {output || <span className="text-slate-400 italic">Output akan muncul di sini...</span>}
+              {output ? (
+                output.split("\n").map((line, i) => (
+                  <div key={i} className={colorForLine(line)}>{line || " "}</div>
+                ))
+              ) : (
+                <span className="text-slate-400 italic">Output akan muncul di sini...</span>
+              )}
             </pre>
           </div>
         </div>

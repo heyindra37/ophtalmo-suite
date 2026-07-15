@@ -1,0 +1,17 @@
+export const C = {
+  bg: "#f8fafc",
+  panel: "#ffffff",
+  panel2: "#f1f5f9",
+  border: "#e2e8f0",
+  accent: "#0d9488",
+  accentDim: "rgba(13,148,136,0.10)",
+  text: "#0f172a",
+  textDim: "#475569",
+  textFaint: "#94a3b8",
+  error: "#dc2626",
+  errorBg: "rgba(220,38,38,0.08)",
+  warn: "#d97706",
+  warnBg: "rgba(217,119,6,0.10)",
+  green: "#16a34a",
+  greenBg: "rgba(22,163,74,0.10)",
+} as const;

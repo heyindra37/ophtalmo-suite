@@ -26,6 +26,11 @@ export const CATEGORIES = [
 
 export type Category = (typeof CATEGORIES)[number];
 
+export const POST_OP_PRESETS: Record<"OD" | "OS", { saOD: SaMode; saOS: SaMode }> = {
+  OD: { saOD: "full", saOS: "normal" },
+  OS: { saOD: "normal", saOS: "full" },
+};
+
 export const CATEGORY_PRESETS: Record<Category, CategoryPreset> = {
   Katarak: {
     saOD: "full", saOS: "full", fdOD: "full", fdOS: "full",
@@ -111,6 +116,7 @@ export const DIAGNOSIS_BY_CATEGORY: Record<Category, DiagnosisPreset[]> = {
     { category: "Vitreoretina", label: "Endoftalmitis/Vitritis", overrides: { saOD: "full", saOS: "full" } },
     { category: "Vitreoretina", label: "PVD / Floaters", overrides: {} },
     { category: "Vitreoretina", label: "ROP (Skrining)", overrides: {} },
+    { category: "Vitreoretina", label: "Age-related Macular Degeneration (Dry AMD)", overrides: {} },
   ],
   "Infeksi Kornea & Eksternal": [
     { category: "Infeksi Kornea & Eksternal", label: "Keratitis bakterial", overrides: {} },
@@ -118,6 +124,9 @@ export const DIAGNOSIS_BY_CATEGORY: Record<Category, DiagnosisPreset[]> = {
     { category: "Infeksi Kornea & Eksternal", label: "Keratitis HSV (dendritik)", overrides: {} },
     { category: "Infeksi Kornea & Eksternal", label: "Endoftalmitis post-op", overrides: {} },
     { category: "Infeksi Kornea & Eksternal", label: "Selulitis preseptal", overrides: {} },
+    { category: "Infeksi Kornea & Eksternal", label: "Keratitis Numularis", overrides: {} },
+    { category: "Infeksi Kornea & Eksternal", label: "Keratoconjunctivitis", overrides: {} },
+    { category: "Infeksi Kornea & Eksternal", label: "Keratoconjunctivitis Bakterial", overrides: {} },
   ],
   "External Eye Disease": [
     { category: "External Eye Disease", label: "Konjungtivitis bakterial", overrides: {} },
@@ -129,6 +138,8 @@ export const DIAGNOSIS_BY_CATEGORY: Record<Category, DiagnosisPreset[]> = {
     { category: "External Eye Disease", label: "Episkleritis", overrides: {} },
     { category: "External Eye Disease", label: "Perdarahan subkonjungtiva", overrides: {} },
     { category: "External Eye Disease", label: "Blefaritis", overrides: {} },
+    { category: "External Eye Disease", label: "Konjungtivitis Alergi", overrides: {} },
+    { category: "External Eye Disease", label: "Erosi Kornea (Trauma)", overrides: {} },
   ],
   Refraksi: [
     { category: "Refraksi", label: "Miopia", overrides: {} },
@@ -150,6 +161,7 @@ export const DIAGNOSIS_BY_CATEGORY: Record<Category, DiagnosisPreset[]> = {
     { category: "Uveitis", label: "Uveitis intermediate", overrides: {} },
     { category: "Uveitis", label: "Uveitis posterior", overrides: {} },
     { category: "Uveitis", label: "Panuveitis", overrides: {} },
+    { category: "Uveitis", label: "Ocular Toxoplasmosis", overrides: {} },
   ],
   "Neuro-Ophthalmology": [
     { category: "Neuro-Ophthalmology", label: "Neuritis optik", overrides: { showGBM: true } },
@@ -158,9 +170,11 @@ export const DIAGNOSIS_BY_CATEGORY: Record<Category, DiagnosisPreset[]> = {
     { category: "Neuro-Ophthalmology", label: "Parese N.III", overrides: { showGBM: true } },
     { category: "Neuro-Ophthalmology", label: "Parese N.VI", overrides: { showGBM: true, showCoverTest: true } },
     { category: "Neuro-Ophthalmology", label: "Pupil Adie", overrides: {} },
+    { category: "Neuro-Ophthalmology", label: "Iridoplegia Traumatik Akut", overrides: {} },
   ],
   Pediatric: [
     { category: "Pediatric", label: "Strabismus esotropia", overrides: { showCoverTest: true } },
+    { category: "Pediatric", label: "Strabismus Eksotropia Intermittent", overrides: { showCoverTest: true } },
     { category: "Pediatric", label: "Ambliopia", overrides: {} },
     { category: "Pediatric", label: "Katarak kongenital", overrides: { saOD: "full", saOS: "full" } },
     { category: "Pediatric", label: "Ptosis kongenital", overrides: { saOD: "full", saOS: "full" } },
