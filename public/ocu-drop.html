@@ -558,18 +558,25 @@ function prevCleanMinute(min){
   const m=(((v%g)+g)%g);
   return v-m;
 }
+/* Prioritas kelipatan 60 menit (jam genap, gampang diingat pasien) dulu; hanya fallback
+   ke kelipatan 30 menit kalau jam genap tidak muat di rentang bangun-tidur. */
 function computeFriendlyInterval(span,doses){
   if(span<=0||doses<=0)return 0;
-  if(doses===1)return Math.max(30,Math.floor(span/30)*30);
-  const maxFit=Math.floor(span/Math.max(1,doses-1));
-  const target=span/Math.max(1,doses);
-  const candidates=[];
-  for(let m=30;m<=720;m+=30){
-    if(m*(doses-1)<=span)candidates.push(m);
+  if(doses===1){
+    const h=Math.floor(span/60)*60;
+    return h>=60?h:Math.max(30,Math.floor(span/30)*30);
   }
-  if(!candidates.length)return Math.max(30,Math.floor(maxFit/30)*30);
-  const preferred=candidates.find(m=>m>=target);
-  return preferred||candidates[candidates.length-1];
+  const target=span/Math.max(1,doses);
+  const pickFrom=(step)=>{
+    const candidates=[];
+    for(let m=step;m<=720;m+=step){
+      if(m*(doses-1)<=span)candidates.push(m);
+    }
+    if(!candidates.length)return null;
+    const preferred=candidates.find(m=>m>=target);
+    return preferred||candidates[candidates.length-1];
+  };
+  return pickFrom(60)??pickFrom(30)??Math.max(30,Math.floor(Math.floor(span/Math.max(1,doses-1))/30)*30);
 }
 function computeInsertTimes(rf,anchorsSorted){
   if(rf<=0)return [];
