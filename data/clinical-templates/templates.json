@@ -3,19 +3,96 @@
     "id": "laserasi-kornea-full-thickness",
     "name": "Laserasi Kornea Full Thickness",
     "category": "Trauma & Kegawatdaruratan",
-    "actionPlan": ["Jahit laserasi kornea full thickness"],
-    "preOp": [
-      "Inj. Tetagam intramuskular",
-      "Inj. Ceftriaxone 2x1 gram",
-      "LFX tetes mata minidose, 1 strip, 4 dd gtt I",
-      "Asam mefenamat 3x500 mg bila nyeri"
-    ],
-    "postOp": [
-      "Levofloxacin tetes mata 6 dd gtt I",
-      "Tobroson tetes mata 6 dd gtt I",
-      "Tropin tetes mata 3 dd gtt I",
-      "Methylprednisolone 3x8 mg selama 7 hari, lalu tapp off 2x8 mg sampai kontrol (bila ada cedera iris/cedera lensa)",
-      "Ciprofloxacin tablet 2x500 mg selama 5 hari"
+    "sections": [
+      {
+        "title": "Rencana Tindakan",
+        "items": ["Jahit laserasi kornea full thickness"]
+      },
+      {
+        "title": "Pengobatan Pre-Op",
+        "items": [
+          "Inj. Tetagam intramuskular",
+          "Inj. Ceftriaxone 2x1 gram",
+          "LFX tetes mata minidose, 1 strip, 4 dd gtt I",
+          "Asam mefenamat 3x500 mg bila nyeri"
+        ]
+      },
+      {
+        "title": "Pengobatan Pasca-Op",
+        "items": [
+          "Levofloxacin tetes mata 6 dd gtt I",
+          "Tobroson tetes mata 6 dd gtt I",
+          "Tropin tetes mata 3 dd gtt I",
+          "Methylprednisolone 3x8 mg selama 7 hari, lalu tapp off 2x8 mg sampai kontrol (bila ada cedera iris/cedera lensa)",
+          "Ciprofloxacin tablet 2x500 mg selama 5 hari"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "hifema-traumatika",
+    "name": "Hifema Traumatika",
+    "category": "Trauma & Kegawatdaruratan",
+    "sections": [
+      {
+        "title": "Terapi MRS (Pasien BPJS)",
+        "items": [
+          "Inj. intravena asam tranexamat 2x1 ampul",
+          "Tropin tetes mata minidose (resepkan 2 tetes), 3 dd gtt I",
+          "Tobroson tetes mata botol, 6 dd gtt I",
+          "Methylprednisolone tablet 3x8 mg",
+          "Bila TIO meningkat, tambahkan Glaucon 2x250 mg untuk 3 hari dan Timol 2 dd gtt I untuk 1 minggu"
+        ]
+      },
+      {
+        "title": "Terapi KRS (Pasien BPJS)",
+        "items": [
+          "Asam tranexamat tablet 2x500 mg selama 7 hari",
+          "Tropin tetes mata minidose (resepkan 2 tetes), 3 dd gtt I, habiskan yang sudah ada",
+          "Tobroson tetes mata botol, 4 dd gtt I",
+          "Methylprednisolone tablet 2x8 mg selama 7 hari, lalu lanjutkan 1x8 mg selama 7 hari",
+          "Lanjutkan Glaucon/Timol bila diresepkan"
+        ]
+      },
+      {
+        "title": "Terapi MRS (Pasien Umum/Asuransi)",
+        "items": [
+          "Drip intravena Adona 2x1 ampul",
+          "Tropin tetes mata botol 3 dd gtt I",
+          "Tobroson tetes mata botol, 6 dd gtt I",
+          "Intidrol tablet 3x8 mg",
+          "Bila TIO meningkat, tambahkan Glaucon 2x250 mg untuk 5 hari dan Timol 2 dd gtt I untuk 1 minggu"
+        ]
+      },
+      {
+        "title": "Terapi KRS (Pasien Umum/Asuransi)",
+        "items": [
+          "Asam tranexamat tablet 2x500 mg",
+          "Tropin tetes mata 3 dd gtt I bila hifema masih ada, 2 dd gtt I bila hifema membaik",
+          "Tobroson tetes mata 4 dd gtt I",
+          "Methylprednisolone tablet 3x8 mg selama 7 hari, lalu 2x8 mg selama 7 hari berikutnya",
+          "Lanjutkan Glaucon dan Timol bila diresepkan"
+        ]
+      },
+      {
+        "title": "Monitoring per Hari",
+        "items": [
+          "Visus dengan pinhole",
+          "TIO",
+          "Volume dan morfologi hifema",
+          "Stabilitas lensa",
+          "Segmen posterior",
+          "USG bila: hifema tidak membaik + TIO naik/turun ekstrim"
+        ]
+      },
+      {
+        "title": "Lama Pengobatan",
+        "text": "Minimal 3 hari, maksimal 5 hari"
+      },
+      {
+        "title": "Kriteria Discharge",
+        "text": "Bila dalam 3 hari hifema sudah hilang, ATAU bila dalam 4 hari kondisi sudah stabil dan hifema tidak bertambah, ATAU bila sudah 5 hari"
+      }
     ]
   }
 ]

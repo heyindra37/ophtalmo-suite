@@ -7,19 +7,15 @@ import type { ClinicalTemplate } from "@/lib/clinical-templates/types";
 
 const templates = templatesData as ClinicalTemplate[];
 
-const SECTIONS: { key: keyof Pick<ClinicalTemplate, "actionPlan" | "preOp" | "postOp">; label: string }[] = [
-  { key: "actionPlan", label: "Rencana Tindakan" },
-  { key: "preOp", label: "Pengobatan Pre-Op" },
-  { key: "postOp", label: "Pengobatan Pasca-Op" },
-];
-
 function buildCopyText(t: ClinicalTemplate): string {
   const lines: string[] = [t.name];
-  for (const section of SECTIONS) {
-    const items = t[section.key];
-    if (!items || items.length === 0) continue;
-    lines.push("", `${section.label}:`);
-    for (const item of items) lines.push(`- ${item}`);
+  for (const section of t.sections) {
+    if (section.items && section.items.length > 0) {
+      lines.push("", `${section.title}:`);
+      for (const item of section.items) lines.push(`- ${item}`);
+    } else if (section.text) {
+      lines.push("", `${section.title}: ${section.text}`);
+    }
   }
   return lines.join("\n");
 }
@@ -59,21 +55,24 @@ function TemplateCard({ template }: { template: ClinicalTemplate }) {
 
       {expanded && (
         <div className="px-5 pb-5 border-t border-gray-100 pt-4 flex flex-col gap-4">
-          {SECTIONS.map((section) => {
-            const items = template[section.key];
-            if (!items || items.length === 0) return null;
+          {template.sections.map((section, si) => {
+            if (!section.items?.length && !section.text) return null;
             return (
-              <div key={section.key}>
+              <div key={si}>
                 <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-1.5">
-                  {section.label}
+                  {section.title}
                 </p>
-                <ul className="list-disc pl-5 flex flex-col gap-1">
-                  {items.map((item, i) => (
-                    <li key={i} className="text-sm text-slate-700 leading-relaxed">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+                {section.items && section.items.length > 0 ? (
+                  <ul className="list-disc pl-5 flex flex-col gap-1">
+                    {section.items.map((item, i) => (
+                      <li key={i} className="text-sm text-slate-700 leading-relaxed">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-slate-700 leading-relaxed">{section.text}</p>
+                )}
               </div>
             );
           })}
