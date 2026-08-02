@@ -162,7 +162,7 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
         <div>
           <label class="fl">Jarak minimal antar obat (beda jenis)</label>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <input type="number" id="min-gap" min="1" max="120" value="15" style="max-width:100px" oninput="onGapChange()" title="Menit antara meneteskan obat berbeda pada mata yang sama">
+            <input type="number" id="min-gap" min="1" max="120" value="10" style="max-width:100px" oninput="onGapChange()" title="Menit antara meneteskan obat berbeda pada mata yang sama">
             <span style="font-size:12px;color:var(--slate)">menit</span>
           </div>
         </div>
@@ -464,7 +464,7 @@ let viewDayOffset=0;
 
 function getMinGap(){
   const n=parseInt($('min-gap').value,10);
-  return Number.isFinite(n)&&n>=1&&n<=120?n:15;
+  return Number.isFinite(n)&&n>=1&&n<=120?n:10;
 }
 function setGapPreset(m){$('min-gap').value=String(m);onGapChange();}
 function setSchedulingMode(m){
@@ -539,22 +539,24 @@ function intervalHintMinutes(freq,span,rf){
   if(freq===12)return 120;
   return computeFriendlyInterval(span,rf);
 }
+/* Grid "jam rapi" mengikuti jarak minimal antar obat (min-gap) yang dikonfigurasi user,
+   BUKAN kelipatan 15 menit yang di-hardcode — supaya saat jadwal digeser untuk menghindari
+   tabrakan, hasilnya persis +gap menit (bukan dibulatkan ke atas ke grid lain yang lebih besar). */
 function isCleanMinute(min){
-  const m=((Math.round(min)%60)+60)%60;
-  return m===0||m===15||m===30||m===45;
+  const g=getMinGap();
+  return (((Math.round(min)%g)+g)%g)===0;
 }
 function nextCleanMinute(min){
-  const m=((Math.ceil(min)%60)+60)%60;
-  if(m===0||m===15||m===30||m===45)return Math.ceil(min);
-  const step=m<15?15-m:m<30?30-m:m<45?45-m:60-m;
-  return Math.ceil(min)+step;
+  const g=getMinGap();
+  const m=(((Math.ceil(min)%g)+g)%g);
+  if(m===0)return Math.ceil(min);
+  return Math.ceil(min)+(g-m);
 }
 function prevCleanMinute(min){
+  const g=getMinGap();
   const v=Math.floor(min);
-  const m=((v%60)+60)%60;
-  if(m===0||m===15||m===30||m===45)return v;
-  const step=m<15?m:m<30?m-15:m<45?m-30:m-45;
-  return v-step;
+  const m=(((v%g)+g)%g);
+  return v-m;
 }
 function computeFriendlyInterval(span,doses){
   if(span<=0||doses<=0)return 0;
@@ -1063,7 +1065,7 @@ function buildSchedule(){
           if(Math.abs(p.t-t)<gap){clash=true;break;}
         }
         if(!clash)break;
-        t-=15;
+        t-=gap;
         if(t<wm){t=wm;break;}
       }
       if(t<wm)t=wm;
@@ -1321,7 +1323,7 @@ function applyTemplate(tid){
 function copyTemplateTxt(tid){
   const t=loadTemplates().find(x=>x.id===tid);
   if(!t)return;
-  const g=t.minGap!=null?t.minGap:15;
+  const g=t.minGap!=null?t.minGap:10;
   const lines=[
     `OcuDrop — Template: ${t.name}`,
     `Disalin: ${new Date().toLocaleString('id-ID')}`,
@@ -1344,7 +1346,7 @@ function renderTemplateList(){
   if(!arr.length){el.innerHTML='<span style="color:var(--slate);font-size:12px">Belum ada template tersimpan.</span>';return;}
   el.innerHTML=arr.map(t=>`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--border)">
     <span style="font-weight:600">${esc(t.name)}</span>
-    <span style="font-size:11px;color:var(--muted)">${t.drugs?.length||0} obat · gap ${t.minGap!=null?t.minGap:15}m</span>
+    <span style="font-size:11px;color:var(--muted)">${t.drugs?.length||0} obat · gap ${t.minGap!=null?t.minGap:10}m</span>
     <button type="button" class="btn" style="padding:4px 10px;font-size:12px" onclick="applyTemplate('${t.id}')">Muat</button>
     <button type="button" class="btn btn-p" style="padding:4px 10px;font-size:12px" onclick="copyTemplateTxt('${t.id}')">Salin ke .txt</button>
     <button type="button" class="btn btn-danger" style="padding:4px 10px;font-size:12px" onclick="deleteTemplate('${t.id}')">Hapus</button>
