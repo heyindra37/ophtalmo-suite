@@ -65,6 +65,14 @@ const apps = [
     status: "Live" as const,
     route: "/retinal-drawing",
   },
+  {
+    icon: "🗂️",
+    name: "Template Klinis",
+    description:
+      "Kumpulan template rencana tindakan & pengobatan per diagnosis — siap pakai dan bisa disalin langsung ke rekam medis.",
+    status: "Live" as const,
+    route: "/templat-klinis",
+  },
 ];
 
 export default function HomePage() {

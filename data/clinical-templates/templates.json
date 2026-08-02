@@ -1,0 +1,21 @@
+[
+  {
+    "id": "laserasi-kornea-full-thickness",
+    "name": "Laserasi Kornea Full Thickness",
+    "category": "Trauma & Kegawatdaruratan",
+    "actionPlan": ["Jahit laserasi kornea full thickness"],
+    "preOp": [
+      "Inj. Tetagam intramuskular",
+      "Inj. Ceftriaxone 2x1 gram",
+      "LFX tetes mata minidose, 1 strip, 4 dd gtt I",
+      "Asam mefenamat 3x500 mg bila nyeri"
+    ],
+    "postOp": [
+      "Levofloxacin tetes mata 6 dd gtt I",
+      "Tobroson tetes mata 6 dd gtt I",
+      "Tropin tetes mata 3 dd gtt I",
+      "Methylprednisolone 3x8 mg selama 7 hari, lalu tapp off 2x8 mg sampai kontrol (bila ada cedera iris/cedera lensa)",
+      "Ciprofloxacin tablet 2x500 mg selama 5 hari"
+    ]
+  }
+]
