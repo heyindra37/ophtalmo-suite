@@ -58,6 +58,14 @@ const apps = [
     route: "/tools/uveitis-differential",
   },
   {
+    icon: "🩺",
+    name: "UveaDx",
+    description:
+      "Versi terbaru alat bantu diagnosis banding uveitis — dikembangkan terpisah, berdampingan dengan Uveitis Differential untuk sementara.",
+    status: "Live" as const,
+    route: "/uveadx",
+  },
+  {
     icon: "🎨",
     name: "Retinal Drawing",
     description:
