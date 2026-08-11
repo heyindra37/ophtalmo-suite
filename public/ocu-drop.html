@@ -424,6 +424,13 @@ function detectClass(name){
   for(const c of DRUG_CLASSES){if(c.pats.some(p=>s.includes(p)))return c.cls;}
   return null;
 }
+/* Obat yang lazim tersedia/dipakai sebagai salep mata (bukan sumber kebenaran — cuma saran non-blocking). */
+const OINTMENT_TYPICAL_PATS=['kloramfenikol','chloramphenicol','fenicol','erlamycetin','eritromisin','erythromycin','tetrasiklin','tetracycline'];
+function isTypicallyOintment(name){
+  const s=(name||'').toLowerCase();
+  if(!s.trim())return false;
+  return OINTMENT_TYPICAL_PATS.some(p=>s.includes(p));
+}
 /* Kumpulkan warning duplikasi kelas: hanya kelas terdeteksi (non-null) yg dipakai 2+ obat. */
 function computeClassWarnings(){
   const byClass={};
@@ -577,25 +584,6 @@ function computeFriendlyInterval(span,doses){
     return preferred||candidates[candidates.length-1];
   };
   return pickFrom(60)??pickFrom(30)??Math.max(30,Math.floor(Math.floor(span/Math.max(1,doses-1))/30)*30);
-}
-function computeInsertTimes(rf,anchorsSorted){
-  if(rf<=0)return [];
-  let gaps=[];
-  for(let i=0;i<anchorsSorted.length-1;i++){
-    const left=anchorsSorted[i],right=anchorsSorted[i+1];
-    if(right>left)gaps.push({left,right});
-  }
-  if(!gaps.length)return [];
-  const placed=[];
-  for(let k=0;k<rf;k++){
-    let bestIdx=0,bestWidth=-1;
-    gaps.forEach((g,idx)=>{const w=g.right-g.left;if(w>bestWidth){bestWidth=w;bestIdx=idx;}});
-    const g=gaps[bestIdx];
-    const mid=(g.left+g.right)/2;
-    placed.push(Math.round(mid));
-    gaps.splice(bestIdx,1,{left:g.left,right:mid},{left:mid,right:g.right});
-  }
-  return placed.sort((a,b)=>a-b);
 }
 
 /* ══════════════════════════════════════════════════
@@ -994,7 +982,6 @@ function buildRawSlots(){
         raw.push({d,di,rt:t,fixed:true,alternate:false,conflict:false,isOintment:d.form==='salep'});
       }
     }else if(d.mode==='auto'){
-      if(schedulingMode==='insert')return; // diproses di pass kedua di bawah
       let rtList=[];
       if(d.freq===-1){
         for(let i=0;i<rf;i++)rtList.push(wm+i*60);
@@ -1007,16 +994,6 @@ function buildRawSlots(){
       rtList.forEach(rt=>raw.push({d,di,rt,fixed:false,alternate:false,conflict:false}));
     }
   });
-  if(schedulingMode==='insert'){
-    let anchors=Array.from(new Set([wm,sm,...raw.map(r=>r.rt)])).sort((a,b)=>a-b);
-    view.forEach((d,di)=>{
-      if(d.mode!=='auto'||d.form==='salep')return;
-      const rf=resolveFreq(d.freq);
-      const times=computeInsertTimes(rf,anchors);
-      times.forEach(t=>raw.push({d,di,rt:t,fixed:false,alternate:false,conflict:false}));
-      anchors=Array.from(new Set([...anchors,...times])).sort((a,b)=>a-b);
-    });
-  }
   if(altWarn.length&&typeof window!=='undefined'&&!window._altWarned){
     window._altWarned=true;
     setTimeout(()=>{window._altWarned=false;},800);
@@ -1378,6 +1355,9 @@ function renderDrugList(){
     const formSel=`<select onchange="setForm(${d.id},this.value)" title="Bentuk sediaan" style="padding:9px 8px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--navy);font-family:inherit;outline:none">
       ${[['tetes','💧 Tetes'],['gel','🧴 Gel'],['salep','🩹 Salep']].map(([v,l])=>`<option value="${v}" ${d.form===v?'selected':''}>${l}</option>`).join('')}</select>`;
     const clsBadge=cls?`<span style="font-size:10px;font-weight:600;color:#6d28d9;background:#ede9fe;border-radius:10px;padding:1px 8px;white-space:nowrap">${esc(cls)}</span>`:'';
+    const ointmentHint=(isTypicallyOintment(d.name)&&d.form!=='salep')
+      ?`<button type="button" onclick="setForm(${d.id},'salep')" style="font-size:11px;color:#92400e;background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:3px 10px;cursor:pointer">🩹 Biasanya salep — pakai Salep?</button>`
+      :'';
     const taperBlock=hasTaper?`<div style="margin-top:8px;border:1px dashed #f59e0b66;border-radius:8px;padding:8px 10px;background:#fffbeb">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span style="font-size:12px;font-weight:700;color:#b45309">📉 Tapering / Tahapan</span>
@@ -1438,7 +1418,7 @@ function renderDrugList(){
         ${drugs.length>1?`<button class="btn btn-danger" onclick="removeDrug(${d.id})" style="padding:5px 10px">✕</button>`:'<div></div>'}
       </div>
       <div class="drug-footer">
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">${modeToggle}${infoNote}${clsBadge}</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">${modeToggle}${infoNote}${clsBadge}${ointmentHint}</div>
         ${altBlock}
         ${fixBlock}
         ${taperBlock}
