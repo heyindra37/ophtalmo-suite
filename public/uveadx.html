@@ -4,16 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>UveaDx</title>
+<script>try{if(localStorage.getItem("uveadx-tema")==="terang")document.documentElement.setAttribute("data-tema","terang")}catch(e){}</script>
 <style>
 :root{
   --gelap:#14100E;--panel:#1F1815;--panel-2:#2A211C;--garis:#3A2E27;
   --tinta:#EFE7DE;--tinta-redup:#A2948A;
-  --berkas:#5BC8E8;--berkas-lemah:#2A5F73;
-  --iris:#C98B3A;--tolak:#C4574E;--setuju:#7FB07A;
+  --berkas:#5BC8E8;--berkas-lemah:#2A5F73;--berkas-teks:#5BC8E8;
+  --iris:#C98B3A;--iris-gelap:#8a6222;--tolak:#C4574E;--setuju:#7FB07A;
+  --tolak-teks-kuat:#F0BDB8;--setuju-teks-kuat:#CDE8C9;
+  --garis-rgb:58,46,39;--tolak-rgb:196,87,78;--setuju-rgb:127,176,122;--iris-rgb:201,139,58;--berkas-rgb:91,200,232;
   --r:3px;
   --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
   --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+:root[data-tema="terang"]{
+  --gelap:#FAF6F0;--panel:#FFFFFF;--panel-2:#F0E9DF;--garis:#DED2C2;
+  --tinta:#241C16;--tinta-redup:#6B5D50;
+  --berkas:#5BC8E8;--berkas-lemah:#2A5F73;--berkas-teks:#0E7A9C;
+  --iris:#8A5A1C;--iris-gelap:#6B4413;--tolak:#A8342B;--setuju:#3F7A39;
+  --tolak-teks-kuat:#7A2A22;--setuju-teks-kuat:#33592E;
+  --garis-rgb:222,209,190;--tolak-rgb:168,52,43;--setuju-rgb:63,122,57;--iris-rgb:138,90,28;--berkas-rgb:91,200,232;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -32,6 +43,8 @@ header{border-bottom:1px solid var(--garis);padding:22px 24px 18px;display:flex;
 .mode-tab button[aria-pressed="true"]{background:var(--berkas-lemah);border-color:var(--berkas);color:#fff}
 .btn-pasien-baru{background:transparent;border:1px solid var(--garis);color:var(--tinta-redup);padding:6px 12px;border-radius:var(--r);cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
 .btn-pasien-baru:hover{border-color:var(--tolak);color:var(--tinta)}
+.btn-tema{background:transparent;border:1px solid var(--garis);color:var(--tinta-redup);padding:6px 12px;border-radius:var(--r);cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.btn-tema:hover{border-color:var(--berkas);color:var(--tinta)}
 [hidden]{display:none !important}
 
 main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)}
@@ -40,12 +53,13 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)}
 .hasil{padding:20px 24px 60px}
 @media (max-width:940px){.rail{border-right:0;border-bottom:1px solid var(--garis)}}
 
-.strip-ringkas{grid-column:1/-1;position:sticky;top:0;z-index:30;display:grid;grid-template-columns:.85fr 1.3fr 1.3fr;background:var(--panel);border-bottom:1px solid var(--garis);box-shadow:0 6px 14px rgba(0,0,0,.28)}
+.strip-gabung{grid-column:1/-1;position:sticky;top:0;z-index:30;box-shadow:0 6px 14px rgba(0,0,0,.28)}
+.strip-ringkas{display:grid;grid-template-columns:.85fr 1.3fr 1.3fr;background:var(--panel);border-bottom:1px solid var(--garis)}
 .strip-sel{padding:8px 16px;border-right:1px solid var(--garis);min-width:0;overflow:hidden}
 .strip-sel:last-child{border-right:0}
 .strip-label{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta-redup);display:block;margin-bottom:4px}
 .strip-kelengkapan-baris b{font-family:var(--mono);font-size:16px}
-.strip-bar{height:3px;background:rgba(58,46,39,.8);border-radius:2px;overflow:hidden;margin-top:5px}
+.strip-bar{height:3px;background:rgba(var(--garis-rgb),.8);border-radius:2px;overflow:hidden;margin-top:5px}
 .strip-bar span{display:block;height:100%;background:var(--iris)}
 .strip-dx-list{display:flex;flex-direction:column;gap:1px}
 .strip-dx-row{display:flex;align-items:baseline;gap:8px;background:transparent;border:0;color:var(--tinta);font-family:var(--sans);font-size:12px;text-align:left;cursor:pointer;padding:1px 0;width:100%}
@@ -55,11 +69,20 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)}
 .strip-dx-row .nama{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .strip-peringatan-btn{background:transparent;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer;width:100%;padding:0;display:block}
 .strip-peringatan-btn:hover .strip-p-judul{color:var(--iris)}
-.strip-p-judul{font-family:var(--serif);font-size:13.5px;display:block;margin-bottom:1px;color:#F0BDB8}
+.strip-p-judul{font-family:var(--serif);font-size:13.5px;display:block;margin-bottom:1px;color:var(--tolak-teks-kuat)}
 .strip-p-sub{font-size:11px;color:var(--tinta-redup);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .strip-kosong{font-size:12px;color:var(--tinta-redup)}
 @media (max-width:940px){.strip-ringkas{grid-template-columns:1fr}.strip-sel{border-right:0;border-bottom:1px solid var(--garis)}.strip-sel:last-child{border-bottom:0}}
-.waspada,.kartu,.temuan,#kartu-peringatan{scroll-margin-top:110px}
+
+.strip-cek{padding:8px 16px;background:var(--panel-2);border-bottom:1px solid var(--garis);display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.strip-cek-label{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta-redup);flex:none}
+.strip-cek-list{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.strip-cek-chip{background:transparent;border:1px dashed var(--garis);color:var(--iris);border-radius:var(--r);font-family:var(--mono);font-size:11px;padding:3px 8px;cursor:pointer}
+.strip-cek-chip:hover{border-style:solid;border-color:var(--iris)}
+.strip-cek-lebih{font-family:var(--mono);font-size:10.5px;color:var(--tinta-redup)}
+@media (max-width:940px){.strip-gabung{position:static}}
+
+.waspada,.kartu,.temuan,#kartu-peringatan{scroll-margin-top:220px}
 
 .blok{margin-bottom:26px}
 .blok-kepala{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
@@ -72,7 +95,7 @@ input[type=number]{background:var(--panel);border:1px solid var(--garis);color:v
 .pil{display:flex;flex-wrap:wrap;gap:6px}
 .pil button{background:var(--panel);border:1px solid var(--garis);color:var(--tinta-redup);padding:6px 11px;border-radius:var(--r);font-size:13px;cursor:pointer}
 .pil button[aria-pressed="true"]{background:var(--berkas-lemah);border-color:var(--berkas);color:#fff}
-.def-kotak{border-left:2px solid var(--berkas-lemah);background:rgba(91,200,232,.05);padding:8px 12px;margin:8px 0 0;font-size:12.5px;color:var(--tinta-redup)}
+.def-kotak{border-left:2px solid var(--berkas-lemah);background:rgba(var(--berkas-rgb),.05);padding:8px 12px;margin:8px 0 0;font-size:12.5px;color:var(--tinta-redup)}
 .def-kotak b{color:var(--tinta)}
 
 /* ---- tooltip hover untuk lapis bukti L1/L2/L3 (dan elemen [data-tip] lain) ---- */
@@ -115,7 +138,7 @@ input[type=number]{background:var(--panel);border:1px solid var(--garis);color:v
 .komp-skala button[aria-pressed="true"]{background:var(--berkas-lemah);border-color:var(--berkas);color:#fff}
 .komp-skala button.kosong[aria-pressed="true"]{background:var(--panel-2);border-color:var(--tinta-redup);color:var(--tinta)}
 
-.turunan{border-left:2px solid var(--iris);background:rgba(201,139,58,.07);padding:10px 13px;font-size:13px;margin-bottom:6px}
+.turunan{border-left:2px solid var(--iris);background:rgba(var(--iris-rgb),.07);padding:10px 13px;font-size:13px;margin-bottom:6px}
 .turunan .kelas{font-family:var(--serif);font-size:16px;color:var(--tinta);display:block;margin-bottom:3px}
 .turunan .kelas.ragu{color:var(--iris)}
 .turunan p{margin:0;font-size:12.5px;color:var(--tinta-redup)}
@@ -125,14 +148,22 @@ input[type=number]{background:var(--panel);border:1px solid var(--garis);color:v
 
 .grup{border-top:1px solid var(--garis);padding-top:10px;margin-top:14px}
 .grup h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--tinta-redup);margin:0 0 8px;display:flex;justify-content:space-between}
-.temuan{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px dotted rgba(58,46,39,.7)}
+.temuan{padding:5px 0;border-bottom:1px dotted rgba(var(--garis-rgb),.7)}
+.temuan-baris{display:flex;align-items:center;gap:10px}
 .temuan .nama{flex:1;font-size:13.5px;line-height:1.35}
 .temuan .nama .lv{font-family:var(--mono);font-size:9.5px;color:var(--tinta-redup);border:1px solid var(--garis);border-radius:2px;padding:0 3px;margin-left:6px}
-.temuan.disorot{background:rgba(201,139,58,.08);box-shadow:-8px 0 0 rgba(201,139,58,.08),8px 0 0 rgba(201,139,58,.08)}
+.temuan.disorot{background:rgba(var(--iris-rgb),.08);box-shadow:-8px 0 0 rgba(var(--iris-rgb),.08),8px 0 0 rgba(var(--iris-rgb),.08)}
+.nama-teks{background:transparent;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:0;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--tinta-redup);text-underline-offset:3px}
+.nama-teks:hover{color:var(--berkas-teks)}
+.nama-teks[aria-expanded="true"]{color:var(--berkas-teks)}
+.temuan-def{margin:6px 0 2px;padding:8px 12px;border-left:2px solid var(--berkas-lemah);background:rgba(var(--berkas-rgb),.05);border-radius:var(--r);font-size:12px;color:var(--tinta-redup);line-height:1.55}
+.temuan-def-en{display:inline-block;margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--tinta-redup);opacity:.8}
+.istilah-hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--tinta-redup);text-underline-offset:2px}
+.buku span[data-tip]{text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--tinta-redup);text-underline-offset:2px}
 .tri{display:flex;border:1px solid var(--garis);border-radius:var(--r);overflow:hidden;flex:none}
 .tri button{background:transparent;border:0;color:var(--tinta-redup);cursor:pointer;font-family:var(--mono);font-size:10.5px;padding:4px 8px;min-width:34px}
-.tri button[aria-pressed="true"][data-v="1"]{background:rgba(127,176,122,.22);color:#CDE8C9}
-.tri button[aria-pressed="true"][data-v="-1"]{background:rgba(196,87,78,.2);color:#F0BDB8}
+.tri button[aria-pressed="true"][data-v="1"]{background:rgba(var(--setuju-rgb),.22);color:var(--setuju-teks-kuat)}
+.tri button[aria-pressed="true"][data-v="-1"]{background:rgba(var(--tolak-rgb),.2);color:var(--tolak-teks-kuat)}
 .tri button[aria-pressed="true"][data-v="0"]{background:var(--panel-2);color:var(--tinta)}
 .aksi{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
 .aksi button{background:transparent;border:1px solid var(--garis);color:var(--tinta-redup);padding:7px 13px;border-radius:var(--r);cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
@@ -141,7 +172,7 @@ input[type=number]{background:var(--panel);border:1px solid var(--garis);color:v
 .meter{border:1px solid var(--garis);border-radius:var(--r);padding:11px 13px;margin-bottom:16px;background:var(--panel)}
 .meter-atas{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta-redup);margin-bottom:7px}
 .meter-atas b{color:var(--tinta);font-size:13px;letter-spacing:0;text-transform:none}
-.meter-bar{height:4px;background:rgba(58,46,39,.8);border-radius:2px;overflow:hidden}
+.meter-bar{height:4px;background:rgba(var(--garis-rgb),.8);border-radius:2px;overflow:hidden}
 .meter-bar span{display:block;height:100%;background:var(--iris);transition:width .3s}
 .meter p{margin:8px 0 0;font-size:12.5px;color:var(--tinta-redup)}
 
@@ -153,9 +184,9 @@ input[type=number]{background:var(--panel);border:1px solid var(--garis);color:v
 .kartu-nama{font-family:var(--serif);font-size:16.5px;flex:1;line-height:1.25}
 .kartu.blok-eksklusi .kartu-nama{text-decoration:line-through}
 .mentah{font-family:var(--mono);font-size:11px;color:var(--tinta-redup);flex:none}
-.bar{height:4px;margin:7px 0 0 74px;background:rgba(58,46,39,.6);border-radius:2px;overflow:hidden}
+.bar{height:4px;margin:7px 0 0 74px;background:rgba(var(--garis-rgb),.6);border-radius:2px;overflow:hidden}
 .bar span{display:block;height:100%;background:linear-gradient(90deg,var(--berkas-lemah),var(--berkas));transition:width .35s cubic-bezier(.22,.9,.3,1)}
-.kartu:first-child .bar span{background:linear-gradient(90deg,#8a6222,var(--iris))}
+.kartu:first-child .bar span{background:linear-gradient(90deg,var(--iris-gelap),var(--iris))}
 @media (prefers-reduced-motion:reduce){.bar span,.meter-bar span{transition:none}}
 .sisa{display:flex;align-items:baseline;gap:12px;padding:11px 0;color:var(--tinta-redup);font-size:13.5px}
 .sisa .persen{color:var(--tinta-redup);font-size:15px}
@@ -163,25 +194,25 @@ input[type=number]{background:var(--panel);border:1px solid var(--garis);color:v
 .rinci h5{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--tinta-redup);margin:0 0 7px}
 .rinci h5:not(:first-child){margin-top:14px}
 .buku{font-family:var(--mono);font-size:12px}
-.buku div{display:flex;justify-content:space-between;gap:12px;padding:2px 0;border-bottom:1px dotted rgba(58,46,39,.6)}
+.buku div{display:flex;justify-content:space-between;gap:12px;padding:2px 0;border-bottom:1px dotted rgba(var(--garis-rgb),.6)}
 .buku .w{flex:none;width:44px;text-align:right}
 .buku .plus{color:var(--setuju)}.buku .minus{color:var(--tolak)}.buku .dasar{color:var(--tinta-redup)}
 
-.waspada{border:1px solid var(--tolak);border-left-width:3px;border-radius:var(--r);background:rgba(196,87,78,.06);padding:15px 17px;margin:0 0 22px}
+.waspada{border:1px solid var(--tolak);border-left-width:3px;border-radius:var(--r);background:rgba(var(--tolak-rgb),.06);padding:15px 17px;margin:0 0 22px}
 .waspada-kepala{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;flex-wrap:wrap}
-.waspada-kepala h4{font-family:var(--serif);font-size:17px;margin:0;color:#F0BDB8}
+.waspada-kepala h4{font-family:var(--serif);font-size:17px;margin:0;color:var(--tolak-teks-kuat)}
 .waspada-kepala .kode{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--tolak)}
 .waspada>p.intro{margin:0 0 12px;font-size:13px;color:var(--tinta-redup)}
-.alasan{border-top:1px solid rgba(196,87,78,.25);padding:10px 0 0;margin-top:10px}
+.alasan{border-top:1px solid rgba(var(--tolak-rgb),.25);padding:10px 0 0;margin-top:10px}
 .alasan:first-of-type{border-top:0;padding-top:0;margin-top:0}
 .alasan h6{margin:0 0 3px;font-size:13.5px;font-weight:600;color:var(--tinta)}
 .alasan p{margin:0;font-size:13px;color:var(--tinta-redup)}
 .alasan .cek{margin-top:7px;display:flex;flex-wrap:wrap;gap:6px}
 .alasan .cek button{background:transparent;border:1px dashed var(--garis);color:var(--iris);border-radius:var(--r);font-family:var(--mono);font-size:11px;padding:4px 9px;cursor:pointer}
 .alasan .cek button:hover{border-style:solid;border-color:var(--iris)}
-.aman{border-color:var(--setuju);background:rgba(127,176,122,.06)}
-.aman .waspada-kepala h4{color:#CDE8C9}.aman .waspada-kepala .kode{color:var(--setuju)}
-.aman .alasan{border-top-color:rgba(127,176,122,.25)}
+.aman{border-color:var(--setuju);background:rgba(var(--setuju-rgb),.06)}
+.aman .waspada-kepala h4{color:var(--setuju-teks-kuat)}.aman .waspada-kepala .kode{color:var(--setuju)}
+.aman .alasan{border-top-color:rgba(var(--setuju-rgb),.25)}
 
 .kosong{border:1px dashed var(--garis);border-radius:var(--r);padding:26px 20px;color:var(--tinta-redup);font-size:13.5px}
 .kosong b{color:var(--tinta);display:block;font-family:var(--serif);font-size:16px;margin-bottom:6px}
@@ -194,7 +225,12 @@ footer b{color:var(--tinta)}
 /* ---- mode ensiklopedi ---- */
 .ensiklopedi{display:grid;grid-template-columns:260px 1fr;min-height:60vh}
 @media (max-width:940px){.ensiklopedi{grid-template-columns:1fr}}
-.ensi-daftar{border-right:1px solid var(--garis);padding:16px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;max-height:calc(100vh - 130px)}
+.ensi-daftar{border-right:1px solid var(--garis);display:flex;flex-direction:column;overflow-y:auto;max-height:calc(100vh - 130px)}
+.ensi-cari{position:sticky;top:0;z-index:5;margin:0;border:0;border-bottom:1px solid var(--garis);background:var(--panel);color:var(--tinta);padding:12px 16px;font-family:var(--sans);font-size:13px;outline:none;flex:none}
+.ensi-cari::placeholder{color:var(--tinta-redup)}
+.ensi-cari:focus{background:var(--panel-2)}
+.ensi-list{display:flex;flex-direction:column;gap:4px;padding:12px 16px}
+.ensi-kosong{padding:8px 4px;font-size:12.5px;color:var(--tinta-redup)}
 .ensi-item{display:flex;justify-content:space-between;align-items:baseline;gap:8px;background:transparent;border:1px solid transparent;color:var(--tinta-redup);padding:8px 10px;border-radius:var(--r);cursor:pointer;text-align:left;font-size:13px;width:100%}
 .ensi-item:hover{border-color:var(--garis)}
 .ensi-item[aria-pressed="true"]{background:var(--panel-2);border-color:var(--iris);color:var(--tinta)}
@@ -214,7 +250,7 @@ footer b{color:var(--tinta)}
 .ensi-detail ul{margin:0 0 8px;padding-left:18px;font-size:13.5px;line-height:1.6}
 .ensi-tabel{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:10px}
 .ensi-tabel th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--tinta-redup);text-align:left;padding:4px 8px;border-bottom:1px solid var(--garis)}
-.ensi-tabel td{padding:5px 8px;border-bottom:1px dotted rgba(58,46,39,.6);vertical-align:top}
+.ensi-tabel td{padding:5px 8px;border-bottom:1px dotted rgba(var(--garis-rgb),.6);vertical-align:top}
 .tag-l{font-family:var(--mono);font-size:9.5px;border:1px solid var(--garis);border-radius:2px;padding:0 4px;color:var(--tinta-redup);white-space:nowrap}
 .badge-status{display:inline-block;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;border:1px solid var(--garis);border-radius:var(--r);padding:2px 8px}
 .ensi-detail .peran-tabel td:nth-child(2){font-family:var(--mono);font-size:11.5px}
@@ -230,16 +266,20 @@ footer b{color:var(--tinta)}
   </div>
   <div class="header-kanan">
     <div class="mode-tab" id="mode-tab"></div>
+    <button class="btn-tema" id="btn-tema" onclick="togelTema()" data-tip="Ganti antara tampilan gelap dan terang">Tampilan: <span id="tema-label">Gelap</span></button>
     <button class="btn-pasien-baru" onclick="reset()" data-tip="Kosongkan semua isian (kompartemen, sumbu SUN, temuan) untuk mulai dari pasien baru. Usia, jenis kelamin, dan konteks juga ikut kosong.">Pasien baru</button>
     <div class="lencana">v2</div>
   </div>
 </header>
 
 <main id="tampilan-ddx">
-  <div class="strip-ringkas" id="strip-ringkas">
-    <div class="strip-sel" id="strip-kelengkapan"></div>
-    <div class="strip-sel" id="strip-diagnosis"></div>
-    <div class="strip-sel" id="strip-peringatan"></div>
+  <div class="strip-gabung" id="strip-gabung">
+    <div class="strip-ringkas" id="strip-ringkas">
+      <div class="strip-sel" id="strip-kelengkapan"></div>
+      <div class="strip-sel" id="strip-diagnosis"></div>
+      <div class="strip-sel" id="strip-peringatan"></div>
+    </div>
+    <div class="strip-cek" id="strip-cek"></div>
   </div>
   <section class="rail">
     <div class="blok">
@@ -358,6 +398,14 @@ function labelKode(kode) {
 }
 function levelKode(kode) {
   return (VOCAB_BY_KODE[kode] && VOCAB_BY_KODE[kode].level_bukti) || "L1";
+}
+function escAttr(s) {
+  return String(s ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+function tipDefinisi(kode) {
+  const v = VOCAB_BY_KODE[kode];
+  if (!v || !v.definisi) return "";
+  return escAttr(`${v.definisi} (EN: ${v.label_en || "—"})`);
 }
 
 /* ================= KOMPARTEMEN ================= */
@@ -487,10 +535,29 @@ let S = {
   temuan: {},
   level: { L1: true, L2: true, L3: true },
   buka: null,
+  bukaDef: [],
   sorot: [],
   mode: "ddx",
   ensiPilih: null,
+  ensiCari: "",
 };
+
+/* ================= TEMA ================= */
+function togelTema() {
+  const terang = document.documentElement.getAttribute("data-tema") === "terang";
+  if (terang) {
+    document.documentElement.removeAttribute("data-tema");
+    try { localStorage.setItem("uveadx-tema", "gelap"); } catch (e) {}
+  } else {
+    document.documentElement.setAttribute("data-tema", "terang");
+    try { localStorage.setItem("uveadx-tema", "terang"); } catch (e) {}
+  }
+  sinkronTema();
+}
+function sinkronTema() {
+  const el = document.getElementById("tema-label");
+  if (el) el.textContent = document.documentElement.getAttribute("data-tema") === "terang" ? "Terang" : "Gelap";
+}
 
 /* ================= MODE ================= */
 function gambarModeTab() {
@@ -631,16 +698,32 @@ function gambarTemuan() {
     h += `<div class="grup"><h4><span>${g}</span><span>${terisi}/${grup[g].length}</span></h4>`;
     grup[g].forEach((v) => {
       const val = S.temuan[v.kode];
-      h += `<div class="temuan ${S.sorot.includes(v.kode) ? "disorot" : ""}" id="row-${v.kode}"><div class="nama">${v.label_id}<span class="lv" data-tip="${LEVEL_DEF[v.level_bukti]}">${v.level_bukti}</span></div>
-      <div class="tri">
-        <button data-v="1" aria-pressed="${val === 1}" onclick="setTemuan('${v.kode}',1)">ada</button>
-        <button data-v="-1" aria-pressed="${val === -1}" onclick="setTemuan('${v.kode}',-1)">tidak</button>
-        <button data-v="0" aria-pressed="${val === undefined}" onclick="setTemuan('${v.kode}',null)">—</button>
-      </div></div>`;
+      const defTerbuka = S.bukaDef.includes(v.kode);
+      h += `<div class="temuan ${S.sorot.includes(v.kode) ? "disorot" : ""}" id="row-${v.kode}">
+      <div class="temuan-baris">
+        <div class="nama"><button class="nama-teks" aria-expanded="${defTerbuka}" onclick="togelDef('${v.kode}')">${v.label_id}</button><span class="lv" data-tip="${LEVEL_DEF[v.level_bukti]}">${v.level_bukti}</span></div>
+        <div class="tri">
+          <button data-v="1" aria-pressed="${val === 1}" onclick="setTemuan('${v.kode}',1)">ada</button>
+          <button data-v="-1" aria-pressed="${val === -1}" onclick="setTemuan('${v.kode}',-1)">tidak</button>
+          <button data-v="0" aria-pressed="${val === undefined}" onclick="setTemuan('${v.kode}',null)">—</button>
+        </div>
+      </div>
+      ${defTerbuka ? `<div class="temuan-def">${v.definisi}${v.label_en ? ` <span class="temuan-def-en">EN: ${v.label_en}</span>` : ""}</div>` : ""}
+      </div>`;
     });
     h += "</div>";
   }
   document.getElementById("daftar-temuan").innerHTML = h;
+}
+function togelDef(kode) {
+  const i = S.bukaDef.indexOf(kode);
+  if (i !== -1) {
+    S.bukaDef.splice(i, 1);
+  } else {
+    S.bukaDef.push(kode);
+    if (S.bukaDef.length > 10) S.bukaDef.shift();
+  }
+  gambarTemuan();
 }
 function setTemuan(kode, v) {
   if (v === null) delete S.temuan[kode];
@@ -675,11 +758,11 @@ function skorPenyakit(row) {
     kunci = [],
     lawan = [];
 
-  const tambah = (nama, w) => {
+  const tambah = (nama, w, kode) => {
     if (!w) return;
     skor += w;
     dariPasien += Math.abs(w);
-    buku.push({ nama, w });
+    buku.push({ nama, w, kode });
     if (w < 0) lawan.push(nama);
   };
 
@@ -736,7 +819,7 @@ function skorPenyakit(row) {
     const v = S.temuan[kode];
     if (v === undefined) return;
     const w = v === 1 ? wAda : wTidak;
-    tambah((v === 1 ? "" : "tanpa ") + labelKode(kode), w);
+    tambah((v === 1 ? "" : "tanpa ") + labelKode(kode), w, kode);
     if (v === 1 && row.kunci.includes(kode)) kunci.push(labelKode(kode));
   });
 
@@ -920,6 +1003,23 @@ function gambarStripRingkas(hasil, meta) {
     : `<span class="strip-label">kenapa ini bisa keliru</span><span class="strip-kosong">belum ada peringkat</span>`;
 }
 
+function gambarStripCek() {
+  const el = document.getElementById("strip-cek");
+  if (!el) return;
+  const kode = [...new Set(S.sorot)];
+  if (!kode.length) {
+    el.innerHTML = `<span class="strip-cek-label">pemeriksaan yang perlu dicari</span><span class="strip-kosong">tidak ada yang disorot saat ini</span>`;
+    return;
+  }
+  const tampil = kode.slice(0, 8);
+  const sisa = kode.length - tampil.length;
+  el.innerHTML = `<span class="strip-cek-label">pemeriksaan yang perlu dicari</span>
+    <div class="strip-cek-list">
+      ${tampil.map((k) => `<button class="strip-cek-chip" onclick="lompatKe('${k}')">${labelKode(k)} →</button>`).join("")}
+      ${sisa > 0 ? `<span class="strip-cek-lebih">+${sisa} lainnya</span>` : ""}
+    </div>`;
+}
+
 function lompatKeKartu(id) {
   if (S.buka !== id) {
     S.buka = id;
@@ -945,6 +1045,7 @@ function hitung() {
     S.sorot = [];
     gambarTemuan();
     gambarStripRingkas([], { lengkap: 0 });
+    gambarStripCek();
     return;
   }
   let hasil = ROWS.map(skorPenyakit);
@@ -962,7 +1063,10 @@ function hitung() {
       .map((h) => {
         const terbuka = S.buka === h.row.presentasiId;
         const b = h.buku
-          .map((r) => `<div><span class="${r.dasar ? "dasar" : ""}">${r.nama}</span><span class="w ${r.w > 0 ? "plus" : "minus"}">${r.w > 0 ? "+" : ""}${r.w}</span></div>`)
+          .map((r) => {
+            const tip = r.kode ? tipDefinisi(r.kode) : "";
+            return `<div><span class="${r.dasar ? "dasar" : ""}"${tip ? ` data-tip="${tip}"` : ""}>${r.nama}</span><span class="w ${r.w > 0 ? "plus" : "minus"}">${r.w > 0 ? "+" : ""}${r.w}</span></div>`;
+          })
           .join("");
         const hindari = h.row.terapi && h.row.terapi.hindari ? h.row.terapi.hindari.map((x) => `<li>${x.tindakan} — ${x.alasan}</li>`).join("") : "";
         return `<div class="kartu ${h.blok.length ? "blok-eksklusi" : ""}" id="kartu-${h.row.presentasiId}">
@@ -992,6 +1096,7 @@ function hitung() {
 
   kartuPeringatan(hasil, meta);
   gambarStripRingkas(hasil, meta);
+  gambarStripCek();
   gambarTemuan();
 }
 function bukaKartu(id) {
@@ -1006,10 +1111,11 @@ function muatContoh() {
     konteks: {},
     level: S.level,
     buka: null,
+    bukaDef: [],
     sorot: [],
     timpa: null,
     mode: S.mode,
-    ensiPilih: S.ensiPilih,
+    ensiPilih: S.ensiPilih, ensiCari: S.ensiCari,
     komp: { bmd: 1, vitreus: 0, retina_koroid: 0 },
     sumbu: { lateralitas: "unilateral", onset: "insidius", perjalanan: "kronik" },
     temuan: {
@@ -1034,10 +1140,11 @@ function muatContohAmbigu() {
     konteks: { endemik_tb: true },
     level: S.level,
     buka: null,
+    bukaDef: [],
     sorot: [],
     timpa: null,
     mode: S.mode,
-    ensiPilih: S.ensiPilih,
+    ensiPilih: S.ensiPilih, ensiCari: S.ensiCari,
     komp: { vitreus: 2, retina_koroid: 2 },
     sumbu: { lateralitas: "bilateral", onset: "insidius" },
     temuan: { snowball_snowbank: 1, kp_mutton_fat: 1 },
@@ -1047,7 +1154,7 @@ function muatContohAmbigu() {
   hitung();
 }
 function reset() {
-  S = { usia: null, sex: null, konteks: {}, komp: {}, timpa: null, sumbu: {}, temuan: {}, level: S.level, buka: null, sorot: [], mode: S.mode, ensiPilih: S.ensiPilih };
+  S = { usia: null, sex: null, konteks: {}, komp: {}, timpa: null, sumbu: {}, temuan: {}, level: S.level, buka: null, bukaDef: [], sorot: [], mode: S.mode, ensiPilih: S.ensiPilih, ensiCari: S.ensiCari };
   document.getElementById("usia").value = "";
   gambarInput();
   hitung();
@@ -1058,13 +1165,41 @@ function pilihEnsi(id) {
   S.ensiPilih = id;
   gambarEnsiklopedi();
 }
+function cocokEnsi(d, q) {
+  if (!q) return true;
+  const hay = [d.nama.utama, d.nama.istilah_indonesia, d.nama.singkatan, ...(d.nama.sinonim || [])]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  return hay.includes(q.toLowerCase());
+}
+function renderEnsiList() {
+  const el = document.getElementById("ensi-list");
+  if (!el) return;
+  const q = (S.ensiCari || "").trim();
+  const daftar = DISEASES.filter((d) => cocokEnsi(d, q)).sort((a, b) => a.nama.utama.localeCompare(b.nama.utama));
+  el.innerHTML = daftar.length
+    ? daftar
+        .map(
+          (d) => `<button class="ensi-item" aria-pressed="${d.id === S.ensiPilih}" onclick="pilihEnsi('${d.id}')">
+        <span class="ensi-nama">${d.nama.utama}</span>
+        <span class="ensi-status status-${d.provenance.status}">${d.provenance.status}</span>
+      </button>`
+        )
+        .join("")
+    : `<div class="ensi-kosong">Tidak ada penyakit yang cocok dengan "${escAttr(q)}".</div>`;
+}
+function cariEnsi(q) {
+  S.ensiCari = q;
+  renderEnsiList();
+}
 
 function renderTabelTemuan(temuanList) {
   if (!temuanList.length) return "<p>Tidak ada temuan terdaftar.</p>";
   const baris = temuanList
     .map(
       (t) => `<tr>
-      <td>${labelKode(t.kode)} <span class="tag-l" data-tip="${LEVEL_DEF[t.level_bukti]}">${t.level_bukti}</span></td>
+      <td><span class="istilah-hover" data-tip="${tipDefinisi(t.kode)}">${labelKode(t.kode)}</span> <span class="tag-l" data-tip="${LEVEL_DEF[t.level_bukti]}">${t.level_bukti}</span></td>
       <td>${t.peran}</td>
       <td>${t.bobot_ada > 0 ? "+" : ""}${t.bobot_ada}</td>
       <td>${t.bobot_tidak_ada > 0 ? "+" : ""}${t.bobot_tidak_ada}</td>
@@ -1177,21 +1312,15 @@ function renderDetailPenyakit(d) {
 function gambarEnsiklopedi() {
   const wrap = document.getElementById("tampilan-ensiklopedi");
   if (!S.ensiPilih && DISEASES.length) S.ensiPilih = DISEASES[0].id;
-  const daftar = DISEASES.slice().sort((a, b) => a.nama.utama.localeCompare(b.nama.utama));
   const dipilih = DISEASES.find((d) => d.id === S.ensiPilih);
   wrap.innerHTML = `
     <div class="ensi-daftar">
-      ${daftar
-        .map(
-          (d) => `<button class="ensi-item" aria-pressed="${d.id === S.ensiPilih}" onclick="pilihEnsi('${d.id}')">
-        <span class="ensi-nama">${d.nama.utama}</span>
-        <span class="ensi-status status-${d.provenance.status}">${d.provenance.status}</span>
-      </button>`
-        )
-        .join("")}
+      <input type="search" class="ensi-cari" id="ensi-cari" placeholder="Cari nama penyakit…" value="${escAttr(S.ensiCari || "")}" oninput="cariEnsi(this.value)">
+      <div class="ensi-list" id="ensi-list"></div>
     </div>
     <div class="ensi-detail">${dipilih ? renderDetailPenyakit(dipilih) : '<div class="kosong">Belum ada penyakit di database.</div>'}</div>
   `;
+  renderEnsiList();
 }
 
 /* ================= BOOT ================= */
@@ -1200,6 +1329,7 @@ async function boot() {
   ROWS = buildRows(DISEASES);
   VOCAB_BY_KODE = Object.fromEntries(VOCAB.map((v) => [v.kode, v]));
   document.getElementById("subjudul").textContent = `${DISEASES.length} penyakit · ${ROWS.length} presentasi · ${VOCAB.length} kode temuan`;
+  sinkronTema();
   gambarModeTab();
   gambarInput();
   hitung();
