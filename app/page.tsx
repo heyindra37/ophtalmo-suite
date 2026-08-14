@@ -81,6 +81,14 @@ const apps = [
     status: "Live" as const,
     route: "/templat-klinis",
   },
+  {
+    icon: "🔎",
+    name: "Refraction Tools",
+    description:
+      "Workflow retinoskopi streak: dua temuan meridian langsung jadi resep dual-notasi (plus-cyl/minus-cyl), plus kalkulator transpose.",
+    status: "Live" as const,
+    route: "/refraction-tools",
+  },
 ];
 
 export default function HomePage() {
