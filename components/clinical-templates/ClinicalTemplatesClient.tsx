@@ -3,18 +3,40 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import templatesData from "@/data/clinical-templates/templates.json";
-import type { ClinicalTemplate } from "@/lib/clinical-templates/types";
+import type { ClinicalTemplate, ClinicalTemplateItem } from "@/lib/clinical-templates/types";
+import { renderDatePlaceholders } from "@/lib/clinical-templates/dateEngine";
 
 const templates = templatesData as ClinicalTemplate[];
 
-function buildCopyText(t: ClinicalTemplate): string {
+function itemText(item: string | ClinicalTemplateItem): string {
+  return typeof item === "string" ? item : item.text;
+}
+function itemScenario(item: string | ClinicalTemplateItem): string | undefined {
+  return typeof item === "string" ? undefined : item.scenario;
+}
+
+/** Items visible for the given scenario: untagged items always show, tagged items only for a match. */
+function visibleItems(items: (string | ClinicalTemplateItem)[], scenario: string | null): (string | ClinicalTemplateItem)[] {
+  return items.filter((it) => {
+    const s = itemScenario(it);
+    return !s || s === scenario;
+  });
+}
+
+function renderText(text: string, anchorDate: string): string {
+  return anchorDate ? renderDatePlaceholders(text, anchorDate) : text;
+}
+
+function buildCopyText(t: ClinicalTemplate, anchorDate: string, scenario: string | null): string {
   const lines: string[] = [t.name];
   for (const section of t.sections) {
-    if (section.items && section.items.length > 0) {
-      lines.push("", `${section.title}:`);
-      for (const item of section.items) lines.push(`- ${item}`);
+    const title = renderText(section.title, anchorDate);
+    const items = section.items ? visibleItems(section.items, scenario) : [];
+    if (items.length > 0) {
+      lines.push("", `${title}:`);
+      for (const item of items) lines.push(`- ${renderText(itemText(item), anchorDate)}`);
     } else if (section.text) {
-      lines.push("", `${section.title}: ${section.text}`);
+      lines.push("", `${title}: ${renderText(section.text, anchorDate)}`);
     }
   }
   return lines.join("\n");
@@ -23,9 +45,16 @@ function buildCopyText(t: ClinicalTemplate): string {
 function TemplateCard({ template }: { template: ClinicalTemplate }) {
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [anchorDate, setAnchorDate] = useState("");
+  const [scenario, setScenario] = useState<string | null>(
+    template.generator?.defaultScenario ?? template.generator?.scenarios?.[0]?.id ?? null
+  );
+
+  const generator = template.generator;
+  const needsDate = !!generator && !anchorDate;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(buildCopyText(template)).then(() => {
+    navigator.clipboard.writeText(buildCopyText(template, anchorDate, scenario)).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -55,35 +84,89 @@ function TemplateCard({ template }: { template: ClinicalTemplate }) {
 
       {expanded && (
         <div className="px-5 pb-5 border-t border-gray-100 pt-4 flex flex-col gap-4">
-          {template.sections.map((section, si) => {
-            if (!section.items?.length && !section.text) return null;
-            return (
-              <div key={si}>
-                <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-1.5">
-                  {section.title}
-                </p>
-                {section.items && section.items.length > 0 ? (
-                  <ul className="list-disc pl-5 flex flex-col gap-1">
-                    {section.items.map((item, i) => (
-                      <li key={i} className="text-sm text-slate-700 leading-relaxed">
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-slate-700 leading-relaxed">{section.text}</p>
-                )}
+          {generator && (
+            <div className="bg-gray-50 rounded-lg border border-gray-100 p-3 flex flex-col gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                  {generator.anchorLabel}
+                </label>
+                <input
+                  type="date"
+                  value={anchorDate}
+                  onChange={(e) => setAnchorDate(e.target.value)}
+                  className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                />
               </div>
-            );
-          })}
-          <button
-            onClick={handleCopy}
-            className={`self-start inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-colors duration-150 ${
-              copied ? "bg-emerald-500 text-white" : "bg-teal-600 hover:bg-teal-700 text-white"
-            }`}
-          >
-            {copied ? "✓ Tersalin" : "Copy"}
-          </button>
+              {generator.scenarios && generator.scenarios.length > 0 && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                    Skenario Klinis
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {generator.scenarios.map((s) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => setScenario(s.id)}
+                        className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
+                          scenario === s.id
+                            ? "bg-teal-600 border-teal-600 text-white"
+                            : "bg-white border-gray-200 text-slate-600 hover:border-teal-300"
+                        }`}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {needsDate ? (
+            <p className="text-sm text-slate-400 italic text-center py-4">
+              Isi {generator!.anchorLabel.toLowerCase()} di atas untuk menghasilkan jadwal.
+            </p>
+          ) : (
+            template.sections.map((section, si) => {
+              const items = section.items ? visibleItems(section.items, scenario) : [];
+              const hasNoContentForScenario = !!section.items && section.items.length > 0 && items.length === 0;
+              if (items.length === 0 && !section.text && !hasNoContentForScenario) return null;
+              return (
+                <div key={si}>
+                  <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-1.5">
+                    {renderText(section.title, anchorDate)}
+                  </p>
+                  {items.length > 0 ? (
+                    <ul className="list-disc pl-5 flex flex-col gap-1">
+                      {items.map((item, i) => (
+                        <li key={i} className="text-sm text-slate-700 leading-relaxed">
+                          {renderText(itemText(item), anchorDate)}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : hasNoContentForScenario ? (
+                    <p className="text-sm text-slate-400 italic">
+                      Instruksi untuk skenario ini belum tersedia untuk titik waktu ini.
+                    </p>
+                  ) : (
+                    <p className="text-sm text-slate-700 leading-relaxed">{renderText(section.text || "", anchorDate)}</p>
+                  )}
+                </div>
+              );
+            })
+          )}
+
+          {!needsDate && (
+            <button
+              onClick={handleCopy}
+              className={`self-start inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-colors duration-150 ${
+                copied ? "bg-emerald-500 text-white" : "bg-teal-600 hover:bg-teal-700 text-white"
+              }`}
+            >
+              {copied ? "✓ Tersalin" : "Copy"}
+            </button>
+          )}
         </div>
       )}
     </div>
