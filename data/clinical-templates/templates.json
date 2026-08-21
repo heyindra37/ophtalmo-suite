@@ -94,5 +94,45 @@
         "text": "Bila dalam 3 hari hifema sudah hilang, ATAU bila dalam 4 hari kondisi sudah stabil dan hifema tidak bertambah, ATAU bila sudah 5 hari"
       }
     ]
+  },
+  {
+    "id": "postop-katarak",
+    "name": "Post-Op Katarak",
+    "category": "Pasca Operasi",
+    "generator": {
+      "anchorLabel": "Tanggal Operasi",
+      "scenarios": [
+        { "id": "uneventful", "label": "Uneventful" },
+        { "id": "edema", "label": "Edema Kornea Berat + BMD Peradangan Sedang" }
+      ],
+      "defaultScenario": "uneventful"
+    },
+    "sections": [
+      {
+        "title": "H+1 — {{date+1}}",
+        "items": [
+          { "text": "Mata tidak boleh kena air selama 2 minggu (s.d. {{date+14}})", "scenario": "uneventful" },
+          { "text": "Mulai {{date+3}}, tetes mata diteteskan tiap 3 jam; mulai {{date+5}}, tetes mata diteteskan sehari 4 kali", "scenario": "uneventful" },
+          { "text": "Urutan tetes mata: antibiotik tetes dulu, lalu 10 menit kemudian tetes mata steroid", "scenario": "uneventful" },
+          { "text": "Mata tidak boleh kena air selama 2 minggu (s.d. {{date+14}})", "scenario": "edema" },
+          { "text": "Mulai {{date+5}}, tetes mata diteteskan tiap 3 jam", "scenario": "edema" },
+          { "text": "Obat minum yang sudah diresepkan tetap dilanjutkan", "scenario": "edema" },
+          { "text": "Urutan tetes mata: antibiotik tetes dulu, lalu 10 menit kemudian tetes mata steroid", "scenario": "edema" }
+        ]
+      },
+      {
+        "title": "H+10 — {{date+10}}",
+        "items": [
+          { "text": "Mata tidak boleh kena air selama 2 minggu (s.d. {{date+14}})", "scenario": "uneventful" },
+          { "text": "Urutan tetes mata: antibiotik tetes dulu, lalu 10 menit kemudian tetes mata steroid", "scenario": "uneventful" }
+        ]
+      },
+      {
+        "title": "H+6 Minggu — {{date+42}}",
+        "items": [
+          { "text": "Peresepan kacamata. Pengobatan selesai. Kembali ke FKTP.", "scenario": "uneventful" }
+        ]
+      }
+    ]
   }
 ]
