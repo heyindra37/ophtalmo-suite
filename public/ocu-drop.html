@@ -116,7 +116,7 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
   header,nav,.no-print{display:none!important}
   body{background:#fff}
   main{padding:0;max-width:100%}
-  #tab-setup,#tab-schedule,#tab-emr,#tab-db{display:none!important}
+  #tab-setup,#tab-schedule,#tab-emr,#tab-kebutuhan,#tab-db{display:none!important}
   #tab-card{display:block!important}
   .pt-card{border:1px solid #ccc;max-width:100%;border-radius:0}
   footer.site-ft{display:none!important}
@@ -141,6 +141,7 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
   <button onclick="showTab('schedule')">⏰ Jadwal</button>
   <button onclick="showTab('card')">🖨️ Kartu</button>
   <button onclick="showTab('emr')">📋 EMR</button>
+  <button onclick="showTab('kebutuhan')">📦 Kebutuhan</button>
   <button onclick="showTab('db')" style="color:#7c3aed;font-weight:600">🗄 Data Pasien</button>
 </nav>
 
@@ -156,6 +157,7 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
       </div>
       <div class="g3" style="margin-top:14px">
         <div><label class="fl">Tanggal Mulai Regimen</label><input type="date" id="start-date" oninput="onStartDateChange()" title="Dipakai untuk menghitung tanggal tiap tahap tapering"></div>
+        <div><label class="fl">Tanggal Kontrol</label><input type="date" id="control-date" oninput="onControlDateChange()" title="Dipakai untuk menghitung kebutuhan obat (tab Kebutuhan) sampai kontrol berikutnya"></div>
       </div>
       <div id="span-notice" class="notice g">✓ Waktu aktif: <strong>15 jam 0 menit</strong> (06:00 – 21:00)</div>
       <div class="g3" style="margin-top:14px">
@@ -303,6 +305,21 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
     </div>
   </div>
 
+  <!-- ════ TAB KEBUTUHAN OBAT ════ -->
+  <div id="tab-kebutuhan" class="hidden">
+    <div class="card">
+      <div class="card-title">📦 Kebutuhan Obat sampai Kontrol</div>
+      <div style="font-size:12px;color:var(--slate);margin-bottom:14px">
+        Dihitung dari jadwal aktual (menghormati tahapan tapering bila ada), bukan asumsi frekuensi tetap.
+      </div>
+      <div id="kebutuhan-wrap"></div>
+    </div>
+    <div class="flex-r no-print">
+      <button class="btn" onclick="showTab('setup')">← Edit</button>
+      <button class="btn btn-p" onclick="showTab('schedule')">⏰ Lihat Jadwal</button>
+    </div>
+  </div>
+
   <!-- ════ TAB DATABASE ════ -->
   <div id="tab-db" class="hidden">
     <!-- Stats -->
@@ -447,6 +464,17 @@ function renderClassWarnings(){
 }
 const FREQ_LATIN={1:'q.d.',2:'b.i.d.',3:'t.i.d.',4:'q.i.d.',6:'q4h',8:'q3h',12:'q2h'};
 
+/* Kemasan tetes mata — dipakai untuk hitung kebutuhan botol/minidose sampai tanggal kontrol.
+   Kapasitas = volume(mL) x 20 tetes/mL (drop factor standar farmasi), dibulatkan sesuai kemasan riil. */
+const KEMASAN_OPTS=[
+  {v:'minidose',cap:12,unit:'potek',label:'Minidose 0,6 mL (1 potek)'},
+  {v:'strip',cap:60,unit:'strip',label:'Strip minidose (5 potek)'},
+  {v:'botol25',cap:50,unit:'botol',label:'Botol 2,5 mL'},
+  {v:'botol3',cap:60,unit:'botol',label:'Botol 3 mL'},
+  {v:'botol5',cap:100,unit:'botol',label:'Botol 5 mL'},
+  {v:'botol15',cap:300,unit:'botol',label:'Botol 15 mL'},
+];
+
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const toMin=t=>{const[h,m]=t.split(':').map(Number);return h*60+m;};
@@ -457,7 +485,7 @@ const nowISO=()=>new Date().toISOString().slice(0,16);
 /* ══════════════════════════════════════════════════
    APP STATE
 ══════════════════════════════════════════════════ */
-let drugs=[{id:1,name:'Antibiotik Tetes',eye:'OD',freq:4,note:'',mode:'auto',fixTimes:['06:00'],altWith:null,altLeadId:null,form:'tetes',phases:[]}];
+let drugs=[{id:1,name:'Antibiotik Tetes',eye:'OD',freq:4,note:'',mode:'auto',fixTimes:['06:00'],altWith:null,altLeadId:null,form:'tetes',phases:[],kemasan:'minidose'}];
 let uid=2;
 let selectedIds=new Set();
 /** @type {{pairKey:string,firstId:number,t:number}[]} */
@@ -467,6 +495,7 @@ let conflictModalResolve=null;
 let schedulingMode='interval'; // 'interval' | 'insert'
 /* Mesin multi-hari: tanggal mulai regimen + hari ke-berapa yang sedang dilihat (0 = hari mulai). */
 let startDate=new Date().toISOString().slice(0,10); // 'YYYY-MM-DD'
+let controlDate=''; // 'YYYY-MM-DD', dipakai untuk hitung kebutuhan obat sampai kontrol
 let viewDayOffset=0;
 
 function getMinGap(){
@@ -495,6 +524,11 @@ function onGapChange(){
 function onStartDateChange(){
   startDate=$('start-date').value||new Date().toISOString().slice(0,10);
   if(!$('tab-schedule').classList.contains('hidden'))renderAll();
+  if(!$('tab-kebutuhan').classList.contains('hidden'))renderKebutuhan();
+}
+function onControlDateChange(){
+  controlDate=$('control-date').value||'';
+  if(!$('tab-kebutuhan').classList.contains('hidden'))renderKebutuhan();
 }
 /* Tanggal (Date) untuk hari ke-offset dari startDate. */
 function dateForOffset(offset){
@@ -619,7 +653,7 @@ function saveRecord(showMsg=false){
       const evs=sched.filter(e=>e.d.id===d.id).map(e=>toTime(e.t));
       return{...d,times:evs};
     }),
-    rawState:{drugs:JSON.parse(JSON.stringify(drugs)),wake:$('wake').value,sleep:$('sleep').value,pat,minGap:getMinGap(),schedulingMode:schedulingMode,startDate:startDate,conflictResolutions:JSON.parse(JSON.stringify(conflictResolutions))},
+    rawState:{drugs:JSON.parse(JSON.stringify(drugs)),wake:$('wake').value,sleep:$('sleep').value,pat,minGap:getMinGap(),schedulingMode:schedulingMode,startDate:startDate,controlDate:controlDate,conflictResolutions:JSON.parse(JSON.stringify(conflictResolutions))},
   };
   const db=loadDB();
   db.unshift(record);
@@ -655,6 +689,7 @@ function migrateDrug(d){
     // Field baru (multi-hari & sediaan) — record lama tidak punya, isi default aditif:
     form:d.form==='gel'||d.form==='salep'?d.form:'tetes',
     phases:Array.isArray(d.phases)?d.phases.map(p=>({days:p.days??null,freq:p.freq??(d.freq??4),mode:p.mode||d.mode||'auto',fixTimes:Array.isArray(p.fixTimes)?p.fixTimes.slice():undefined})):[],
+    kemasan:KEMASAN_OPTS.some(k=>k.v===d.kemasan)?d.kemasan:'minidose',
   };
 }
 function loadRecordToInput(rec){
@@ -668,6 +703,8 @@ function loadRecordToInput(rec){
   syncSchedulingModeUI();
   startDate=rs.startDate||new Date().toISOString().slice(0,10);
   $('start-date').value=startDate;
+  controlDate=rs.controlDate||'';
+  $('control-date').value=controlDate;
   viewDayOffset=0;
   conflictResolutions=Array.isArray(rs.conflictResolutions)?rs.conflictResolutions.slice():[];
   drugs=JSON.parse(JSON.stringify(rs.drugs)).map(migrateDrug);
@@ -1147,7 +1184,7 @@ function onTimeChange(){
 
 function addDrug(){
   if(drugs.length>=8)return alert('Maksimal 8 obat tetes.');
-  drugs.push({id:uid++,name:'',eye:'OU',freq:4,note:'',mode:'auto',fixTimes:['06:00','12:00','18:00','21:00'],altWith:null,altLeadId:null,form:'tetes',phases:[]});
+  drugs.push({id:uid++,name:'',eye:'OU',freq:4,note:'',mode:'auto',fixTimes:['06:00','12:00','18:00','21:00'],altWith:null,altLeadId:null,form:'tetes',phases:[],kemasan:'minidose'});
   renderDrugList();
 }
 function removeDrug(id){
@@ -1220,6 +1257,11 @@ function setFixTime(id,idx,val){const d=drugs.find(d=>d.id===id);if(!d)return;wh
 
 /* ── Sediaan & Tapering ── */
 function setForm(id,v){const d=drugs.find(x=>x.id===id);if(!d)return;d.form=(v==='gel'||v==='salep')?v:'tetes';renderDrugList();if(!$('tab-schedule').classList.contains('hidden'))renderAll();}
+function setKemasan(id,v){
+  const d=drugs.find(x=>x.id===id);if(!d)return;
+  d.kemasan=KEMASAN_OPTS.some(k=>k.v===v)?v:'minidose';
+  if(!$('tab-kebutuhan').classList.contains('hidden'))renderKebutuhan();
+}
 function enableTaper(id){const d=drugs.find(x=>x.id===id);if(!d)return;
   // Seed: 7 hari di frekuensi sekarang, lalu tahap berlanjut (dokter mengedit/menambah).
   d.phases=[{days:7,freq:d.freq},{days:null,freq:d.freq}];
@@ -1258,6 +1300,7 @@ function saveTemplate(){
       name:d.name,eye:d.eye,freq:d.freq,note:d.note,mode:d.mode,
       fixTimes:(d.fixTimes||[]).slice(),
       form:d.form||'tetes',
+      kemasan:d.kemasan||'minidose',
       phases:Array.isArray(d.phases)?JSON.parse(JSON.stringify(d.phases)):[],
       altPartnerIdx:d.mode==='alternate'?drugs.findIndex(x=>x.id===d.altWith):-1,
       altLeadId:d.altLeadId,
@@ -1282,6 +1325,7 @@ function applyTemplate(tid){
     mode:row.mode||'auto',
     fixTimes:(row.fixTimes&&row.fixTimes.length)?row.fixTimes.slice():['08:00'],
     form:(row.form==='gel'||row.form==='salep')?row.form:'tetes',
+    kemasan:KEMASAN_OPTS.some(k=>k.v===row.kemasan)?row.kemasan:'minidose',
     phases:Array.isArray(row.phases)?JSON.parse(JSON.stringify(row.phases)):[],
     altWith:null,
     altLeadId:row.altLeadId||null,
@@ -1422,6 +1466,12 @@ function renderDrugList(){
         ${altBlock}
         ${fixBlock}
         ${taperBlock}
+        ${d.form!=='salep'?`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:11px;color:var(--slate)">📦 Kemasan (untuk hitung kebutuhan):</span>
+          <select onchange="setKemasan(${d.id},this.value)" style="padding:5px 8px;font-size:12px;max-width:220px">
+            ${KEMASAN_OPTS.map(o=>`<option value="${o.v}" ${d.kemasan===o.v?'selected':''}>${o.label}</option>`).join('')}
+          </select>
+        </div>`:''}
         <input type="text" value="${esc(d.note)}" placeholder="Catatan khusus (contoh: kocok sebelum digunakan, simpan di kulkas...)"
           oninput="upDrug(${d.id},'note',this.value)" style="font-size:12px;background:#f8fafc;color:var(--slate);padding:7px 11px">
       </div>
@@ -1436,14 +1486,85 @@ function renderDrugList(){
 function saveAndContinue(){saveRecord(true);showTab('schedule');}
 
 function showTab(id){
-  ['setup','schedule','card','emr','db'].forEach((t,i)=>{
+  ['setup','schedule','card','emr','kebutuhan','db'].forEach((t,i)=>{
     $('tab-'+t).classList.toggle('hidden',t!==id);
     const btn=document.querySelectorAll('nav button')[i];
     btn.classList.remove('active','active-db');
     if(t===id)btn.classList.add(t==='db'?'active-db':'active');
   });
   if(id==='db'){renderDB();return;}
+  if(id==='kebutuhan'){renderKebutuhan();return;}
   if(id!=='setup')renderAll();
+}
+
+/* ══════════════════════════════════════════════════
+   KEBUTUHAN OBAT — hitung jumlah kemasan sampai tanggal kontrol.
+   Berjalan hari-per-hari via drugsForView() supaya menghormati tahapan tapering
+   (obat yang STOP di tengah jalan otomatis berhenti dihitung), bukan asumsi
+   frekuensi konstan seperti OcuDrop Calculator berdiri sendiri.
+══════════════════════════════════════════════════ */
+function computeKebutuhan(){
+  if(!controlDate)return{error:null,needsDate:true};
+  const start=dateForOffset(0);
+  const [cy,cm,cd]=controlDate.split('-').map(Number);
+  const end=new Date(cy,(cm||1)-1,cd||1);
+  const diffDays=Math.round((end-start)/86400000);
+  if(diffDays<=0)return{error:'Tanggal kontrol harus setelah tanggal mulai regimen.'};
+  const results=drugs.map(d=>{
+    if(d.form==='salep')return{id:d.id,skip:true};
+    const eyeCount=d.eye==='OU'?2:1;
+    let totalTetes=0;
+    for(let off=0;off<diffDays;off++){
+      const rd=drugsForView(off).find(x=>x.id===d.id);
+      if(!rd)continue; // sudah STOP hari itu (lewat semua fase finite)
+      totalTetes+=resolveFreq(rd.freq)*eyeCount;
+    }
+    const opt=KEMASAN_OPTS.find(k=>k.v===d.kemasan)||KEMASAN_OPTS[0];
+    const jumlah=totalTetes>0?Math.ceil(totalTetes/opt.cap):0;
+    return{id:d.id,skip:false,totalTetes,opt,jumlah};
+  });
+  return{error:null,diffDays,end,results};
+}
+function renderKebutuhan(){
+  const wrap=$('kebutuhan-wrap');
+  if(!wrap)return;
+  const res=computeKebutuhan();
+  if(res.needsDate){
+    wrap.innerHTML='<div class="notice y">Isi <strong>Tanggal Kontrol</strong> di tab Input untuk menghitung kebutuhan obat.</div>';
+    return;
+  }
+  if(res.error){
+    wrap.innerHTML=`<div class="notice y">⚠️ ${esc(res.error)}</div>`;
+    return;
+  }
+  const durNote=`<div style="font-size:12px;color:var(--slate);margin-bottom:14px">Durasi sampai kontrol: <strong>${res.diffDays} hari</strong> (${fmtDate(dateForOffset(0))} – ${fmtDate(res.end)})</div>`;
+  const cards=res.results.map(r=>{
+    const d=drugs.find(x=>x.id===r.id);
+    const idx=drugs.indexOf(d);
+    const c=COLORS[idx%5];
+    if(r.skip){
+      return `<div class="card" style="border-left:4px solid ${c.dot};margin-bottom:12px">
+        <div style="font-weight:700">${esc(d.name)||'Obat '+(idx+1)}</div>
+        <div style="font-size:12px;color:var(--slate);margin-top:4px">Bentuk salep — kebutuhan dihitung manual berdasarkan gram, bukan tetes.</div>
+      </div>`;
+    }
+    return `<div class="card" style="border-left:4px solid ${c.dot};margin-bottom:12px">
+      <div style="font-weight:700;margin-bottom:8px">${esc(d.name)||'Obat '+(idx+1)} <span style="font-size:11px;font-weight:400;color:var(--slate)">(${EYE_S[d.eye]})</span></div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">
+        <span style="font-family:'DM Mono',monospace;font-size:30px;font-weight:600;color:var(--teal)">${r.jumlah}</span>
+        <span style="font-size:13px;color:var(--navy)">${r.opt.unit} — ${r.opt.label}</span>
+      </div>
+      <select onchange="setKemasan(${d.id},this.value)" style="padding:6px 10px;font-size:12px;margin-bottom:10px;max-width:260px">
+        ${KEMASAN_OPTS.map(o=>`<option value="${o.v}" ${d.kemasan===o.v?'selected':''}>${o.label}</option>`).join('')}
+      </select>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:12px;color:var(--slate);border-top:1px solid var(--border);padding-top:8px">
+        <div>Total tetes<br><strong style="color:var(--navy)">${r.totalTetes}</strong></div>
+        <div>Kapasitas/kemasan<br><strong style="color:var(--navy)">${r.opt.cap} tetes</strong></div>
+        <div>Durasi<br><strong style="color:var(--navy)">${res.diffDays} hari</strong></div>
+      </div>
+    </div>`;
+  }).join('');
+  wrap.innerHTML=durNote+cards;
 }
 
 function renderAll(){
@@ -1565,6 +1686,7 @@ function renderAll(){
   $('emr-long').textContent=emrLong;
   renderClassWarnings();
   renderDayNav();
+  if(!$('tab-kebutuhan').classList.contains('hidden'))renderKebutuhan();
 }
 
 /* ── Output EMR Singkat: 1 baris per obat ── */
