@@ -5,8 +5,11 @@ import Link from "next/link";
 import templatesData from "@/data/clinical-templates/templates.json";
 import type { ClinicalTemplate, ClinicalTemplateItem } from "@/lib/clinical-templates/types";
 import { renderDatePlaceholders } from "@/lib/clinical-templates/dateEngine";
+import CorpalFormCard from "@/components/clinical-templates/CorpalFormCard";
 
 const templates = templatesData as ClinicalTemplate[];
+
+const CORPAL_ENTRY = { id: "__corpal-generator", name: "Edukasi Pasca Ekstraksi Corpal", category: "Pasca Tindakan" };
 
 function itemText(item: string | ClinicalTemplateItem): string {
   return typeof item === "string" ? item : item.text;
@@ -184,6 +187,12 @@ export default function ClinicalTemplatesClient() {
     );
   }, [query]);
 
+  const showCorpal = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    return CORPAL_ENTRY.name.toLowerCase().includes(q) || CORPAL_ENTRY.category.toLowerCase().includes(q);
+  }, [query]);
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-10">
@@ -214,12 +223,17 @@ export default function ClinicalTemplatesClient() {
         />
 
         <div className="flex flex-col gap-3">
-          {filtered.length === 0 ? (
+          {filtered.length === 0 && !showCorpal ? (
             <p className="text-slate-400 text-sm text-center py-10 italic">
               Tidak ada template yang cocok dengan pencarian.
             </p>
           ) : (
-            filtered.map((t) => <TemplateCard key={t.id} template={t} />)
+            <>
+              {showCorpal && <CorpalFormCard />}
+              {filtered.map((t) => (
+                <TemplateCard key={t.id} template={t} />
+              ))}
+            </>
           )}
         </div>
       </main>
