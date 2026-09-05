@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { parseDecimal, transpose } from "@/lib/refraction-tools/engine";
+import { parseDecimal, transpose, sphericalEquivalent } from "@/lib/refraction-tools/engine";
 import { formatSignedDisplay, formatAxisDisplay, formatRxLine } from "@/lib/refraction-tools/format";
 import CopyButton from "./CopyButton";
 
@@ -76,6 +76,9 @@ export default function TransposeTab() {
               S {formatSignedDisplay(result.sphereD)}{"   "}
               C {formatSignedDisplay(result.cylinderD)}{"   "}
               X {formatAxisDisplay(result.axisDeg)}
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              ✅ SE {formatSignedDisplay(sphericalEquivalent(result))} D
             </span>
             <CopyButton text={formatRxLine("OD", result)} />
           </div>
