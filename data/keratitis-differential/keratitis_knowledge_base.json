@@ -1,0 +1,197 @@
+{
+  "findings": [
+    { "id": "rash-vesikular-dermatomal-v1", "label": "Rash vesikular dermatomal V1", "category": "kulit_sistemik" },
+    { "id": "hutchinson-sign", "label": "Hutchinson sign (lesi ujung hidung)", "category": "kulit_sistemik" },
+    { "id": "rash-generalisata-papul-vesikel-pustul", "label": "Rash generalisata papul→vesikel→pustul umbilikata", "category": "kulit_sistemik" },
+    { "id": "limfadenopati-generalisata-demam-prodromal", "label": "Limfadenopati generalisata + demam prodromal", "category": "kulit_sistemik" },
+    { "id": "lesi-margo-palpebra-periokular", "label": "Lesi margo palpebra/periokular", "category": "kulit_sistemik" },
+    { "id": "riwayat-kontak-risiko-tinggi-mpox", "label": "Riwayat epidemiologis/kontak risiko tinggi (mpox)", "category": "kulit_sistemik" },
+
+    { "id": "kgb-preaurikular-nyeri-tekan", "label": "KGB preaurikular nyeri tekan", "category": "konjungtiva_kgb" },
+    { "id": "folikel-konjungtiva", "label": "Folikel konjungtiva", "category": "konjungtiva_kgb" },
+    { "id": "pseudomembran", "label": "Pseudomembran konjungtiva", "category": "konjungtiva_kgb" },
+
+    { "id": "dendrit-terminal-bulb", "label": "Dendrit sejati dengan terminal bulb", "category": "kornea_epitel" },
+    { "id": "fluorescein-kuat-dasar-ulkus", "label": "Fluorescein stain kuat di dasar ulkus", "category": "kornea_epitel" },
+    { "id": "rose-bengal-tepi", "label": "Rose bengal stain di tepi lesi", "category": "kornea_epitel" },
+    { "id": "epitel-utuh", "label": "Epitel utuh (tanpa defek)", "category": "kornea_epitel" },
+    { "id": "pseudodendrit-tanpa-terminal-bulb", "label": "Pseudodendrit/plak mukus tanpa terminal bulb", "category": "kornea_epitel", "helpText": "Non-erosif, stain buruk, tanpa terminal bulb — beda dari dendrit sejati HSV" },
+    { "id": "lesi-dendritik-geografik-menyerupai-hsv", "label": "Morfologi kornea dendritik/geografik yang menyerupai HSV", "category": "kornea_epitel", "helpText": "Perangkap morfologi — bisa identik HSV, pembeda sesungguhnya ada di konteks epidemiologis/sistemik, bukan gambaran kornea semata" },
+    { "id": "sei-subepithelial-infiltrates", "label": "Subepithelial infiltrates/nummuli (muncul ~hari ke-10)", "category": "kornea_epitel" },
+
+    { "id": "infiltrat-imun-immune-ring", "label": "Infiltrat imun ± immune ring", "category": "kornea_stroma_endotel" },
+    { "id": "neovaskularisasi-ghost-vessel", "label": "Neovaskularisasi / ghost vessel", "category": "kornea_stroma_endotel" },
+    { "id": "disciform-edema-kp", "label": "Disciform edema + KP (endotheliitis)", "category": "kornea_stroma_endotel" },
+    { "id": "nummular-anterior-stromal-keratitis", "label": "Nummular anterior stromal keratitis", "category": "kornea_stroma_endotel" },
+
+    { "id": "nyeri-prominen", "label": "Nyeri prominen", "category": "sensasi_nyeri" },
+    { "id": "sensasi-kornea-menurun", "label": "Sensasi kornea menurun", "category": "sensasi_nyeri" },
+    { "id": "sensasi-kornea-menurun-berat", "label": "Sensasi kornea menurun berat", "category": "sensasi_nyeri" },
+    { "id": "sensasi-kornea-normal", "label": "Sensasi kornea normal", "category": "sensasi_nyeri" },
+    { "id": "nyeri-neuralgik-prodromal", "label": "Nyeri neuralgik prodromal", "category": "sensasi_nyeri" },
+
+    { "id": "sel-flare-bmd", "label": "Sel/flare bilik mata depan", "category": "bilik_mata_depan" },
+    { "id": "keratouveitis-atrofi-iris-sektoral", "label": "Keratouveitis berat dengan atrofi iris sektoral", "category": "bilik_mata_depan" },
+
+    { "id": "unilateral", "label": "Unilateral", "category": "lateralitas_tempo" },
+    { "id": "bilateral-sekuensial-mata-kedua-lebih-ringan", "label": "Bilateral/sekuensial dengan mata kedua lebih ringan", "category": "lateralitas_tempo" },
+    { "id": "riwayat-rekuren", "label": "Riwayat rekuren (episode sebelumnya)", "category": "lateralitas_tempo" },
+    { "id": "riwayat-episode-epithelial-sebelumnya", "label": "Riwayat episode epithelial (dendrit) sebelumnya", "category": "lateralitas_tempo" },
+    { "id": "riwayat-kontak-wabah-faskes", "label": "Riwayat kontak wabah/fasilitas kesehatan", "category": "lateralitas_tempo" }
+  ],
+  "entities": [
+    {
+      "id": "hsv-epithelial",
+      "category": "viral",
+      "subcategory": "herpetic",
+      "name": "HSV Epithelial",
+      "entryRoutePathogenesis": "Reaktivasi virus laten di ganglion trigeminal, transport aksonal anterograd ke epitel kornea, replikasi litik aktif.",
+      "findingWeights": [
+        { "findingId": "dendrit-terminal-bulb", "weight": 3 },
+        { "findingId": "fluorescein-kuat-dasar-ulkus", "weight": 2 },
+        { "findingId": "rose-bengal-tepi", "weight": 1 },
+        { "findingId": "nyeri-prominen", "weight": 2 },
+        { "findingId": "sensasi-kornea-menurun", "weight": 1 },
+        { "findingId": "unilateral", "weight": 1 },
+        { "findingId": "riwayat-rekuren", "weight": 1 },
+        { "findingId": "rash-vesikular-dermatomal-v1", "weight": -3 },
+        { "findingId": "epitel-utuh", "weight": -3 },
+        { "findingId": "kgb-preaurikular-nyeri-tekan", "weight": -2 }
+      ],
+      "distinguishingFeatures": [
+        "Dendrit bercabang dikotomis dengan terminal bulb — beda dari pseudodendrit VZV (tanpa terminal bulb, stain minimal, non-erosif)"
+      ],
+      "mimicWarnings": [
+        {
+          "mimicName": "Acanthamoeba keratitis",
+          "note": "Curigai bila riwayat lensa kontak/paparan air, nyeri disproporsional terhadap temuan klinis, tidak membaik dengan antiviral, keratoneuritis radialis"
+        }
+      ],
+      "therapy": {
+        "firstLine": "Antiviral topikal (asiklovir salep 3% atau gansiklovir gel 0,15%, 5×/hari) ATAU asiklovir oral 400mg 5×/hari selama 7–10 hari",
+        "avoid": ["Steroid topikal sebelum epitel sembuh/mendekati sembuh"],
+        "evidenceLevel": "RCT",
+        "references": ["HEDS II", "Gansiklovir gel FDA-approved berbasis RCT Eropa"]
+      },
+      "redFlags": [
+        "Ulkus geografik pasca-steroid tidak sengaja",
+        "Keratopati neurotrofik pasca-resolusi"
+      ],
+      "images": { "hasPlaceholderOnly": true, "assets": [] }
+    },
+    {
+      "id": "hsv-stromal-endothelial",
+      "category": "viral",
+      "subcategory": "herpetic",
+      "name": "HSV Stromal / Endothelial",
+      "entryRoutePathogenesis": "Bukan replikasi litik aktif — reaksi imun (CD4) terhadap antigen virus residual, ± invasi endotel langsung.",
+      "findingWeights": [
+        { "findingId": "epitel-utuh", "weight": 3 },
+        { "findingId": "infiltrat-imun-immune-ring", "weight": 2 },
+        { "findingId": "neovaskularisasi-ghost-vessel", "weight": 1 },
+        { "findingId": "disciform-edema-kp", "weight": 2 },
+        { "findingId": "sel-flare-bmd", "weight": 1 },
+        { "findingId": "riwayat-episode-epithelial-sebelumnya", "weight": 1 }
+      ],
+      "distinguishingFeatures": [
+        "Epitel utuh adalah kunci — bukan replikasi aktif, sehingga terapinya justru steroid (dengan payung antiviral), berkebalikan dengan bentuk epithelial"
+      ],
+      "therapy": {
+        "firstLine": "Tanpa ulserasi → antiviral oral dosis profilaksis (asiklovir 400mg 2×/hari) + steroid topikal agresif (mulai tiap 1–2 jam) dengan tapering lambat >10 minggu, di bawah payung antiviral. Dengan ulserasi/nekrotikans → antiviral oral dosis terapeutik (asiklovir 800mg 5×/hari) + steroid minimal (2×/hari) di awal.",
+        "avoid": ["Steroid tanpa payung antiviral bersamaan"],
+        "evidenceLevel": "RCT",
+        "references": ["HEDS-I"]
+      },
+      "images": { "hasPlaceholderOnly": true, "assets": [] }
+    },
+    {
+      "id": "vzv-hzo",
+      "category": "viral",
+      "subcategory": "herpetic",
+      "name": "VZV / HZO",
+      "entryRoutePathogenesis": "Reaktivasi ganglion trigeminal → n. nasociliaris → nn. ciliares longi ke kornea/uvea.",
+      "findingWeights": [
+        { "findingId": "rash-vesikular-dermatomal-v1", "weight": 3 },
+        { "findingId": "hutchinson-sign", "weight": 2 },
+        { "findingId": "pseudodendrit-tanpa-terminal-bulb", "weight": 2 },
+        { "findingId": "sensasi-kornea-menurun-berat", "weight": 2 },
+        { "findingId": "nyeri-neuralgik-prodromal", "weight": 1 },
+        { "findingId": "nummular-anterior-stromal-keratitis", "weight": 1 },
+        { "findingId": "keratouveitis-atrofi-iris-sektoral", "weight": 1 },
+        { "findingId": "sensasi-kornea-normal", "weight": -2 }
+      ],
+      "distinguishingFeatures": [
+        "Pseudodendrit (non-erosif, stain buruk, tanpa terminal bulb) vs dendrit sejati HSV; rash dermatomal sebagai pembeda paling kuat"
+      ],
+      "therapy": {
+        "firstLine": "Antiviral oral dalam 72 jam onset rash (asiklovir 800mg 5×/hari atau valasiklovir 1g 3×/hari); steroid hanya untuk penyakit stromal/uveitis",
+        "avoid": ["Antiviral topikal saja — tidak efektif untuk VZV"],
+        "evidenceLevel": "consensus",
+        "references": ["AAO PPP", "StatPearls"]
+      },
+      "redFlags": [
+        "Absennya Hutchinson sign TIDAK menyingkirkan HZO (hingga 30% kasus tanpa tanda ini tetap berkembang menjadi HZO)",
+        "Glaukoma sekunder dari trabekulitis"
+      ],
+      "images": { "hasPlaceholderOnly": true, "assets": [] }
+    },
+    {
+      "id": "adenoviral-ekc",
+      "category": "viral",
+      "subcategory": "adenoviral",
+      "name": "Adenoviral EKC",
+      "entryRoutePathogenesis": "Inokulasi langsung ke permukaan okular (kontak jari/fomit), tanpa fase laten.",
+      "findingWeights": [
+        { "findingId": "bilateral-sekuensial-mata-kedua-lebih-ringan", "weight": 2 },
+        { "findingId": "kgb-preaurikular-nyeri-tekan", "weight": 3 },
+        { "findingId": "folikel-konjungtiva", "weight": 1 },
+        { "findingId": "pseudomembran", "weight": 1 },
+        { "findingId": "sei-subepithelial-infiltrates", "weight": 1 },
+        { "findingId": "riwayat-kontak-wabah-faskes", "weight": 1 },
+        { "findingId": "sensasi-kornea-normal", "weight": 1 },
+        { "findingId": "rash-vesikular-dermatomal-v1", "weight": -3 }
+      ],
+      "distinguishingFeatures": [
+        "SEI vs nummular VZV dibedakan dari sensasi kornea (normal pada EKC) dan riwayat dermatom (absen pada EKC)"
+      ],
+      "therapy": {
+        "firstLine": "Suportif — kompres dingin, lubrikasi, higiene tangan ketat, edukasi isolasi",
+        "avoid": [
+          "Antibiotik reflex (tidak ada infeksi bakteri)",
+          "Steroid kecuali infiltrat visually-significant (steroid memperpanjang shedding virus & memperlambat eliminasi)"
+        ],
+        "evidenceLevel": "consensus",
+        "references": ["Konsensus + data mekanistik"]
+      },
+      "images": { "hasPlaceholderOnly": true, "assets": [] }
+    },
+    {
+      "id": "mpox-keratitis",
+      "category": "viral",
+      "subcategory": "orthopoxvirus",
+      "name": "Mpox Keratitis",
+      "entryRoutePathogenesis": "Autoinokulasi dari lesi kulit/tangan sendiri, atau perluasan kontigu lesi margo palpebra; bagian dari infeksi dermatotropik sistemik dengan viremia.",
+      "findingWeights": [
+        { "findingId": "rash-generalisata-papul-vesikel-pustul", "weight": 2 },
+        { "findingId": "limfadenopati-generalisata-demam-prodromal", "weight": 2 },
+        { "findingId": "lesi-margo-palpebra-periokular", "weight": 2 },
+        { "findingId": "riwayat-kontak-risiko-tinggi-mpox", "weight": 3 },
+        { "findingId": "lesi-dendritik-geografik-menyerupai-hsv", "weight": 0 }
+      ],
+      "distinguishingFeatures": [
+        "Morfologi kornea BISA identik dengan HSV — pembeda sesungguhnya adalah konteks epidemiologis, rash generalisata, dan limfadenopati sistemik, BUKAN gambaran kornea semata"
+      ],
+      "therapy": {
+        "firstLine": "Koordinasi dengan tim infeksi/kesehatan masyarakat; trifluridine topikal (rekomendasi CDC) ± tecovirimat sistemik untuk penyakit berat",
+        "avoid": ["Menunda konfirmasi PCR demi terapi empirik semata"],
+        "evidenceLevel": "case-series",
+        "references": ["Case-series/observasional — belum ada RCT terkontrol"]
+      },
+      "redFlags": [
+        "Kegagalan trifluridine pada kasus refrakter (cidofovir topikal 0,5% muncul sebagai lini kedua off-label pada laporan 2026)",
+        "Risiko transmisi nosokomial — kewaspadaan isolasi sejak kecurigaan pertama, bukan menunggu konfirmasi PCR"
+      ],
+      "images": { "hasPlaceholderOnly": true, "assets": [] }
+    }
+  ]
+}
