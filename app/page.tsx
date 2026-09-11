@@ -10,6 +10,30 @@ const apps = [
     route: "/soap-mata",
   },
   {
+    icon: "🩺",
+    name: "UveaDx",
+    description:
+      "Versi terbaru alat bantu diagnosis banding uveitis — dikembangkan terpisah, berdampingan dengan Uveitis Differential untuk sementara.",
+    status: "Live" as const,
+    route: "/uveadx",
+  },
+  {
+    icon: "🗂️",
+    name: "Template Klinis",
+    description:
+      "Kumpulan template rencana tindakan & pengobatan per diagnosis — siap pakai dan bisa disalin langsung ke rekam medis.",
+    status: "Live" as const,
+    route: "/templat-klinis",
+  },
+  {
+    icon: "🦠",
+    name: "Viral Keratitis Dx",
+    description:
+      "Diagnosis banding keratitis viral berbasis checklist temuan klinis — HSV epitel/stromal, VZV/HZO, adenoviral EKC, dan mpox.",
+    status: "Live" as const,
+    route: "/keratitis-differential",
+  },
+  {
     icon: "👁️",
     name: "Target IOP Calculator",
     description:
@@ -58,28 +82,12 @@ const apps = [
     route: "/tools/uveitis-differential",
   },
   {
-    icon: "🩺",
-    name: "UveaDx",
-    description:
-      "Versi terbaru alat bantu diagnosis banding uveitis — dikembangkan terpisah, berdampingan dengan Uveitis Differential untuk sementara.",
-    status: "Live" as const,
-    route: "/uveadx",
-  },
-  {
     icon: "🎨",
     name: "Retinal Drawing",
     description:
       "Diagram fundus interaktif untuk mendokumentasikan lesi retina secara visual — standar warna Amsler-Dubois, sketsa freehand, ringkasan otomatis.",
     status: "Live" as const,
     route: "/retinal-drawing",
-  },
-  {
-    icon: "🗂️",
-    name: "Template Klinis",
-    description:
-      "Kumpulan template rencana tindakan & pengobatan per diagnosis — siap pakai dan bisa disalin langsung ke rekam medis.",
-    status: "Live" as const,
-    route: "/templat-klinis",
   },
   {
     icon: "🔎",
