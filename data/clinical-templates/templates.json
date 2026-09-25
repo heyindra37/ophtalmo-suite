@@ -105,7 +105,19 @@
         { "id": "uneventful", "label": "Uneventful" },
         { "id": "edema", "label": "Edema Kornea Berat + BMD Peradangan Sedang" }
       ],
-      "defaultScenario": "uneventful"
+      "defaultScenario": "uneventful",
+      "drugFields": [
+        {
+          "id": "antibiotik",
+          "label": "Antibiotik Topikal",
+          "options": ["Levofloxacin", "LFX", "Levocin", "Opexa", "Moxidrop", "Molcin", "Floxa", "Cravit"]
+        },
+        {
+          "id": "steroid",
+          "label": "Steroid Topikal",
+          "options": ["Tobroson", "Xitrol", "P.Pred", "Vosama", "Polydex"]
+        }
+      ]
     },
     "sections": [
       {
@@ -113,18 +125,18 @@
         "items": [
           { "text": "Mata tidak boleh kena air selama 2 minggu (s.d. {{date+14}})", "scenario": "uneventful" },
           { "text": "Mulai {{date+3}}, tetes mata diteteskan tiap 3 jam; mulai {{date+5}}, tetes mata diteteskan sehari 4 kali", "scenario": "uneventful" },
-          { "text": "Urutan tetes mata: antibiotik tetes dulu, lalu 10 menit kemudian tetes mata steroid", "scenario": "uneventful" },
+          { "text": "Urutan tetes mata: {{antibiotik}} tetes dulu, lalu 10 menit kemudian {{steroid}} tetes mata", "scenario": "uneventful" },
           { "text": "Mata tidak boleh kena air selama 2 minggu (s.d. {{date+14}})", "scenario": "edema" },
           { "text": "Mulai {{date+5}}, tetes mata diteteskan tiap 3 jam", "scenario": "edema" },
           { "text": "Obat minum yang sudah diresepkan tetap dilanjutkan", "scenario": "edema" },
-          { "text": "Urutan tetes mata: antibiotik tetes dulu, lalu 10 menit kemudian tetes mata steroid", "scenario": "edema" }
+          { "text": "Urutan tetes mata: {{antibiotik}} tetes dulu, lalu 10 menit kemudian {{steroid}} tetes mata", "scenario": "edema" }
         ]
       },
       {
         "title": "H+10 — {{date+10}}",
         "items": [
           { "text": "Mata tidak boleh kena air selama 2 minggu (s.d. {{date+14}})", "scenario": "uneventful" },
-          { "text": "Urutan tetes mata: antibiotik tetes dulu, lalu 10 menit kemudian tetes mata steroid", "scenario": "uneventful" }
+          { "text": "Urutan tetes mata: {{antibiotik}} tetes dulu, lalu 10 menit kemudian {{steroid}} tetes mata", "scenario": "uneventful" }
         ]
       },
       {

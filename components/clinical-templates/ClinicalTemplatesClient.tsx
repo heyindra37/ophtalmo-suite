@@ -3,8 +3,9 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import templatesData from "@/data/clinical-templates/templates.json";
-import type { ClinicalTemplate, ClinicalTemplateItem } from "@/lib/clinical-templates/types";
+import type { ClinicalTemplate, ClinicalTemplateItem, ClinicalTemplateSection } from "@/lib/clinical-templates/types";
 import { renderDatePlaceholders } from "@/lib/clinical-templates/dateEngine";
+import { renderFieldPlaceholders } from "@/lib/clinical-templates/fieldEngine";
 import CorpalFormCard from "@/components/clinical-templates/CorpalFormCard";
 
 const templates = templatesData as ClinicalTemplate[];
@@ -26,21 +27,46 @@ function visibleItems(items: (string | ClinicalTemplateItem)[], scenario: string
   });
 }
 
-function renderText(text: string, anchorDate: string): string {
-  return anchorDate ? renderDatePlaceholders(text, anchorDate) : text;
+function renderText(text: string, anchorDate: string, drugValues: Record<string, string>): string {
+  let result = anchorDate ? renderDatePlaceholders(text, anchorDate) : text;
+  result = renderFieldPlaceholders(result, drugValues);
+  return result;
 }
 
-function buildCopyText(t: ClinicalTemplate, anchorDate: string, scenario: string | null): string {
+function buildCopyText(
+  t: ClinicalTemplate,
+  anchorDate: string,
+  scenario: string | null,
+  drugValues: Record<string, string>
+): string {
   const lines: string[] = [t.name];
   for (const section of t.sections) {
-    const title = renderText(section.title, anchorDate);
+    const title = renderText(section.title, anchorDate, drugValues);
     const items = section.items ? visibleItems(section.items, scenario) : [];
     if (items.length > 0) {
       lines.push("", `${title}:`);
-      for (const item of items) lines.push(`- ${renderText(itemText(item), anchorDate)}`);
+      for (const item of items) lines.push(`- ${renderText(itemText(item), anchorDate, drugValues)}`);
     } else if (section.text) {
-      lines.push("", `${title}: ${renderText(section.text, anchorDate)}`);
+      lines.push("", `${title}: ${renderText(section.text, anchorDate, drugValues)}`);
     }
+  }
+  return lines.join("\n");
+}
+
+function buildSectionCopyText(
+  t: ClinicalTemplate,
+  section: ClinicalTemplateSection,
+  anchorDate: string,
+  scenario: string | null,
+  drugValues: Record<string, string>
+): string {
+  const title = renderText(section.title, anchorDate, drugValues);
+  const items = section.items ? visibleItems(section.items, scenario) : [];
+  const lines: string[] = [`${t.name} — ${title}`];
+  if (items.length > 0) {
+    for (const item of items) lines.push(`- ${renderText(itemText(item), anchorDate, drugValues)}`);
+  } else if (section.text) {
+    lines.push(renderText(section.text, anchorDate, drugValues));
   }
   return lines.join("\n");
 }
@@ -48,19 +74,32 @@ function buildCopyText(t: ClinicalTemplate, anchorDate: string, scenario: string
 function TemplateCard({ template }: { template: ClinicalTemplate }) {
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedSection, setCopiedSection] = useState<number | null>(null);
   const [anchorDate, setAnchorDate] = useState("");
   const [scenario, setScenario] = useState<string | null>(
     template.generator?.defaultScenario ?? template.generator?.scenarios?.[0]?.id ?? null
   );
+  const [drugValues, setDrugValues] = useState<Record<string, string>>({});
 
   const generator = template.generator;
-  const needsDate = !!generator && !anchorDate;
+  const drugFields = generator?.drugFields ?? [];
+  const missingDrugFields = drugFields.some((f) => !drugValues[f.id]);
+  const needsGeneratorInput = !!generator && (!anchorDate || missingDrugFields);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(buildCopyText(template, anchorDate, scenario)).then(() => {
+    navigator.clipboard.writeText(buildCopyText(template, anchorDate, scenario, drugValues)).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  const handleCopySection = (section: ClinicalTemplateSection, si: number) => {
+    navigator.clipboard
+      .writeText(buildSectionCopyText(template, section, anchorDate, scenario, drugValues))
+      .then(() => {
+        setCopiedSection(si);
+        setTimeout(() => setCopiedSection(null), 2000);
+      });
   };
 
   return (
@@ -123,12 +162,37 @@ function TemplateCard({ template }: { template: ClinicalTemplate }) {
                   </div>
                 </div>
               )}
+              {drugFields.map((field) => (
+                <div key={field.id}>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                    {field.label}
+                  </label>
+                  <select
+                    value={drugValues[field.id] ?? ""}
+                    onChange={(e) =>
+                      setDrugValues((prev) => ({ ...prev, [field.id]: e.target.value }))
+                    }
+                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 bg-white"
+                  >
+                    <option value="" disabled>
+                      Pilih {field.label}...
+                    </option>
+                    {field.options.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
             </div>
           )}
 
-          {needsDate ? (
+          {needsGeneratorInput ? (
             <p className="text-sm text-slate-400 italic text-center py-4">
-              Isi {generator!.anchorLabel.toLowerCase()} di atas untuk menghasilkan jadwal.
+              Isi {generator!.anchorLabel.toLowerCase()}
+              {drugFields.length > 0 ? ` & pilih ${drugFields.map((f) => f.label.toLowerCase()).join(", ")}` : ""} di
+              atas untuk menghasilkan jadwal.
             </p>
           ) : (
             template.sections.map((section, si) => {
@@ -138,13 +202,13 @@ function TemplateCard({ template }: { template: ClinicalTemplate }) {
               return (
                 <div key={si}>
                   <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-1.5">
-                    {renderText(section.title, anchorDate)}
+                    {renderText(section.title, anchorDate, drugValues)}
                   </p>
                   {items.length > 0 ? (
                     <ul className="list-disc pl-5 flex flex-col gap-1">
                       {items.map((item, i) => (
                         <li key={i} className="text-sm text-slate-700 leading-relaxed">
-                          {renderText(itemText(item), anchorDate)}
+                          {renderText(itemText(item), anchorDate, drugValues)}
                         </li>
                       ))}
                     </ul>
@@ -153,14 +217,28 @@ function TemplateCard({ template }: { template: ClinicalTemplate }) {
                       Instruksi untuk skenario ini belum tersedia untuk titik waktu ini.
                     </p>
                   ) : (
-                    <p className="text-sm text-slate-700 leading-relaxed">{renderText(section.text || "", anchorDate)}</p>
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      {renderText(section.text || "", anchorDate, drugValues)}
+                    </p>
+                  )}
+                  {generator && (items.length > 0 || !!section.text) && (
+                    <button
+                      onClick={() => handleCopySection(section, si)}
+                      className={`mt-2 inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors duration-150 ${
+                        copiedSection === si
+                          ? "bg-emerald-500 text-white"
+                          : "bg-teal-600 hover:bg-teal-700 text-white"
+                      }`}
+                    >
+                      {copiedSection === si ? "✓ Tersalin" : "Copy"}
+                    </button>
                   )}
                 </div>
               );
             })
           )}
 
-          {!needsDate && (
+          {!needsGeneratorInput && !generator && (
             <button
               onClick={handleCopy}
               className={`self-start inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-colors duration-150 ${

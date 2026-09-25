@@ -17,12 +17,21 @@ export interface ClinicalTemplateScenario {
   label: string;
 }
 
+export interface ClinicalTemplateDrugField {
+  /** Used as the {{id}} placeholder token in section text. */
+  id: string;
+  label: string;
+  options: string[];
+}
+
 export interface ClinicalTemplateGenerator {
   /** Label for the date input driving {{date+N}} placeholders, e.g. "Tanggal Operasi". */
   anchorLabel: string;
   /** Optional scenario branches; when present, item-level `scenario` gates visibility. */
   scenarios?: ClinicalTemplateScenario[];
   defaultScenario?: string;
+  /** Optional required dropdowns whose selected value substitutes {{id}} placeholders in section text. */
+  drugFields?: ClinicalTemplateDrugField[];
 }
 
 export interface ClinicalTemplate {
