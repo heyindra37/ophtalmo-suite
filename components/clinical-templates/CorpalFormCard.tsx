@@ -6,10 +6,15 @@ import {
   buildCorpalText,
   durationWarning,
   type CorpalInput,
+  type HariBukaOption,
   type MataOption,
 } from "@/lib/clinical-templates/corpalGenerator";
 
 const MATA_OPTIONS: MataOption[] = ["OD", "OS", "ODS"];
+const HARI_BUKA_OPTIONS: { value: HariBukaOption; label: string }[] = [
+  { value: "hari-ini", label: "Hari Ini" },
+  { value: "besok", label: "Besok" },
+];
 const JAM_PRESETS = ["06:00", "07:00", "08:00"];
 const MINIMAL_PRESETS = ["3 hari", "1 minggu", "2 minggu"];
 const KONTROL_PRESETS = ["1 minggu", "2 minggu"];
@@ -61,6 +66,7 @@ function DurationPicker({
 export default function CorpalFormCard() {
   const [expanded, setExpanded] = useState(false);
   const [mata, setMata] = useState<MataOption | null>(null);
+  const [hariBuka, setHariBuka] = useState<HariBukaOption>("besok");
   const [jamBuka, setJamBuka] = useState("07:00");
   const [durasiMinimal, setDurasiMinimal] = useState("1 minggu");
   const [durasiKontrol, setDurasiKontrol] = useState("2 minggu");
@@ -69,7 +75,7 @@ export default function CorpalFormCard() {
   const [copied, setCopied] = useState(false);
 
   const input: CorpalInput | null = mata
-    ? { mata, jamBuka, durasiMinimal, durasiKontrol, catatanTambahan }
+    ? { mata, hariBuka, jamBuka, durasiMinimal, durasiKontrol, catatanTambahan }
     : null;
 
   const warning = useMemo(() => (input ? durationWarning(input) : null), [input]);
@@ -126,6 +132,28 @@ export default function CorpalFormCard() {
                     }`}
                   >
                     {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                Hari Buka Bebat
+              </label>
+              <div className="flex gap-2">
+                {HARI_BUKA_OPTIONS.map((h) => (
+                  <button
+                    key={h.value}
+                    type="button"
+                    onClick={() => setHariBuka(h.value)}
+                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
+                      hariBuka === h.value
+                        ? "bg-teal-600 border-teal-600 text-white"
+                        : "bg-white border-gray-200 text-slate-600 hover:border-teal-300"
+                    }`}
+                  >
+                    {h.label}
                   </button>
                 ))}
               </div>
