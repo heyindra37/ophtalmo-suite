@@ -34,6 +34,14 @@ const apps = [
     route: "/keratitis-differential",
   },
   {
+    icon: "🔴",
+    name: "Worth Four Dot Test",
+    description:
+      "Panduan & interpretasi WFDT untuk kasus diplopia — fusi, supresi, diplopia crossed/uncrossed, ARC, dan monofixation syndrome.",
+    status: "Live" as const,
+    route: "/worth-four-dot",
+  },
+  {
     icon: "👁️",
     name: "Target IOP Calculator",
     description:
