@@ -98,6 +98,14 @@ const apps = [
     route: "/retinal-drawing",
   },
   {
+    icon: "🔭",
+    name: "Gemini Retinal Drawing",
+    description:
+      "Dokumentasi fundus lensa 90D/78D: gambar di bayangan terbalik sesuai arah lirikan pasien, otomatis dipetakan ke chart Amsler-Dubois dan dibuatkan narasi FdOD/FdOS.",
+    status: "Live" as const,
+    route: "/gemini-retinal-drawing",
+  },
+  {
     icon: "🔎",
     name: "Refraction Tools",
     description:
