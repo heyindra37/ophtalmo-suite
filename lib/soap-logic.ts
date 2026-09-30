@@ -192,16 +192,21 @@ function pupilText(f: PupilFields): string {
   return base;
 }
 
+function subtipeSuffix(raw: LensaFields["katarakSubtipe"] | string): string {
+  const arr = Array.isArray(raw) ? raw : raw ? [raw] : [];
+  return arr.length ? ` (${arr.join(" + ")})` : "";
+}
+
 function lensaText(f: LensaFields): string {
   let base: string;
   if (f.manual) base = f.manual;
   else {
     switch (f.value) {
       case "jernih": base = "jernih"; break;
-      case "katarak-1": base = `keruh grade 1${f.katarakSubtipe ? ` (${f.katarakSubtipe})` : ""}`; break;
-      case "katarak-2": base = `keruh grade 2${f.katarakSubtipe ? ` (${f.katarakSubtipe})` : ""}`; break;
-      case "katarak-3": base = `keruh grade 3${f.katarakSubtipe ? ` (${f.katarakSubtipe})` : ""}`; break;
-      case "katarak-4": base = `keruh grade 4${f.katarakSubtipe ? ` (${f.katarakSubtipe})` : ""}`; break;
+      case "katarak-1": base = `keruh grade 1${subtipeSuffix(f.katarakSubtipe)}`; break;
+      case "katarak-2": base = `keruh grade 2${subtipeSuffix(f.katarakSubtipe)}`; break;
+      case "katarak-3": base = `keruh grade 3${subtipeSuffix(f.katarakSubtipe)}`; break;
+      case "katarak-4": base = `keruh grade 4${subtipeSuffix(f.katarakSubtipe)}`; break;
       case "pseudofakia": base = `pseudofakia (IOL in situ)${f.pco ? ", PCO (+)" : ""}`; break;
       case "subluksasi": base = `subluksasi${f.subluksasiArah ? ` ke arah ${f.subluksasiArah}` : ""}`; break;
       case "afakia": base = "afakia"; break;
@@ -261,7 +266,11 @@ function onhText(f: FdEyeState["onh"]): string {
   let base: string;
   if (f.manual) base = f.manual;
   else if (f.quickNormal) base = `${f.label} normal`;
-  else {
+  else if (f.warna === "atrofi") {
+    base = `${f.label} atrofi`;
+    if (f.elevasi) base += f.elevasiKuadran ? `, elevasi (+) kuadran ${f.elevasiKuadran}` : ", elevasi (+)";
+    if (f.nvd) base += ", NVD (+)";
+  } else {
     base = `${f.label} batas ${f.batas}, warna ${f.warna}, CDR ${f.cdr || "0.3"}`;
     if (f.elevasi) base += f.elevasiKuadran ? `, elevasi (+) kuadran ${f.elevasiKuadran}` : ", elevasi (+)";
     if (f.nvd) base += ", NVD (+)";
