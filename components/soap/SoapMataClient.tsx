@@ -677,7 +677,7 @@ function FdEyeForm({
               <div className="space-y-1">
                 <div className="flex gap-2">
                   <Select value={state.onh.batas} onChange={(v) => upd({ onh: { ...state.onh, batas: v } })} options={["tegas","kabur","kabur-sebagian"]} />
-                  <Select value={state.onh.warna} onChange={(v) => upd({ onh: { ...state.onh, warna: v } })} options={["normal","hiperemi","pucat","proses atrofi","atrofi"]} />
+                  <Select value={state.onh.warna} onChange={(v) => upd({ onh: { ...state.onh, warna: v } })} options={["normal","hiperemi","pucat","pucat sebagian","atrofi"]} />
                 </div>
                 {state.onh.warna !== "atrofi" && (
                   <TextInput value={state.onh.cdr} onChange={(v) => upd({ onh: { ...state.onh, cdr: v } })} placeholder="CDR (mis. 0.3)" />
@@ -687,6 +687,12 @@ function FdEyeForm({
                     <input type="checkbox" checked={state.onh.elevasi} onChange={(e) => upd({ onh: { ...state.onh, elevasi: e.target.checked } })} className="accent-teal-600" />
                     Elevasi (+)
                   </label>
+                  {state.onh.warna !== "atrofi" && (
+                    <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
+                      <input type="checkbox" checked={state.onh.prosesAtrofi || false} onChange={(e) => upd({ onh: { ...state.onh, prosesAtrofi: e.target.checked } })} className="accent-teal-600" />
+                      Proses atrofi
+                    </label>
+                  )}
                   <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
                     <input type="checkbox" checked={state.onh.nvd} onChange={(e) => upd({ onh: { ...state.onh, nvd: e.target.checked } })} className="accent-teal-600" />
                     NVD (+)

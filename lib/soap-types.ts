@@ -98,7 +98,8 @@ export interface FRFields {
 
 export interface ONHFields {
   batas: string; // tegas | kabur | kabur-sebagian
-  warna: string; // normal | hiperemi | pucat
+  warna: string; // normal | hiperemi | pucat | pucat sebagian | atrofi
+  prosesAtrofi?: boolean; // "proses atrofi" bukan warna; ditulis setelah batas, sebelum warna
   cdr: string;
   elevasi: boolean;
   elevasiKuadran?: string;

@@ -271,7 +271,7 @@ function onhText(f: FdEyeState["onh"]): string {
     if (f.elevasi) base += f.elevasiKuadran ? `, elevasi (+) kuadran ${f.elevasiKuadran}` : ", elevasi (+)";
     if (f.nvd) base += ", NVD (+)";
   } else {
-    base = `${f.label} batas ${f.batas}, warna ${f.warna}, CDR ${f.cdr || "0.3"}`;
+    base = `${f.label} batas ${f.batas}${f.prosesAtrofi ? ", proses atrofi" : ""}, warna ${f.warna}, CDR ${f.cdr || "0.3"}`;
     if (f.elevasi) base += f.elevasiKuadran ? `, elevasi (+) kuadran ${f.elevasiKuadran}` : ", elevasi (+)";
     if (f.nvd) base += ", NVD (+)";
   }
