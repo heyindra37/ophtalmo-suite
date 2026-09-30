@@ -1,0 +1,19 @@
+{
+  "vascular_diabetic": [
+    { "id": "dot_blot_hge", "name": "Dot/Blot Hemorrhage", "type": "point", "color": "#FF0000", "shape": "solid_circle" },
+    { "id": "flame_hge", "name": "Flame Hemorrhage", "type": "point", "color": "#FF0000", "shape": "brush_stroke" },
+    { "id": "hard_exudates", "name": "Hard Exudates", "type": "area", "color": "#FFFF00", "shape": "dotted_brush" },
+    { "id": "venous_beading", "name": "Venous Beading", "type": "point", "color": "#0000FF", "shape": "beaded_line" },
+    { "id": "nve", "name": "NVE / NVD", "type": "area", "color": "#FF0000", "shape": "branching_lines" }
+  ],
+  "structural_breaks": [
+    { "id": "hst", "name": "Horseshoe Tear", "type": "point", "color": "#FF0000", "shape": "horseshoe_svg" },
+    { "id": "retinal_hole", "name": "Retinal Hole", "type": "point", "color": "#FF0000", "shape": "outlined_circle" },
+    { "id": "lattice", "name": "Lattice Degeneration", "type": "area", "color": "#0000FF", "shape": "crosshatch_pattern" },
+    { "id": "fibrovascular", "name": "Fibrovascular Tissue", "type": "area", "color": "#00FF00", "shape": "crinkled_lines" }
+  ],
+  "detachment_macula": [
+    { "id": "retinal_detachment", "name": "Detached Retina", "type": "area", "color": "#0000FF", "fill_opacity": 0.4 },
+    { "id": "erm", "name": "Epiretinal Membrane", "type": "area", "color": "#00FF00", "shape": "crinkled_lines" }
+  ]
+}
