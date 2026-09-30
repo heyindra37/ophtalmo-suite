@@ -132,6 +132,12 @@ function CatatanField({ value, onChange }: { value?: string; onChange: (v: strin
 }
 
 // ── Sa Eye Form ──────────────────────────────────────────────────────────────
+const KATARAK_SUBTIPE = ["PSC", "nuklear", "kortikal", "posterior polar", "white cataract", "hard cataract"];
+
+function subtipeArray(raw: string[] | string | undefined): string[] {
+  return Array.isArray(raw) ? raw : raw ? [raw] : [];
+}
+
 function SaEyeForm({
   label,
   state,
@@ -171,7 +177,7 @@ function SaEyeForm({
     "erosi","haziness","keruh-minimal","manual",
   ];
   const FL_STAINING_VALUES = ["infiltrat","ulkus","sikatrik","erosi"];
-  const LENSA_OPTIONS = [
+const LENSA_OPTIONS = [
     "jernih","katarak-1","katarak-2","katarak-3","katarak-4",
     "pseudofakia","subluksasi","afakia","manual",
   ];
@@ -489,12 +495,34 @@ function SaEyeForm({
         <CopyFieldButton field="lensa" />
         <Select value={state.lensa.value} onChange={(v) => upd({ lensa: { ...state.lensa, value: v } })} options={LENSA_OPTIONS} />
         {state.lensa.value.startsWith("katarak") && (
-          <Select
-            value={state.lensa.katarakSubtipe || ""}
-            onChange={(v) => upd({ lensa: { ...state.lensa, katarakSubtipe: v } })}
-            options={["","PSC","nuklear","kortikal","posterior polar"]}
-            placeholder="Subtipe (opsional)"
-          />
+          <div className="mt-1">
+            <p className="text-xs text-slate-500 mb-1">Subtipe (opsional, boleh lebih dari satu)</p>
+            <div className="flex flex-wrap gap-1.5">
+              {KATARAK_SUBTIPE.map((opt) => {
+                const cur = subtipeArray(state.lensa.katarakSubtipe);
+                const on = cur.includes(opt);
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() =>
+                      upd({
+                        lensa: {
+                          ...state.lensa,
+                          katarakSubtipe: on ? cur.filter((x) => x !== opt) : [...cur, opt],
+                        },
+                      })
+                    }
+                    className={`px-3 py-1 text-xs rounded-lg font-semibold transition-colors ${
+                      on ? "bg-teal-600 text-white" : "bg-gray-100 text-slate-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         )}
         {state.lensa.value === "pseudofakia" && (
           <label className="flex items-center gap-1 text-xs text-slate-600 mt-1 cursor-pointer">
@@ -649,14 +677,22 @@ function FdEyeForm({
               <div className="space-y-1">
                 <div className="flex gap-2">
                   <Select value={state.onh.batas} onChange={(v) => upd({ onh: { ...state.onh, batas: v } })} options={["tegas","kabur","kabur-sebagian"]} />
-                  <Select value={state.onh.warna} onChange={(v) => upd({ onh: { ...state.onh, warna: v } })} options={["normal","hiperemi","pucat"]} />
+                  <Select value={state.onh.warna} onChange={(v) => upd({ onh: { ...state.onh, warna: v } })} options={["normal","hiperemi","pucat","pucat sebagian","atrofi"]} />
                 </div>
-                <TextInput value={state.onh.cdr} onChange={(v) => upd({ onh: { ...state.onh, cdr: v } })} placeholder="CDR (mis. 0.3)" />
+                {state.onh.warna !== "atrofi" && (
+                  <TextInput value={state.onh.cdr} onChange={(v) => upd({ onh: { ...state.onh, cdr: v } })} placeholder="CDR (mis. 0.3)" />
+                )}
                 <div className="flex gap-3">
                   <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
                     <input type="checkbox" checked={state.onh.elevasi} onChange={(e) => upd({ onh: { ...state.onh, elevasi: e.target.checked } })} className="accent-teal-600" />
                     Elevasi (+)
                   </label>
+                  {state.onh.warna !== "atrofi" && (
+                    <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
+                      <input type="checkbox" checked={state.onh.prosesAtrofi || false} onChange={(e) => upd({ onh: { ...state.onh, prosesAtrofi: e.target.checked } })} className="accent-teal-600" />
+                      Proses atrofi
+                    </label>
+                  )}
                   <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
                     <input type="checkbox" checked={state.onh.nvd} onChange={(e) => upd({ onh: { ...state.onh, nvd: e.target.checked } })} className="accent-teal-600" />
                     NVD (+)
@@ -879,7 +915,14 @@ export default function SoapMataClient() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(LS_KEY);
-      if (saved) setState(JSON.parse(saved));
+      if (saved) {
+        const parsed = JSON.parse(saved) as SoapState;
+        for (const k of ["saOD", "saOS"] as const) {
+          const lensa = parsed[k]?.lensa;
+          if (lensa) lensa.katarakSubtipe = subtipeArray(lensa.katarakSubtipe as string[] | string | undefined);
+        }
+        setState(parsed);
+      }
     } catch {}
   }, []);
 

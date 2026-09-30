@@ -72,7 +72,7 @@ export interface PupilFields {
 
 export interface LensaFields {
   value: string; // "jernih" | "katarak-1" | "katarak-2" | "katarak-3" | "katarak-4" | "pseudofakia" | "subluksasi" | "afakia" | "manual"
-  katarakSubtipe?: string; // PSC | nuklear | kortikal | posterior-polar
+  katarakSubtipe?: string[]; // multi-pilih: PSC | nuklear | kortikal | posterior polar | white cataract | hard cataract
   pco?: boolean;
   subluksasiArah?: string;
   manual?: string;
@@ -98,7 +98,8 @@ export interface FRFields {
 
 export interface ONHFields {
   batas: string; // tegas | kabur | kabur-sebagian
-  warna: string; // normal | hiperemi | pucat
+  warna: string; // normal | hiperemi | pucat | pucat sebagian | atrofi
+  prosesAtrofi?: boolean; // "proses atrofi" bukan warna; ditulis setelah batas, sebelum warna
   cdr: string;
   elevasi: boolean;
   elevasiKuadran?: string;
