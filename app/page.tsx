@@ -90,14 +90,6 @@ const apps = [
     route: "/tools/uveitis-differential",
   },
   {
-    icon: "🎨",
-    name: "Retinal Drawing",
-    description:
-      "Diagram fundus interaktif untuk mendokumentasikan lesi retina secara visual — standar warna Amsler-Dubois, sketsa freehand, ringkasan otomatis.",
-    status: "Live" as const,
-    route: "/retinal-drawing",
-  },
-  {
     icon: "🔭",
     name: "Gemini Retinal Drawing",
     description:
