@@ -21,6 +21,11 @@ const NARRATIVE_LABEL: Record<string, string> = {
   retinal_detachment: "retinal detachment",
   nve: "NVE/NVD",
   erm: "epiretinal membrane",
+  vitritis: "vitritis",
+  floaters: "floaters",
+  vitreous_hge: "vitreous hemorrhage",
+  asteroid_hyalosis: "asteroid hyalosis",
+  hyaloid_ring: "hyaloid ring",
 };
 
 export function narrativeLabel(def: LesionDef): string {

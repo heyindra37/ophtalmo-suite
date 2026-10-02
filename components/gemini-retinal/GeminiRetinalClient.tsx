@@ -11,6 +11,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   vascular_diabetic: "Vaskular / Diabetik",
   structural_breaks: "Robekan & Degenerasi",
   detachment_macula: "Ablasio & Makula",
+  vitreous: "Vitreus (hijau)",
 };
 
 const CATEGORIES = Object.entries(lesionConfig as Record<string, LesionDef[]>);
