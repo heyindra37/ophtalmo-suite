@@ -69,6 +69,24 @@ function PinShape({ def, at, proj, k }: { def: LesionDef; at: Pt; proj: Projecti
       }
       return <Line key={k} points={pts} stroke={def.color} strokeWidth={Math.max(2, r * 0.45)} lineCap="round" />;
     }
+    case "floater_squiggle": {
+      // Irregular wispy fibre with a small clump, like a floater drifting in the vitreous.
+      const seed = Math.round(Math.abs(at.x * 977 + at.y * 1553) * 100) % 360;
+      const a = (seed * Math.PI) / 180;
+      const pts: number[] = [];
+      for (let t = 0; t <= 10; t++) {
+        const u = t / 10;
+        const along = (u - 0.5) * r * 3.6;
+        const wob = Math.sin(u * 7 + seed) * r * 0.55;
+        pts.push(c.x + Math.cos(a) * along - Math.sin(a) * wob, c.y + Math.sin(a) * along + Math.cos(a) * wob);
+      }
+      return (
+        <Group key={k}>
+          <Line points={pts} stroke={def.color} strokeWidth={Math.max(1.5, r * 0.3)} tension={0.5} lineCap="round" opacity={0.9} />
+          <Circle x={pts[8]} y={pts[9]} radius={r * 0.4} fill={def.color} opacity={0.9} />
+        </Group>
+      );
+    }
     default:
       return <Circle key={k} x={c.x} y={c.y} radius={r * 0.8} fill={def.color} />;
   }
@@ -79,6 +97,34 @@ function AreaShape({ def, item, proj }: { def: LesionDef; item: DrawnItem; proj:
   const w = (item.width ?? 0.06) * proj.scale;
   const base = <Line points={flat(pts)} stroke={def.color} strokeWidth={w} lineCap="round" lineJoin="round" tension={0.3} />;
   switch (def.shape) {
+    case "vitreous_haze":
+    case "vitreous_haze_dense": {
+      const dense = def.shape === "vitreous_haze_dense";
+      return (
+        <Group>
+          <Line points={flat(pts)} stroke={def.color} strokeWidth={w} opacity={dense ? 0.9 : 0.35} lineCap="round" lineJoin="round" tension={0.3} />
+          {resample(item.points, dense ? 0.018 : 0.03).map((p, i) => {
+            const s = proj.toScreen(p);
+            const jx = Math.sin(i * 12.9898) * w * 0.35;
+            const jy = Math.cos(i * 78.233) * w * 0.35;
+            return <Circle key={i} x={s.x + jx} y={s.y + jy} radius={Math.max(1.2, w * 0.07)} fill={def.color} stroke="#15803d" strokeWidth={0.4} />;
+          })}
+        </Group>
+      );
+    }
+    case "asteroid_dots":
+      return (
+        <Group>
+          {resample(item.points, 0.014).flatMap((p, i) => {
+            const s = proj.toScreen(p);
+            return [0, 1, 2].map((j) => {
+              const jx = Math.sin((i * 3 + j) * 12.9898) * w * 0.4;
+              const jy = Math.cos((i * 3 + j) * 78.233) * w * 0.4;
+              return <Circle key={`${i}-${j}`} x={s.x + jx} y={s.y + jy} radius={Math.max(1, w * 0.05)} fill={def.color} stroke="#15803d" strokeWidth={0.4} />;
+            });
+          })}
+        </Group>
+      );
     case "dotted_brush":
       return (
         <Group>
