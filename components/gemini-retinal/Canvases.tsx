@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { Circle, Group, Layer, Line, Stage, Text } from "react-konva";
+import { Arrow, Circle, Group, Layer, Line, Stage, Text } from "react-konva";
 import type Konva from "konva";
 import {
   DISC_RADIUS,
@@ -12,6 +12,7 @@ import {
   discCenter,
   gazeOffset,
   globalToLocal,
+  onhPointer,
   localToGlobal,
   type Eye,
   type Gaze,
@@ -48,7 +49,8 @@ function Landmarks({ proj, eye, labels }: { proj: Projection; eye: Eye; labels: 
           )}
         </Group>
       ))}
-      <Circle x={disc.x} y={disc.y} radius={DISC_RADIUS * proj.scale} stroke="#f59e0b" strokeWidth={2} fill="#fef3c7" />
+      <Circle x={disc.x} y={disc.y} radius={DISC_RADIUS * proj.scale} stroke="#d97706" strokeWidth={1.2} dash={[3, 3]} fill="#f59e0b" opacity={0.4} />
+      <Text x={disc.x - 12} y={disc.y + DISC_RADIUS * proj.scale + 2} width={24} align="center" text="ONH" fontSize={9} fontStyle="bold" fill="#b45309" opacity={0.75} />
       <Circle x={c.x} y={c.y} radius={4} fill="#475569" />
       {labels &&
         Array.from({ length: 12 }, (_, i) => {
@@ -91,6 +93,35 @@ export function GlobalMapCanvas({
         <Text x={size - 14} y={size / 2 + 10} text={nasalRight ? "N" : "T"} fontSize={12} fontStyle="bold" fill="#0f766e" />
       </Layer>
     </Stage>
+  );
+}
+
+/** When the optic disc lies outside the lens, show a faint ghost just inside the rim in its direction. */
+function OffLensOnh({
+  eye,
+  gaze,
+  half,
+  scale,
+  toLocalScreen,
+}: {
+  eye: Eye;
+  gaze: Gaze;
+  half: number;
+  scale: number;
+  toLocalScreen: (p: Pt) => Pt;
+}) {
+  const o = onhPointer(eye, gaze);
+  if (o.inside) return null;
+  const ux = o.local.x / o.distance;
+  const uy = o.local.y / o.distance;
+  const at = toLocalScreen({ x: ux * VIEWPORT_RADIUS * 0.8, y: uy * VIEWPORT_RADIUS * 0.8 });
+  const tip = toLocalScreen({ x: ux * VIEWPORT_RADIUS * 0.97, y: uy * VIEWPORT_RADIUS * 0.97 });
+  return (
+    <Group listening={false} opacity={0.75}>
+      <Circle x={at.x} y={at.y} radius={DISC_RADIUS * scale} stroke="#d97706" strokeWidth={1.2} dash={[3, 3]} fill="#f59e0b" opacity={0.4} />
+      <Arrow points={[at.x + ux * DISC_RADIUS * scale * 1.2, at.y - uy * DISC_RADIUS * scale * 1.2, tip.x, tip.y]} stroke="#d97706" fill="#d97706" strokeWidth={1.5} pointerLength={6} pointerWidth={6} />
+      <Text x={at.x - 36} y={uy < 0 ? at.y - DISC_RADIUS * scale - 12 : at.y + DISC_RADIUS * scale + 2} width={72} align="center" wrap="none" text="ONH (di luar)" fontSize={9} fontStyle="bold" fill="#b45309" />
+    </Group>
   );
 }
 
@@ -178,6 +209,7 @@ export function ViewportCanvas({
         <Group clipFunc={(ctx) => ctx.arc(half, half, half - 1, 0, Math.PI * 2)}>
           <Landmarks proj={proj} eye={eye} labels={false} />
           <LesionNodes items={items} defs={defs} proj={proj} />
+          <OffLensOnh eye={eye} gaze={gaze} half={half} scale={scale} toLocalScreen={toLocalScreen} />
           <Line ref={liveLine} points={[]} stroke="#0d9488" strokeWidth={brushWidth * scale} opacity={0.5} lineCap="round" lineJoin="round" listening={false} />
         </Group>
         <Circle x={half} y={half} radius={half - 1} stroke="#0f172a" strokeWidth={2} listening={false} />
