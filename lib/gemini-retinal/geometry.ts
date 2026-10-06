@@ -120,3 +120,24 @@ export function classifyPoint(p: Pt, eye: Eye): { sector: Sector | null; zone: Z
   const zone = zoneOf(p);
   return { sector: zone === "area makula" ? null : sectorOf(p, eye), zone };
 }
+
+export type ScreenDirection = "pusat" | "atas" | "kanan-atas" | "kanan" | "kanan-bawah" | "bawah" | "kiri-bawah" | "kiri" | "kiri-atas";
+
+export interface OnhPointer {
+  /** Optic-disc position in lens coordinates (screen-right = +x, screen-up = +y). */
+  local: Pt;
+  distance: number;
+  inside: boolean;
+  direction: ScreenDirection;
+}
+
+const DIRECTIONS_FROM_EAST: ScreenDirection[] = ["kanan", "kanan-atas", "atas", "kiri-atas", "kiri", "kiri-bawah", "bawah", "kanan-bawah"];
+
+/** Where the optic disc appears relative to the lens centre for this eye and gaze, as the examiner sees it. */
+export function onhPointer(eye: Eye, gaze: Gaze): OnhPointer {
+  const local = globalToLocal(discCenter(eye), gaze);
+  const distance = Math.hypot(local.x, local.y);
+  const deg = ((Math.atan2(local.y, local.x) * 180) / Math.PI + 360) % 360;
+  const direction = distance < 0.02 ? "pusat" : DIRECTIONS_FROM_EAST[Math.round(deg / 45) % 8];
+  return { local, distance, inside: distance <= VIEWPORT_RADIUS, direction };
+}

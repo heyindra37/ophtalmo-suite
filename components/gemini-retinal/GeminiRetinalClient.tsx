@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import Link from "next/link";
 import lesionConfig from "@/data/gemini-retinal/lesion_config.json";
-import { gazeSubLabel, type Eye, type Gaze, type Pt } from "@/lib/gemini-retinal/geometry";
+import { gazeSubLabel, onhPointer, type Eye, type Gaze, type Pt } from "@/lib/gemini-retinal/geometry";
 import { buildNarrative, type DrawnItem, type LesionDef } from "@/lib/gemini-retinal/narrative";
 import { GlobalMapCanvas, ViewportCanvas } from "./Canvases";
 
@@ -101,6 +101,7 @@ export default function GeminiRetinalClient() {
   const items = state.lesions[state.eye];
   const narrative = useMemo(() => buildNarrative(state.lesions, DEFS), [state.lesions]);
   const def = DEFS.find((d) => d.id === lesionId)!;
+  const onh = onhPointer(state.eye, gaze);
 
   const pickLesion = (id: string) => {
     setLesionId(id);
@@ -186,6 +187,9 @@ export default function GeminiRetinalClient() {
               <h2 className="self-start text-xs font-semibold text-slate-500 uppercase tracking-wide">
                 Lensa {state.eye} — {gazeSubLabel(gaze, state.eye)}
               </h2>
+              <p className="self-start text-xs text-amber-700" data-testid="onh-readout">
+                ONH: {onh.direction} pada lensa ({onh.inside ? "di dalam lensa" : "di luar lensa"})
+              </p>
               <div ref={leftRef} className="w-full flex justify-center">
                 {leftW > 0 && (
                   <ViewportCanvas
