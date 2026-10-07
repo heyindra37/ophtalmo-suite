@@ -14,7 +14,12 @@ export const R_PERIPHERY = 0.9;
 export const R_ORA = 1.0;
 export const R_PARS_PLANA = 1.2;
 export const VIEWPORT_RADIUS = 0.45;
-export const GAZE_DISTANCE = R_ORA - VIEWPORT_RADIUS;
+/**
+ * With a 90D lens and eccentric gaze the lens edge reaches the equator to just anterior to it;
+ * the ora serrata is not seen without scleral depression.
+ */
+export const R_GAZE_REACH = 0.7;
+export const GAZE_DISTANCE = R_GAZE_REACH - VIEWPORT_RADIUS;
 export const DISC_OFFSET = 0.2;
 export const DISC_RADIUS = 0.06;
 
