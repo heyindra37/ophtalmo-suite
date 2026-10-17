@@ -1,4 +1,7 @@
 export type ImageFormat = "png" | "jpeg";
+export type ExportScope = "ODS" | "OD" | "OS";
+
+const EYE_LABEL: Record<"OD" | "OS", string> = { OD: "OD (mata kanan)", OS: "OS (mata kiri)" };
 
 const MARGIN = 40;
 const HEADER = 96;
@@ -22,14 +25,20 @@ function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number
   return out;
 }
 
-/** Lays the OD and OS fundus maps side by side with a header and the narrative, on a white page. */
-export function composeOdsImage(od: HTMLCanvasElement, os: HTMLCanvasElement, narrative: string, when: Date): HTMLCanvasElement {
-  const mapW = od.width;
-  const width = MARGIN * 3 + mapW * 2;
+/** Lays the chosen fundus maps side by side with a header and the narrative, on a white page. */
+export function composeImage(
+  maps: { eye: "OD" | "OS"; canvas: HTMLCanvasElement }[],
+  narrative: string,
+  when: Date
+): HTMLCanvasElement {
+  const mapW = maps[0].canvas.width;
+  const mapH = maps[0].canvas.height;
+  const scope = maps.length === 2 ? "ODS" : maps[0].eye;
+  const width = MARGIN * (maps.length + 1) + mapW * maps.length;
   const probe = document.createElement("canvas").getContext("2d")!;
   probe.font = `18px ${FONT}`;
   const lines = wrapLines(probe, narrative || "Belum ada lesi yang digambar.", width - MARGIN * 2);
-  const height = HEADER + LABEL + od.height + MARGIN + lines.length * LINE_HEIGHT + MARGIN;
+  const height = HEADER + LABEL + mapH + MARGIN + lines.length * LINE_HEIGHT + MARGIN;
 
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -40,7 +49,7 @@ export function composeOdsImage(od: HTMLCanvasElement, os: HTMLCanvasElement, na
 
   ctx.fillStyle = "#0f172a";
   ctx.font = `bold 30px 'Fraunces', Georgia, serif`;
-  ctx.fillText("Retinal Drawing — ODS", MARGIN, 52);
+  ctx.fillText(`Retinal Drawing — ${scope}`, MARGIN, 52);
   ctx.fillStyle = "#64748b";
   ctx.font = `18px ${FONT}`;
   ctx.fillText(`${when.toLocaleString("id-ID", { dateStyle: "long", timeStyle: "short" })} · peta fundus menghadap pasien (Amsler-Dubois)`, MARGIN, 82);
@@ -48,14 +57,15 @@ export function composeOdsImage(od: HTMLCanvasElement, os: HTMLCanvasElement, na
   const top = HEADER + LABEL;
   ctx.fillStyle = "#0f766e";
   ctx.font = `bold 22px ${FONT}`;
-  ctx.fillText("OD (mata kanan)", MARGIN, top - 10);
-  ctx.fillText("OS (mata kiri)", MARGIN * 2 + mapW, top - 10);
-  ctx.drawImage(od, MARGIN, top);
-  ctx.drawImage(os, MARGIN * 2 + mapW, top);
+  maps.forEach(({ eye, canvas: map }, i) => {
+    const x = MARGIN + i * (MARGIN + mapW);
+    ctx.fillText(EYE_LABEL[eye], x, top - 10);
+    ctx.drawImage(map, x, top);
+  });
 
   ctx.fillStyle = "#1e293b";
   ctx.font = `18px ${FONT}`;
-  let y = top + od.height + MARGIN;
+  let y = top + mapH + MARGIN;
   for (const line of lines) {
     ctx.fillText(line, MARGIN, y);
     y += LINE_HEIGHT;
@@ -63,12 +73,12 @@ export function composeOdsImage(od: HTMLCanvasElement, os: HTMLCanvasElement, na
   return canvas;
 }
 
-export function downloadCanvas(canvas: HTMLCanvasElement, format: ImageFormat, when: Date) {
+export function downloadCanvas(canvas: HTMLCanvasElement, format: ImageFormat, scope: ExportScope, when: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
   const stamp = `${when.getFullYear()}${pad(when.getMonth() + 1)}${pad(when.getDate())}-${pad(when.getHours())}${pad(when.getMinutes())}`;
   const a = document.createElement("a");
   a.href = canvas.toDataURL(format === "png" ? "image/png" : "image/jpeg", 0.92);
-  a.download = `retinal-drawing-ODS-${stamp}.${format === "png" ? "png" : "jpg"}`;
+  a.download = `retinal-drawing-${scope}-${stamp}.${format === "png" ? "png" : "jpg"}`;
   document.body.appendChild(a);
   a.click();
   a.remove();
