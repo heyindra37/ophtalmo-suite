@@ -106,6 +106,9 @@ function PinShape({ def, at, proj, k }: { def: LesionDef; at: Pt; proj: Projecti
         </Group>
       );
     }
+    case "solid_circle":
+      // Dot/blot haemorrhage: kept small so many can be placed without merging into blobs.
+      return <Circle key={k} x={c.x} y={c.y} radius={Math.max(2, r * 0.45)} fill={def.color} />;
     default:
       return <Circle key={k} x={c.x} y={c.y} radius={r * 0.8} fill={def.color} />;
   }
