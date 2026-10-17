@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { Arrow, Circle, Group, Layer, Line, Stage, Text } from "react-konva";
+import { useRef, type Ref } from "react";
+import { Arrow, Circle, Group, Layer, Line, Rect, Stage, Text } from "react-konva";
 import type Konva from "konva";
 import {
   DISC_RADIUS,
@@ -69,12 +69,16 @@ export function GlobalMapCanvas({
   gaze,
   items,
   defs,
+  stageRef,
+  showLens = true,
 }: {
   size: number;
   eye: Eye;
   gaze: Gaze;
   items: DrawnItem[];
   defs: LesionDef[];
+  stageRef?: Ref<Konva.Stage>;
+  showLens?: boolean;
 }) {
   const scale = size / 2 / (R_PARS_PLANA + 0.16);
   const proj: Projection = {
@@ -84,11 +88,12 @@ export function GlobalMapCanvas({
   const vc = proj.toScreen(gazeOffset(gaze));
   const nasalRight = eye === "OD";
   return (
-    <Stage width={size} height={size}>
+    <Stage width={size} height={size} ref={stageRef}>
       <Layer>
+        <Rect x={0} y={0} width={size} height={size} fill="#ffffff" listening={false} />
         <Landmarks proj={proj} eye={eye} labels />
         <LesionNodes items={items} defs={defs} proj={proj} />
-        <Circle x={vc.x} y={vc.y} radius={VIEWPORT_RADIUS * scale} stroke="#0d9488" strokeWidth={2} dash={[8, 5]} listening={false} />
+        <Circle visible={showLens} x={vc.x} y={vc.y} radius={VIEWPORT_RADIUS * scale} stroke="#0d9488" strokeWidth={2} dash={[8, 5]} listening={false} />
         <Text x={6} y={size / 2 + 10} text={nasalRight ? "T" : "N"} fontSize={12} fontStyle="bold" fill="#0f766e" />
         <Text x={size - 14} y={size / 2 + 10} text={nasalRight ? "N" : "T"} fontSize={12} fontStyle="bold" fill="#0f766e" />
       </Layer>
