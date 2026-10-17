@@ -6,6 +6,7 @@ import lesionConfig from "@/data/gemini-retinal/lesion_config.json";
 import { gazeSubLabel, onhPointer, type Eye, type Gaze, type Pt } from "@/lib/gemini-retinal/geometry";
 import { buildNarrative, type DrawnItem, type LesionDef } from "@/lib/gemini-retinal/narrative";
 import { GlobalMapCanvas, ViewportCanvas } from "./Canvases";
+import { QUADRANTS4, drImpression, emptyDrInputs, gradeDr, type DrInputs, type DrResult } from "@/lib/gemini-retinal/drGrading";
 
 const CATEGORY_LABELS: Record<string, string> = {
   vascular_diabetic: "Vaskular / Diabetik",
@@ -33,6 +34,23 @@ const GAZE_GRID: { gaze: Gaze; label: string }[] = [
 interface State {
   eye: Eye;
   lesions: Record<Eye, DrawnItem[]>;
+  drMode: boolean;
+  drInputs: Record<Eye, DrInputs>;
+}
+
+function initialState(): State {
+  return { eye: "OD", lesions: { OD: [], OS: [] }, drMode: false, drInputs: { OD: emptyDrInputs(), OS: emptyDrInputs() } };
+}
+
+/** Saved sessions from before DR mode existed lack the DR fields. */
+function normalizeState(raw: Partial<State>): State {
+  const base = initialState();
+  return {
+    ...base,
+    ...raw,
+    lesions: { ...base.lesions, ...raw.lesions },
+    drInputs: { OD: { ...base.drInputs.OD, ...raw.drInputs?.OD }, OS: { ...base.drInputs.OS, ...raw.drInputs?.OS } },
+  };
 }
 
 type Action =
@@ -40,7 +58,9 @@ type Action =
   | { type: "add"; item: DrawnItem }
   | { type: "undo" }
   | { type: "clear" }
-  | { type: "load"; state: State };
+  | { type: "load"; state: State }
+  | { type: "drMode"; on: boolean }
+  | { type: "drInput"; input: DrInputs };
 
 function reducer(s: State, a: Action): State {
   switch (a.type) {
@@ -54,6 +74,10 @@ function reducer(s: State, a: Action): State {
       return { ...s, lesions: { ...s.lesions, [s.eye]: [] } };
     case "load":
       return a.state;
+    case "drMode":
+      return { ...s, drMode: a.on };
+    case "drInput":
+      return { ...s, drInputs: { ...s.drInputs, [s.eye]: a.input } };
   }
 }
 
@@ -73,7 +97,7 @@ let uidSeq = 0;
 const uid = () => `${Date.now().toString(36)}-${(uidSeq++).toString(36)}`;
 
 export default function GeminiRetinalClient() {
-  const [state, dispatch] = useReducer(reducer, { eye: "OD", lesions: { OD: [], OS: [] } });
+  const [state, dispatch] = useReducer(reducer, undefined, initialState);
   const [gaze, setGaze] = useState<Gaze>("primer");
   const [lesionId, setLesionId] = useState(DEFS[0].id);
   const [tool, setTool] = useState<"pin" | "brush">(DEFS[0].type === "area" ? "brush" : "pin");
@@ -86,7 +110,7 @@ export default function GeminiRetinalClient() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LS_KEY);
-      if (raw) dispatch({ type: "load", state: JSON.parse(raw) as State });
+      if (raw) dispatch({ type: "load", state: normalizeState(JSON.parse(raw)) });
     } catch {}
     setHydrated(true);
   }, []);
@@ -99,7 +123,22 @@ export default function GeminiRetinalClient() {
   }, [state, hydrated]);
 
   const items = state.lesions[state.eye];
-  const narrative = useMemo(() => buildNarrative(state.lesions, DEFS), [state.lesions]);
+  const drResults = useMemo<Record<Eye, DrResult>>(
+    () => ({
+      OD: gradeDr(state.lesions.OD, "OD", state.drInputs.OD),
+      OS: gradeDr(state.lesions.OS, "OS", state.drInputs.OS),
+    }),
+    [state.lesions, state.drInputs]
+  );
+  const narrative = useMemo(
+    () =>
+      buildNarrative(
+        state.lesions,
+        DEFS,
+        state.drMode ? { OD: drImpression(drResults.OD), OS: drImpression(drResults.OS) } : undefined
+      ),
+    [state.lesions, state.drMode, drResults]
+  );
   const def = DEFS.find((d) => d.id === lesionId)!;
   const onh = onhPointer(state.eye, gaze);
 
@@ -137,7 +176,16 @@ export default function GeminiRetinalClient() {
           <h1 className="text-lg font-bold text-slate-900" style={{ fontFamily: "var(--font-fraunces, serif)" }}>
             Gemini Retinal Drawing
           </h1>
-          <div className="ml-auto flex gap-1">
+          <button
+            onClick={() => dispatch({ type: "drMode", on: !state.drMode })}
+            aria-pressed={state.drMode}
+            className={`ml-auto px-3 py-1.5 text-sm rounded-lg font-semibold border ${
+              state.drMode ? "bg-red-600 border-red-600 text-white" : "bg-white border-gray-200 text-slate-600 hover:border-red-300"
+            }`}
+          >
+            Mode Diabetic Retinopathy {state.drMode ? "ON" : "OFF"}
+          </button>
+          <div className="flex gap-1">
             {(["OD", "OS"] as Eye[]).map((e) => (
               <button
                 key={e}
@@ -289,6 +337,16 @@ export default function GeminiRetinalClient() {
           </section>
         </div>
 
+        {state.drMode && (
+          <DrPanel
+            eye={state.eye}
+            result={drResults[state.eye]}
+            other={drResults[state.eye === "OD" ? "OS" : "OD"]}
+            input={state.drInputs[state.eye]}
+            onChange={(input) => dispatch({ type: "drInput", input })}
+          />
+        )}
+
         {/* Narrative */}
         <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
@@ -312,5 +370,93 @@ export default function GeminiRetinalClient() {
         </section>
       </main>
     </div>
+  );
+}
+
+const GRADE_STYLE: Record<DrResult["grade"], string> = {
+  none: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  mild: "bg-lime-50 text-lime-800 border-lime-200",
+  moderate: "bg-amber-50 text-amber-800 border-amber-200",
+  severe: "bg-orange-100 text-orange-800 border-orange-300",
+  pdr: "bg-red-100 text-red-800 border-red-300",
+};
+
+const Q_LABEL: Record<(typeof QUADRANTS4)[number], string> = {
+  superotemporal: "Superotemporal",
+  superonasal: "Superonasal",
+  inferotemporal: "Inferotemporal",
+  inferonasal: "Inferonasal",
+};
+
+function DrPanel({
+  eye,
+  result,
+  other,
+  input,
+  onChange,
+}: {
+  eye: Eye;
+  result: DrResult;
+  other: DrResult;
+  input: DrInputs;
+  onChange: (input: DrInputs) => void;
+}) {
+  const otherEye = eye === "OD" ? "OS" : "OD";
+  return (
+    <section className="bg-white rounded-xl border border-red-100 shadow-sm p-4 flex flex-col gap-3" data-testid="dr-panel">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Grading DR {eye} (ICDR)</h2>
+        <span className={`text-sm font-bold px-3 py-1 rounded-full border ${GRADE_STYLE[result.grade]}`} data-testid="dr-grade">
+          {result.label}
+        </span>
+        {result.dmeSuspect && (
+          <span className="text-xs font-semibold px-2 py-1 rounded-full bg-sky-50 text-sky-800 border border-sky-200">
+            Curiga DME — konfirmasi OCT
+          </span>
+        )}
+        <span className="ml-auto text-xs text-slate-500">
+          {otherEye}: <b>{other.label}</b>
+        </span>
+      </div>
+      {result.reasons.length > 0 && (
+        <ul className="list-disc pl-5 text-sm text-slate-700">
+          {result.reasons.map((r) => (
+            <li key={r}>{r}</li>
+          ))}
+        </ul>
+      )}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <p className="text-xs font-semibold text-slate-500 mb-1">Kriteria 4: &gt;20 perdarahan intraretina per kuadran</p>
+          <div className="grid grid-cols-2 gap-1">
+            {QUADRANTS4.map((q) => (
+              <label key={q} className="flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="accent-red-600"
+                  checked={input.hemSevere[q]}
+                  onChange={(e) => onChange({ ...input, hemSevere: { ...input.hemSevere, [q]: e.target.checked } })}
+                />
+                {Q_LABEL[q]}
+              </label>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="text-xs font-semibold text-slate-500 mb-1">Ukuran neovaskularisasi (untuk HRC)</p>
+          <label className="flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer">
+            <input type="checkbox" className="accent-red-600" checked={input.nvdLarge} onChange={(e) => onChange({ ...input, nvdLarge: e.target.checked })} />
+            NVD ≥ ¼–⅓ disc area
+          </label>
+          <label className="flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer">
+            <input type="checkbox" className="accent-red-600" checked={input.nveLarge} onChange={(e) => onChange({ ...input, nveLarge: e.target.checked })} />
+            NVE ≥ ½ disc area
+          </label>
+          <p className="text-[11px] text-slate-400 mt-1">
+            NV yang digambar ≤1 diameter papil dari diskus otomatis dihitung NVD, selebihnya NVE. Venous beading & IRMA dihitung per kuadran dari gambar.
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }

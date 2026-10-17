@@ -26,6 +26,7 @@ const NARRATIVE_LABEL: Record<string, string> = {
   vitreous_hge: "vitreous hemorrhage",
   asteroid_hyalosis: "asteroid hyalosis",
   hyaloid_ring: "hyaloid ring",
+  irma: "IRMA",
 };
 
 export function narrativeLabel(def: LesionDef): string {
@@ -110,9 +111,18 @@ export function eyeNarrative(eye: Eye, items: DrawnItem[], defs: LesionDef[]): s
   return sentences.length ? `Fd${eye} : ${sentences.join(" ")}` : null;
 }
 
-export function buildNarrative(lesions: Record<Eye, DrawnItem[]>, defs: LesionDef[]): string {
+export function buildNarrative(
+  lesions: Record<Eye, DrawnItem[]>,
+  defs: LesionDef[],
+  impressions?: Partial<Record<Eye, string>>
+): string {
   return (["OD", "OS"] as Eye[])
-    .map((eye) => eyeNarrative(eye, lesions[eye], defs))
+    .map((eye) => {
+      const base = eyeNarrative(eye, lesions[eye], defs);
+      const imp = impressions?.[eye];
+      if (!imp) return base;
+      return base ? `${base} ${imp}` : `Fd${eye} : ${imp}`;
+    })
     .filter((x): x is string => !!x)
     .join("\n");
 }

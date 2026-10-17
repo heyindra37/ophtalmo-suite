@@ -1,6 +1,13 @@
 {
   "vascular_diabetic": [
     {
+      "id": "microaneurysm",
+      "name": "Microaneurysm",
+      "type": "point",
+      "color": "#FF0000",
+      "shape": "ma_dot"
+    },
+    {
       "id": "dot_blot_hge",
       "name": "Dot/Blot Hemorrhage",
       "type": "point",
@@ -34,6 +41,20 @@
       "type": "area",
       "color": "#FF0000",
       "shape": "branching_lines"
+    },
+    {
+      "id": "irma",
+      "name": "IRMA",
+      "type": "point",
+      "color": "#FF0000",
+      "shape": "irma_loop"
+    },
+    {
+      "id": "cotton_wool",
+      "name": "Cotton Wool Spot",
+      "type": "point",
+      "color": "#FFFF00",
+      "shape": "cws_cloud"
     }
   ],
   "structural_breaks": [

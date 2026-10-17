@@ -69,6 +69,25 @@ function PinShape({ def, at, proj, k }: { def: LesionDef; at: Pt; proj: Projecti
       }
       return <Line key={k} points={pts} stroke={def.color} strokeWidth={Math.max(2, r * 0.45)} lineCap="round" />;
     }
+    case "ma_dot":
+      return <Circle key={k} x={c.x} y={c.y} radius={Math.max(1.5, r * 0.35)} fill={def.color} />;
+    case "irma_loop": {
+      // Short tortuous intraretinal capillary loop.
+      const pts: number[] = [];
+      for (let t = 0; t <= 16; t++) {
+        const u = t / 16;
+        pts.push(c.x + (u - 0.5) * r * 2.6, c.y + Math.sin(u * Math.PI * 3) * r * 0.45);
+      }
+      return <Line key={k} points={pts} stroke={def.color} strokeWidth={Math.max(1.2, r * 0.18)} tension={0.4} lineCap="round" />;
+    }
+    case "cws_cloud":
+      return (
+        <Group key={k}>
+          {[[-0.45, 0], [0.4, -0.15], [0.05, 0.35]].map(([dx, dy], i) => (
+            <Circle key={i} x={c.x + dx * r} y={c.y + dy * r} radius={r * 0.55} fill="#fefce8" stroke="#ca8a04" strokeWidth={1} />
+          ))}
+        </Group>
+      );
     case "floater_squiggle": {
       // Irregular wispy fibre with a small clump, like a floater drifting in the vitreous.
       const seed = Math.round(Math.abs(at.x * 977 + at.y * 1553) * 100) % 360;
