@@ -7,7 +7,7 @@ import { gazeSubLabel, onhPointer, type Eye, type Gaze, type Pt } from "@/lib/ge
 import { buildNarrative, type DrawnItem, type LesionDef } from "@/lib/gemini-retinal/narrative";
 import { GlobalMapCanvas, ViewportCanvas } from "./Canvases";
 import type Konva from "konva";
-import { composeOdsImage, downloadCanvas, type ImageFormat } from "@/lib/gemini-retinal/exportImage";
+import { composeImage, downloadCanvas, type ExportScope, type ImageFormat } from "@/lib/gemini-retinal/exportImage";
 import { QUADRANTS4, drImpression, emptyDrInputs, gradeDr, type DrInputs, type DrResult } from "@/lib/gemini-retinal/drGrading";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -106,6 +106,7 @@ export default function GeminiRetinalClient() {
   const [brushWidth, setBrushWidth] = useState(0.06);
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState<ImageFormat | null>(null);
+  const [exportScope, setExportScope] = useState<ExportScope>("ODS");
   const exportOd = useRef<Konva.Stage>(null);
   const exportOs = useRef<Konva.Stage>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -167,17 +168,33 @@ export default function GeminiRetinalClient() {
     if (!exporting) return;
     let frame = requestAnimationFrame(() => {
       frame = requestAnimationFrame(() => {
-        const od = exportOd.current?.toCanvas({ pixelRatio: 1 });
-        const os = exportOs.current?.toCanvas({ pixelRatio: 1 });
-        if (od && os) {
+        const eyes: Eye[] = exportScope === "ODS" ? ["OD", "OS"] : [exportScope];
+        const maps = eyes.map((eye) => ({
+          eye,
+          canvas: (eye === "OD" ? exportOd : exportOs).current?.toCanvas({ pixelRatio: 1 }),
+        }));
+        if (maps.every((m) => m.canvas)) {
+          const text =
+            exportScope === "ODS"
+              ? narrative
+              : buildNarrative(
+                  { OD: [], OS: [], [exportScope]: state.lesions[exportScope] } as Record<Eye, DrawnItem[]>,
+                  DEFS,
+                  state.drMode ? { [exportScope]: drImpression(drResults[exportScope]) ?? undefined } : undefined
+                );
           const when = new Date();
-          downloadCanvas(composeOdsImage(od, os, narrative, when), exporting, when);
+          downloadCanvas(
+            composeImage(maps as { eye: Eye; canvas: HTMLCanvasElement }[], text, when),
+            exporting,
+            exportScope,
+            when
+          );
         }
         setExporting(null);
       });
     });
     return () => cancelAnimationFrame(frame);
-  }, [exporting, narrative]);
+  }, [exporting, exportScope, narrative, state.lesions, state.drMode, drResults]);
 
   const copy = () =>
     navigator.clipboard.writeText(narrative).then(() => {
@@ -371,7 +388,7 @@ export default function GeminiRetinalClient() {
 
         {exporting && (
           <div aria-hidden style={{ position: "fixed", left: -10000, top: 0 }}>
-            {(["OD", "OS"] as Eye[]).map((e) => (
+            {(exportScope === "ODS" ? (["OD", "OS"] as Eye[]) : [exportScope]).map((e) => (
               <GlobalMapCanvas
                 key={e}
                 size={700}
@@ -399,6 +416,19 @@ export default function GeminiRetinalClient() {
             >
               {copied ? "✓ Tersalin" : "Copy to Clipboard"}
             </button>
+            <div className="flex rounded-xl border border-teal-600 overflow-hidden text-sm font-semibold" role="group" aria-label="Mata yang disimpan">
+              {(["ODS", "OD", "OS"] as ExportScope[]).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setExportScope(s)}
+                  disabled={!!exporting}
+                  aria-pressed={exportScope === s}
+                  className={`px-2.5 py-1.5 ${exportScope === s ? "bg-teal-600 text-white" : "text-teal-700 hover:bg-teal-50"}`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
             {(["png", "jpeg"] as ImageFormat[]).map((f) => (
               <button
                 key={f}
@@ -406,7 +436,7 @@ export default function GeminiRetinalClient() {
                 disabled={!!exporting}
                 className="text-sm font-semibold px-3 py-1.5 rounded-xl border border-teal-600 text-teal-700 hover:bg-teal-50 disabled:opacity-40"
               >
-                {exporting === f ? "Menyimpan…" : `Simpan ${f === "png" ? "PNG" : "JPEG"} (ODS)`}
+                {exporting === f ? "Menyimpan…" : `Simpan ${f === "png" ? "PNG" : "JPEG"} (${exportScope})`}
               </button>
             ))}
           </div>
