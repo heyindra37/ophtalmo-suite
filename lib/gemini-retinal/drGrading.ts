@@ -9,6 +9,8 @@ export interface DrInputs {
   hemSevere: Record<Quadrant4, boolean>;
   nvdLarge: boolean; // NVD >= 1/4-1/3 disc area
   nveLarge: boolean; // NVE >= 1/2 disc area
+  /** Explicit statement by the clinician that the eye was examined and shows no DR. */
+  confirmNoDr: boolean;
 }
 
 export function emptyDrInputs(): DrInputs {
@@ -16,6 +18,7 @@ export function emptyDrInputs(): DrInputs {
     hemSevere: { superotemporal: false, superonasal: false, inferotemporal: false, inferonasal: false },
     nvdLarge: false,
     nveLarge: false,
+    confirmNoDr: false,
   };
 }
 
@@ -28,6 +31,7 @@ export interface DrResult {
   verySevere: boolean;
   hrc: boolean;
   dmeSuspect: boolean;
+  confirmedNone?: boolean;
 }
 
 export function quadrant4(p: Pt, eye: Eye): Quadrant4 {
@@ -114,10 +118,13 @@ export function gradeDr(items: DrawnItem[], eye: Eye, input: DrInputs): DrResult
   if (has(items, "microaneurysm")) {
     return { grade: "mild", label: "Mild NPDR", reasons: ["microaneurysm saja"], verySevere: false, hrc: false, dmeSuspect };
   }
-  return { grade: "none", label: GRADE_LABEL.none, reasons: [], verySevere: false, hrc: false, dmeSuspect };
+  // An empty drawing is not a finding: "no DR" only once the clinician confirms it.
+  const label = input.confirmNoDr ? GRADE_LABEL.none : "Belum dinilai";
+  return { grade: "none", label, reasons: [], verySevere: false, hrc: false, dmeSuspect, confirmedNone: input.confirmNoDr };
 }
 
-export function drImpression(r: DrResult): string {
+export function drImpression(r: DrResult): string | null {
+  if (r.grade === "none" && !r.confirmedNone) return null;
   let text: string;
   if (r.grade === "none") text = "tidak tampak retinopati diabetik";
   else if (r.grade === "pdr" && r.hrc) text = `PDR dengan high-risk characteristics (${r.reasons.find((x) => x.startsWith("High-risk"))!.replace("High-risk characteristics: ", "")})`;

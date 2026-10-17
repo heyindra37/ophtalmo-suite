@@ -6,6 +6,8 @@ import lesionConfig from "@/data/gemini-retinal/lesion_config.json";
 import { gazeSubLabel, onhPointer, type Eye, type Gaze, type Pt } from "@/lib/gemini-retinal/geometry";
 import { buildNarrative, type DrawnItem, type LesionDef } from "@/lib/gemini-retinal/narrative";
 import { GlobalMapCanvas, ViewportCanvas } from "./Canvases";
+import type Konva from "konva";
+import { composeOdsImage, downloadCanvas, type ImageFormat } from "@/lib/gemini-retinal/exportImage";
 import { QUADRANTS4, drImpression, emptyDrInputs, gradeDr, type DrInputs, type DrResult } from "@/lib/gemini-retinal/drGrading";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -103,6 +105,9 @@ export default function GeminiRetinalClient() {
   const [tool, setTool] = useState<"pin" | "brush">(DEFS[0].type === "area" ? "brush" : "pin");
   const [brushWidth, setBrushWidth] = useState(0.06);
   const [copied, setCopied] = useState(false);
+  const [exporting, setExporting] = useState<ImageFormat | null>(null);
+  const exportOd = useRef<Konva.Stage>(null);
+  const exportOs = useRef<Konva.Stage>(null);
   const [hydrated, setHydrated] = useState(false);
   const [leftRef, leftW] = useWidth<HTMLDivElement>();
   const [rightRef, rightW] = useWidth<HTMLDivElement>();
@@ -135,7 +140,7 @@ export default function GeminiRetinalClient() {
       buildNarrative(
         state.lesions,
         DEFS,
-        state.drMode ? { OD: drImpression(drResults.OD), OS: drImpression(drResults.OS) } : undefined
+        state.drMode ? { OD: drImpression(drResults.OD) ?? undefined, OS: drImpression(drResults.OS) ?? undefined } : undefined
       ),
     [state.lesions, state.drMode, drResults]
   );
@@ -156,6 +161,23 @@ export default function GeminiRetinalClient() {
         ? { uid: uid(), lesionId, kind: "pin", points: pts }
         : { uid: uid(), lesionId, kind: "stroke", points: pts, width: brushWidth },
     });
+
+  // The OD/OS maps used for export are mounted only while exporting, then captured after paint.
+  useEffect(() => {
+    if (!exporting) return;
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => {
+        const od = exportOd.current?.toCanvas({ pixelRatio: 1 });
+        const os = exportOs.current?.toCanvas({ pixelRatio: 1 });
+        if (od && os) {
+          const when = new Date();
+          downloadCanvas(composeOdsImage(od, os, narrative, when), exporting, when);
+        }
+        setExporting(null);
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [exporting, narrative]);
 
   const copy = () =>
     navigator.clipboard.writeText(narrative).then(() => {
@@ -347,10 +369,27 @@ export default function GeminiRetinalClient() {
           />
         )}
 
+        {exporting && (
+          <div aria-hidden style={{ position: "fixed", left: -10000, top: 0 }}>
+            {(["OD", "OS"] as Eye[]).map((e) => (
+              <GlobalMapCanvas
+                key={e}
+                size={700}
+                eye={e}
+                gaze="primer"
+                items={state.lesions[e]}
+                defs={DEFS}
+                showLens={false}
+                stageRef={e === "OD" ? exportOd : exportOs}
+              />
+            ))}
+          </div>
+        )}
+
         {/* Narrative */}
         <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-2">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Narasi klinis otomatis</h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="mr-auto text-xs font-semibold text-slate-500 uppercase tracking-wide">Narasi klinis otomatis</h2>
             <button
               onClick={copy}
               disabled={!narrative}
@@ -360,6 +399,16 @@ export default function GeminiRetinalClient() {
             >
               {copied ? "✓ Tersalin" : "Copy to Clipboard"}
             </button>
+            {(["png", "jpeg"] as ImageFormat[]).map((f) => (
+              <button
+                key={f}
+                onClick={() => setExporting(f)}
+                disabled={!!exporting}
+                className="text-sm font-semibold px-3 py-1.5 rounded-xl border border-teal-600 text-teal-700 hover:bg-teal-50 disabled:opacity-40"
+              >
+                {exporting === f ? "Menyimpan…" : `Simpan ${f === "png" ? "PNG" : "JPEG"} (ODS)`}
+              </button>
+            ))}
           </div>
           <textarea
             readOnly
@@ -406,7 +455,7 @@ function DrPanel({
     <section className="bg-white rounded-xl border border-red-100 shadow-sm p-4 flex flex-col gap-3" data-testid="dr-panel">
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Grading DR {eye} (ICDR)</h2>
-        <span className={`text-sm font-bold px-3 py-1 rounded-full border ${GRADE_STYLE[result.grade]}`} data-testid="dr-grade">
+        <span className={`text-sm font-bold px-3 py-1 rounded-full border ${result.grade === "none" && !result.confirmedNone ? "bg-gray-100 text-gray-600 border-gray-200" : GRADE_STYLE[result.grade]}`} data-testid="dr-grade">
           {result.label}
         </span>
         {result.dmeSuspect && (
@@ -443,6 +492,18 @@ function DrPanel({
           </div>
         </div>
         <div>
+          <label
+            className={`flex items-center gap-1.5 text-sm font-semibold mb-2 ${result.grade === "none" ? "text-slate-800 cursor-pointer" : "text-slate-400"}`}
+          >
+            <input
+              type="checkbox"
+              className="accent-emerald-600"
+              disabled={result.grade !== "none"}
+              checked={result.grade === "none" && input.confirmNoDr}
+              onChange={(e) => onChange({ ...input, confirmNoDr: e.target.checked })}
+            />
+            Tidak tampak retinopati diabetik (sudah diperiksa)
+          </label>
           <p className="text-xs font-semibold text-slate-500 mb-1">Ukuran neovaskularisasi (untuk HRC)</p>
           <label className="flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer">
             <input type="checkbox" className="accent-red-600" checked={input.nvdLarge} onChange={(e) => onChange({ ...input, nvdLarge: e.target.checked })} />
