@@ -84,7 +84,7 @@ function PinShape({ def, at, proj, k }: { def: LesionDef; at: Pt; proj: Projecti
       return (
         <Group key={k}>
           {[[-0.45, 0], [0.4, -0.15], [0.05, 0.35]].map(([dx, dy], i) => (
-            <Circle key={i} x={c.x + dx * r} y={c.y + dy * r} radius={r * 0.55} fill="#fefce8" stroke="#ca8a04" strokeWidth={1} />
+            <Circle key={i} x={c.x + dx * r} y={c.y + dy * r} radius={r * 0.55} fill="#e5e7eb" stroke={def.color} strokeWidth={1} />
           ))}
         </Group>
       );

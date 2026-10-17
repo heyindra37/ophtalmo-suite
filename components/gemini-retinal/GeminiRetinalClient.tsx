@@ -135,7 +135,7 @@ export default function GeminiRetinalClient() {
       buildNarrative(
         state.lesions,
         DEFS,
-        state.drMode ? { OD: drImpression(drResults.OD), OS: drImpression(drResults.OS) } : undefined
+        state.drMode ? { OD: drImpression(drResults.OD) ?? undefined, OS: drImpression(drResults.OS) ?? undefined } : undefined
       ),
     [state.lesions, state.drMode, drResults]
   );
@@ -406,7 +406,7 @@ function DrPanel({
     <section className="bg-white rounded-xl border border-red-100 shadow-sm p-4 flex flex-col gap-3" data-testid="dr-panel">
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Grading DR {eye} (ICDR)</h2>
-        <span className={`text-sm font-bold px-3 py-1 rounded-full border ${GRADE_STYLE[result.grade]}`} data-testid="dr-grade">
+        <span className={`text-sm font-bold px-3 py-1 rounded-full border ${result.grade === "none" && !result.confirmedNone ? "bg-gray-100 text-gray-600 border-gray-200" : GRADE_STYLE[result.grade]}`} data-testid="dr-grade">
           {result.label}
         </span>
         {result.dmeSuspect && (
@@ -443,6 +443,18 @@ function DrPanel({
           </div>
         </div>
         <div>
+          <label
+            className={`flex items-center gap-1.5 text-sm font-semibold mb-2 ${result.grade === "none" ? "text-slate-800 cursor-pointer" : "text-slate-400"}`}
+          >
+            <input
+              type="checkbox"
+              className="accent-emerald-600"
+              disabled={result.grade !== "none"}
+              checked={result.grade === "none" && input.confirmNoDr}
+              onChange={(e) => onChange({ ...input, confirmNoDr: e.target.checked })}
+            />
+            Tidak tampak retinopati diabetik (sudah diperiksa)
+          </label>
           <p className="text-xs font-semibold text-slate-500 mb-1">Ukuran neovaskularisasi (untuk HRC)</p>
           <label className="flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer">
             <input type="checkbox" className="accent-red-600" checked={input.nvdLarge} onChange={(e) => onChange({ ...input, nvdLarge: e.target.checked })} />
