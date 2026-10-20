@@ -29,15 +29,17 @@ function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number
 export function composeImage(
   maps: { eye: "OD" | "OS"; canvas: HTMLCanvasElement }[],
   narrative: string,
-  when: Date
+  when: Date,
+  opts: { title?: string; subtitle?: string; empty?: string } = {}
 ): HTMLCanvasElement {
+  const { title = "Retinal Drawing", subtitle = "peta fundus menghadap pasien (Amsler-Dubois)", empty = "Belum ada lesi yang digambar." } = opts;
   const mapW = maps[0].canvas.width;
   const mapH = maps[0].canvas.height;
   const scope = maps.length === 2 ? "ODS" : maps[0].eye;
   const width = MARGIN * (maps.length + 1) + mapW * maps.length;
   const probe = document.createElement("canvas").getContext("2d")!;
   probe.font = `18px ${FONT}`;
-  const lines = wrapLines(probe, narrative || "Belum ada lesi yang digambar.", width - MARGIN * 2);
+  const lines = wrapLines(probe, narrative || empty, width - MARGIN * 2);
   const height = HEADER + LABEL + mapH + MARGIN + lines.length * LINE_HEIGHT + MARGIN;
 
   const canvas = document.createElement("canvas");
@@ -49,10 +51,10 @@ export function composeImage(
 
   ctx.fillStyle = "#0f172a";
   ctx.font = `bold 30px 'Fraunces', Georgia, serif`;
-  ctx.fillText(`Retinal Drawing — ${scope}`, MARGIN, 52);
+  ctx.fillText(`${title} — ${scope}`, MARGIN, 52);
   ctx.fillStyle = "#64748b";
   ctx.font = `18px ${FONT}`;
-  ctx.fillText(`${when.toLocaleString("id-ID", { dateStyle: "long", timeStyle: "short" })} · peta fundus menghadap pasien (Amsler-Dubois)`, MARGIN, 82);
+  ctx.fillText(`${when.toLocaleString("id-ID", { dateStyle: "long", timeStyle: "short" })} · ${subtitle}`, MARGIN, 82);
 
   const top = HEADER + LABEL;
   ctx.fillStyle = "#0f766e";
@@ -73,12 +75,12 @@ export function composeImage(
   return canvas;
 }
 
-export function downloadCanvas(canvas: HTMLCanvasElement, format: ImageFormat, scope: ExportScope, when: Date) {
+export function downloadCanvas(canvas: HTMLCanvasElement, format: ImageFormat, scope: ExportScope, when: Date, prefix = "retinal-drawing") {
   const pad = (n: number) => String(n).padStart(2, "0");
   const stamp = `${when.getFullYear()}${pad(when.getMonth() + 1)}${pad(when.getDate())}-${pad(when.getHours())}${pad(when.getMinutes())}`;
   const a = document.createElement("a");
   a.href = canvas.toDataURL(format === "png" ? "image/png" : "image/jpeg", 0.92);
-  a.download = `retinal-drawing-${scope}-${stamp}.${format === "png" ? "png" : "jpg"}`;
+  a.download = `${prefix}-${scope}-${stamp}.${format === "png" ? "png" : "jpg"}`;
   document.body.appendChild(a);
   a.click();
   a.remove();

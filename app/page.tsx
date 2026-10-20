@@ -98,6 +98,14 @@ const apps = [
     route: "/gemini-retinal-drawing",
   },
   {
+    icon: "👁️",
+    name: "Anterior Segment Drawing",
+    description:
+      "Dokumentasi segmen anterior slit lamp: gambar lesi palpebra, konjungtiva, kornea, BMD, iris, dan lensa di diagram frontal, otomatis jadi narasi SA OD/OS lengkap dengan posisi jam dan ukuran.",
+    status: "Live" as const,
+    route: "/anterior-segment-drawing",
+  },
+  {
     icon: "🔎",
     name: "Refraction Tools",
     description:
