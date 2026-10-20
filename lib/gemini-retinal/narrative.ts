@@ -33,19 +33,19 @@ export function narrativeLabel(def: LesionDef): string {
   return NARRATIVE_LABEL[def.id] ?? def.name.toLowerCase();
 }
 
-/** Groups a set of sectors into circular contiguous runs following SECTORS order. */
-export function sectorRuns(sectors: Set<Sector>): Sector[][] {
-  if (sectors.size === 0) return [];
-  if (sectors.size === SECTORS.length) return [[...SECTORS]];
-  const has = (i: number) => sectors.has(SECTORS[(i + SECTORS.length) % SECTORS.length]);
+/** Groups members of a circular sequence into contiguous runs following `order`. */
+export function circularRuns<T>(members: Set<T>, order: readonly T[]): T[][] {
+  if (members.size === 0) return [];
+  if (members.size === order.length) return [[...order]];
+  const has = (i: number) => members.has(order[(i + order.length) % order.length]);
   // Start right after a gap so a run wrapping past index 0 stays whole.
   let start = 0;
   while (has(start - 1)) start++;
-  const runs: Sector[][] = [];
-  let cur: Sector[] = [];
-  for (let k = 0; k < SECTORS.length; k++) {
-    const i = (start + k) % SECTORS.length;
-    if (has(i)) cur.push(SECTORS[i]);
+  const runs: T[][] = [];
+  let cur: T[] = [];
+  for (let k = 0; k < order.length; k++) {
+    const i = (start + k) % order.length;
+    if (has(i)) cur.push(order[i]);
     else if (cur.length) {
       runs.push(cur);
       cur = [];
@@ -55,7 +55,12 @@ export function sectorRuns(sectors: Set<Sector>): Sector[][] {
   return runs;
 }
 
-function joinId(parts: string[]): string {
+/** Groups a set of sectors into circular contiguous runs following SECTORS order. */
+export function sectorRuns(sectors: Set<Sector>): Sector[][] {
+  return circularRuns(sectors, SECTORS);
+}
+
+export function joinId(parts: string[]): string {
   if (parts.length <= 1) return parts.join("");
   return `${parts.slice(0, -1).join(", ")} dan ${parts[parts.length - 1]}`;
 }

@@ -1,0 +1,42 @@
+{
+  "kornea": [
+    { "id": "infiltrat", "name": "Infiltrat", "type": "area", "color": "#EAB308", "shape": "soft_fill", "fill_opacity": 0.7, "group": "kornea", "measure": true },
+    { "id": "ulkus", "name": "Ulkus / Defek Epitel (fluoresein)", "type": "area", "color": "#16A34A", "shape": "outline_fill", "group": "kornea", "measure": true },
+    { "id": "dendrit", "name": "Dendrit", "type": "point", "color": "#16A34A", "shape": "dendrite", "group": "kornea" },
+    { "id": "sikatrik", "name": "Sikatrik (nebula/makula/leukoma)", "type": "area", "color": "#6B7280", "shape": "soft_fill", "fill_opacity": 0.6, "group": "kornea", "measure": true },
+    { "id": "edema_kornea", "name": "Edema Kornea", "type": "area", "color": "#3B82F6", "shape": "ring_dots", "group": "kornea" },
+    { "id": "neovaskularisasi", "name": "Neovaskularisasi Kornea", "type": "area", "color": "#DC2626", "shape": "vessel_lines", "group": "kornea" },
+    { "id": "kp", "name": "Keratic Precipitate (KP)", "type": "point", "color": "#92400E", "shape": "kp_dots", "group": "kornea" },
+    { "id": "benda_asing", "name": "Benda Asing", "type": "point", "color": "#111827", "shape": "solid_circle", "group": "kornea" },
+    { "id": "arkus", "name": "Arkus Senilis", "type": "area", "color": "#9CA3AF", "shape": "soft_fill", "fill_opacity": 0.5, "group": "kornea" },
+    { "id": "jahitan", "name": "Jahitan", "type": "point", "color": "#111827", "shape": "suture_x", "group": "kornea" },
+    { "id": "luka_insisi", "name": "Luka Insisi / Laserasi Kornea", "type": "area", "color": "#111827", "shape": "line", "group": "kornea", "measure": true }
+  ],
+  "bmd_iris": [
+    { "id": "hipopion", "name": "Hipopion (klik tinggi permukaan)", "type": "level", "color": "#FDE68A", "shape": "level", "group": "bmd" },
+    { "id": "hifema", "name": "Hifema (klik tinggi permukaan)", "type": "level", "color": "#DC2626", "shape": "level", "group": "bmd" },
+    { "id": "sinekia_anterior", "name": "Sinekia Anterior", "type": "point", "color": "#92400E", "shape": "solid_circle", "group": "iris" },
+    { "id": "sinekia_posterior", "name": "Sinekia Posterior", "type": "point", "color": "#92400E", "shape": "synechia", "group": "iris" },
+    { "id": "iridektomi", "name": "Iridektomi / Iridotomi", "type": "point", "color": "#111827", "shape": "triangle", "group": "iris" },
+    { "id": "rubeosis", "name": "Rubeosis Iridis", "type": "area", "color": "#DC2626", "shape": "vessel_lines", "group": "iris" },
+    { "id": "atrofi_iris", "name": "Atrofi Iris", "type": "area", "color": "#A8A29E", "shape": "soft_fill", "fill_opacity": 0.6, "group": "iris" }
+  ],
+  "lensa": [
+    { "id": "pco", "name": "Posterior Capsule Opacification (PCO)", "type": "area", "color": "#9CA3AF", "shape": "ring_dots", "group": "lensa" },
+    { "id": "kapsulotomi", "name": "Kapsulotomi (Nd:YAG)", "type": "area", "color": "#0EA5E9", "shape": "outline_fill", "group": "lensa" }
+  ],
+  "konjungtiva_palpebra": [
+    { "id": "injeksi_konjungtiva", "name": "Injeksi Konjungtiva", "type": "area", "color": "#EF4444", "shape": "vessel_lines", "group": "konjungtiva" },
+    { "id": "injeksi_siliar", "name": "Injeksi Siliar", "type": "area", "color": "#9F1239", "shape": "soft_fill", "fill_opacity": 0.4, "group": "konjungtiva" },
+    { "id": "kemosis", "name": "Kemosis", "type": "area", "color": "#93C5FD", "shape": "soft_fill", "fill_opacity": 0.45, "group": "konjungtiva" },
+    { "id": "perdarahan_subkonjungtiva", "name": "Perdarahan Subkonjungtiva", "type": "area", "color": "#B91C1C", "shape": "soft_fill", "fill_opacity": 0.8, "group": "konjungtiva" },
+    { "id": "pterigium", "name": "Pterigium", "type": "area", "color": "#F43F5E", "shape": "soft_fill", "fill_opacity": 0.5, "group": "konjungtiva", "measure": true },
+    { "id": "pinguekula", "name": "Pinguekula", "type": "area", "color": "#CA8A04", "shape": "soft_fill", "fill_opacity": 0.6, "group": "konjungtiva" },
+    { "id": "folikel", "name": "Folikel", "type": "point", "color": "#6B7280", "shape": "outlined_circle", "group": "konjungtiva" },
+    { "id": "papil", "name": "Papil", "type": "point", "color": "#EF4444", "shape": "papil_dots", "group": "konjungtiva" },
+    { "id": "sekret", "name": "Sekret", "type": "area", "color": "#A3E635", "shape": "soft_fill", "fill_opacity": 0.6, "group": "konjungtiva" },
+    { "id": "kalazion", "name": "Kalazion", "type": "point", "color": "#92400E", "shape": "outlined_circle", "group": "palpebra" },
+    { "id": "hordeolum", "name": "Hordeolum", "type": "point", "color": "#EF4444", "shape": "hordeolum", "group": "palpebra" },
+    { "id": "laserasi_palpebra", "name": "Laserasi Palpebra", "type": "area", "color": "#111827", "shape": "line", "group": "palpebra", "measure": true }
+  ]
+}
