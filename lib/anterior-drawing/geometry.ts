@@ -80,3 +80,17 @@ export function roundHalf(v: number): number {
 export function fmtMm(v: number): string {
   return roundHalf(v).toLocaleString("id-ID", { maximumFractionDigits: 1 });
 }
+
+export type PterygiumGrade = "I" | "II" | "III" | "IV";
+
+/**
+ * Extent of corneal invasion from the deepest point (head) of any drawn pterygium:
+ * I at the limbus, II ≤2 mm past it, III >2 mm short of the pupil margin, IV at or past the pupil margin.
+ */
+export function pterygiumGrade(points: Pt[], pupilR = R_PUPIL): { grade: PterygiumGrade; invasionMm: number } | null {
+  if (!points.length) return null;
+  const rMin = Math.min(...points.map((p) => Math.hypot(p.x, p.y)));
+  const invasionMm = Math.max(0, R_LIMBUS - rMin);
+  const grade: PterygiumGrade = rMin <= pupilR ? "IV" : invasionMm > 2 ? "III" : invasionMm > 0.5 ? "II" : "I";
+  return { grade, invasionMm };
+}

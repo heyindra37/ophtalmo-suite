@@ -11,6 +11,7 @@ import {
   NORMAL_TEXT,
   buildAnteriorNarrative,
   emptyInputs,
+  pterygiumResult,
   type AnteriorDef,
   type AnteriorInputs,
   type DrawnItem,
@@ -308,7 +309,7 @@ export default function AnteriorClient() {
               </div>
             </section>
 
-            <ExamPanel eye={state.eye} input={input} onChange={setInput} />
+            <ExamPanel eye={state.eye} input={input} items={items} onChange={setInput} />
           </div>
         </div>
 
@@ -399,7 +400,18 @@ function Select<T extends string>({ value, options, onChange }: { value: T; opti
   );
 }
 
-function ExamPanel({ eye, input, onChange }: { eye: Eye; input: AnteriorInputs; onChange: (p: Partial<AnteriorInputs>) => void }) {
+function ExamPanel({
+  eye,
+  input,
+  items,
+  onChange,
+}: {
+  eye: Eye;
+  input: AnteriorInputs;
+  items: DrawnItem[];
+  onChange: (p: Partial<AnteriorInputs>) => void;
+}) {
+  const pt = pterygiumResult(items, input);
   return (
     <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-3" data-testid="exam-panel">
       <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Isian pemeriksaan {eye}</h2>
@@ -419,6 +431,36 @@ function ExamPanel({ eye, input, onChange }: { eye: Eye; input: AnteriorInputs; 
           ))}
         </div>
       </div>
+      {pt && (
+        <div className="rounded-lg border border-rose-100 bg-rose-50/50 p-2 flex flex-col gap-1.5" data-testid="pterygium-panel">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold text-slate-500">Pterigium</span>
+            <span className="text-sm font-bold px-2.5 py-0.5 rounded-full border bg-white border-rose-300 text-rose-800" data-testid="pterygium-grade">
+              Derajat {pt.final}
+            </span>
+            <span className="text-xs text-slate-500">
+              otomatis: {pt.grade}, invasi ±{pt.invasionMm.toLocaleString("id-ID", { maximumFractionDigits: 1 })} mm
+            </span>
+          </div>
+          <Field label="Koreksi derajat">
+            <select
+              value={input.pterygiumGrade}
+              onChange={(e) => onChange({ pterygiumGrade: e.target.value as AnteriorInputs["pterygiumGrade"] })}
+              className={SELECT}
+            >
+              <option value="">Otomatis ({pt.grade})</option>
+              {(["I", "II", "III", "IV"] as const).map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <p className="text-[11px] text-slate-400">
+            I: di limbus · II: ≤2 mm melewati limbus · III: &gt;2 mm, belum mencapai tepi pupil · IV: mencapai/melewati tepi pupil
+          </p>
+        </div>
+      )}
       <div className="grid grid-cols-3 gap-2">
         <Field label="BMD">
           <Select value={input.depth} options={["", "dalam", "dangkal"] as const} onChange={(v) => onChange({ depth: v })} />

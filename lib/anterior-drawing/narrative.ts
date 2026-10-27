@@ -1,5 +1,5 @@
 import { circularRuns, joinId, type DrawnItem } from "@/lib/gemini-retinal/narrative";
-import { clockHour, cornealZone, fmtMm, levelHeight, sideOf, structureOf, type CornealZone, type Eye, type Pt } from "./geometry";
+import { R_PUPIL, clockHour, cornealZone, fmtMm, levelHeight, pterygiumGrade, sideOf, structureOf, type PterygiumGrade, type CornealZone, type Eye, type Pt } from "./geometry";
 
 export type { DrawnItem };
 
@@ -49,6 +49,8 @@ export interface AnteriorInputs {
   p: string;
   iol: "" | "in the bag" | "sulkus" | "BMD (AC IOL)";
   iolCentered: "" | "sentral" | "desentrasi";
+  /** Doctor's override of the auto-computed pterygium grade. */
+  pterygiumGrade: "" | PterygiumGrade;
 }
 
 export function emptyInputs(): AnteriorInputs {
@@ -66,6 +68,7 @@ export function emptyInputs(): AnteriorInputs {
     p: "",
     iol: "",
     iolCentered: "",
+    pterygiumGrade: "",
   };
 }
 
@@ -157,13 +160,31 @@ function inputParts(group: Group, inp: AnteriorInputs): string[] {
   return out;
 }
 
+export function pupilRadius(inp: AnteriorInputs): number {
+  const d = Number(inp.pupilSize.replace(",", "."));
+  return d > 0 && d < 11.5 ? d / 2 : R_PUPIL;
+}
+
+/** Auto grade from the drawing, plus the doctor's override when set. */
+export function pterygiumResult(items: DrawnItem[], inp: AnteriorInputs) {
+  const auto = pterygiumGrade(
+    items.filter((i) => i.lesionId === "pterigium").flatMap((i) => i.points),
+    pupilRadius(inp)
+  );
+  return auto && { ...auto, final: inp.pterygiumGrade || auto.grade, overridden: !!inp.pterygiumGrade };
+}
+
 export function eyeNarrative(eye: Eye, items: DrawnItem[], defs: AnteriorDef[], inp: AnteriorInputs): string | null {
   const groups: string[] = [];
   for (const g of GROUPS) {
     const parts: string[] = [];
     for (const def of defs.filter((d) => d.group === g)) {
       const mine = items.filter((i) => i.lesionId === def.id);
-      if (mine.length) parts.push(lesionPhrase(def, mine, eye));
+      if (!mine.length) continue;
+      let phrase = lesionPhrase(def, mine, eye);
+      const pt = def.id === "pterigium" ? pterygiumResult(items, inp) : null;
+      if (pt) phrase += `, derajat ${pt.final}${pt.overridden ? "" : ` (invasi ±${fmtMm(pt.invasionMm)} mm dari limbus)`}`;
+      parts.push(phrase);
     }
     const extra = inputParts(g, inp);
     if (!parts.length && inp.normal[g] && NORMAL_TEXT[g]) parts.push(NORMAL_TEXT[g]!);

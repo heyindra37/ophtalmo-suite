@@ -30,7 +30,7 @@
     { "id": "injeksi_siliar", "name": "Injeksi Siliar", "type": "area", "color": "#9F1239", "shape": "soft_fill", "fill_opacity": 0.4, "group": "konjungtiva" },
     { "id": "kemosis", "name": "Kemosis", "type": "area", "color": "#93C5FD", "shape": "soft_fill", "fill_opacity": 0.45, "group": "konjungtiva" },
     { "id": "perdarahan_subkonjungtiva", "name": "Perdarahan Subkonjungtiva", "type": "area", "color": "#B91C1C", "shape": "soft_fill", "fill_opacity": 0.8, "group": "konjungtiva" },
-    { "id": "pterigium", "name": "Pterigium", "type": "area", "color": "#F43F5E", "shape": "soft_fill", "fill_opacity": 0.5, "group": "konjungtiva", "measure": true },
+    { "id": "pterigium", "name": "Pterigium", "type": "area", "color": "#F43F5E", "shape": "soft_fill", "fill_opacity": 0.5, "group": "konjungtiva" },
     { "id": "pinguekula", "name": "Pinguekula", "type": "area", "color": "#CA8A04", "shape": "soft_fill", "fill_opacity": 0.6, "group": "konjungtiva" },
     { "id": "folikel", "name": "Folikel", "type": "point", "color": "#6B7280", "shape": "outlined_circle", "group": "konjungtiva" },
     { "id": "papil", "name": "Papil", "type": "point", "color": "#EF4444", "shape": "papil_dots", "group": "konjungtiva" },
