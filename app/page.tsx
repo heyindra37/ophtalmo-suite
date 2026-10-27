@@ -106,6 +106,13 @@ const apps = [
     route: "/anterior-segment-drawing",
   },
   {
+    icon: "🧮",
+    name: "Ophtal-calculator",
+    description: "Kumpulan kalkulator klinis oftalmologi — dimulai dengan Ocular Trauma Score (OTS) beserta prognosis visus.",
+    status: "Live" as const,
+    route: "/ophtal-calculator",
+  },
+  {
     icon: "🔎",
     name: "Refraction Tools",
     description:
