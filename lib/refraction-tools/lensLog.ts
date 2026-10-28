@@ -7,6 +7,14 @@ export interface LensEntry {
   powerD: number;
   reflex: Reflex;
   speed?: ReflexSpeed;
+  /** Band width, same 1–3 scale: a wider reflex is closer to neutral. */
+  width?: ReflexSpeed;
+}
+
+/** How near neutral a reflex looks, from whichever of speed and width were recorded (2 when neither). */
+export function closeness(e: LensEntry): number {
+  const marks = [e.speed, e.width].filter((v): v is ReflexSpeed => v !== undefined);
+  return marks.length ? marks.reduce((s, v) => s + v, 0) / marks.length : 2;
 }
 
 export type NeutralEstimate =
@@ -28,7 +36,7 @@ const WIDE_BRACKET_D = 0.75;
 /**
  * Neutral point from a log of trial lenses on one meridian. With motion needs more plus, so it
  * appears on the less-plus side; neutral lies between the most-plus "with" and the least-plus
- * "against". A faster/wider reflex is nearer neutral, so the estimate leans toward that side.
+ * "against". A faster and/or wider reflex is nearer neutral, so the estimate leans toward that side.
  */
 export function estimateNeutral(entries: LensEntry[]): NeutralEstimate {
   if (!entries.length) return { status: "empty" };
@@ -48,8 +56,8 @@ export function estimateNeutral(entries: LensEntry[]): NeutralEstimate {
   if (!W) return { status: "need-with", againstMin: A!.powerD };
   if (!A) return { status: "need-against", withMax: W.powerD };
 
-  const sW = W.speed ?? 2;
-  const sA = A.speed ?? 2;
+  const sW = closeness(W);
+  const sA = closeness(A);
   const lo = Math.min(W.powerD, A.powerD);
   const hi = Math.max(W.powerD, A.powerD);
   // Lean toward the faster reflex: a fast "with" keeps the estimate close to the with lens.
@@ -61,12 +69,14 @@ export function estimateNeutral(entries: LensEntry[]): NeutralEstimate {
     const towardWith = (sW > sA) === W.powerD < A.powerD;
     powerD = (Math.abs(q - Math.round(q)) === 0.5 ? (towardWith ? Math.floor(q) : Math.ceil(q)) : Math.round(q)) / 4;
   }
+  const midpoint = (W.powerD + A.powerD) / 2;
   return {
     status: "ok",
     source: "bracket",
     powerD,
     bracket,
-    shifted: sW !== sA,
+    // Only claim a shift when it survives rounding to the displayed 0.25 D step.
+    shifted: sW !== sA && Math.round(powerD * 4) !== Math.round(midpoint * 4),
     inconsistent,
     wide: hi - lo > WIDE_BRACKET_D,
   };

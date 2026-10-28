@@ -225,7 +225,7 @@ export default function StreakV2Tab() {
     <div className="flex flex-col gap-5">
       <p className="text-xs text-slate-500">
         Versi 2: catat setiap lensa yang dicoba beserta refleksnya. Bila netral tidak terlihat, netral diperkirakan dari bracket
-        with ↔ against (titik tengah, digeser ke refleks yang lebih cepat). Versi 1 tetap tersedia di tab Streak Workflow.
+        with ↔ against (titik tengah, digeser ke refleks yang lebih cepat/lebar). Versi 1 tetap tersedia di tab Streak Workflow.
       </p>
       <div className="flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm text-slate-700">

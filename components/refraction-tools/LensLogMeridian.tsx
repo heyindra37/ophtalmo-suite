@@ -12,6 +12,18 @@ const REFLEX_STYLE: Record<Reflex, string> = {
   against: "bg-amber-50 text-amber-800 border-amber-200",
 };
 const SPEED_LABEL: Record<ReflexSpeed, string> = { 1: "lambat", 2: "sedang", 3: "cepat" };
+const WIDTH_LABEL: Record<ReflexSpeed, string> = { 1: "sempit", 2: "sedang", 3: "lebar" };
+
+/** Next-lens hint worded for the sign of the lens in hand. */
+function nextLensHint(powerD: number, needMorePlus: boolean): string {
+  if (needMorePlus) return powerD < 0 ? "kurangi minus" : "tambah plus";
+  return powerD > 0 ? "kurangi plus" : "tambah minus";
+}
+
+function entryNotes(e: LensEntry): string {
+  const notes = [e.speed && SPEED_LABEL[e.speed], e.width && WIDTH_LABEL[e.width]].filter(Boolean);
+  return notes.length ? ` (${notes.join(", ")})` : "";
+}
 
 let seq = 0;
 const newId = () => `l${Date.now().toString(36)}${(seq++).toString(36)}`;
@@ -27,8 +39,12 @@ export default function LensLogMeridian({
   overrideRaw: string;
   onOverrideChange: (raw: string) => void;
 }) {
-  const [powerRaw, setPowerRaw] = useState("+1,00");
+  // Start at plano, or at the last lens tried when the log already has entries.
+  const [powerRaw, setPowerRaw] = useState(() =>
+    entries.length ? formatSignedDisplay(entries[entries.length - 1].powerD) : "0,00"
+  );
   const [speed, setSpeed] = useState<ReflexSpeed | null>(null);
+  const [width, setWidth] = useState<ReflexSpeed | null>(null);
   const power = parseDecimal(powerRaw);
   const est = estimateNeutral(entries);
   const sorted = [...entries].sort((a, b) => a.powerD - b.powerD);
@@ -36,7 +52,11 @@ export default function LensLogMeridian({
   const step = (d: number) => setPowerRaw(formatSignedDisplay((power ?? 0) + d));
   const add = (reflex: Reflex) => {
     if (power === null) return;
-    onChange([...entries, { id: newId(), powerD: power, reflex, ...(speed && reflex !== "neutral" ? { speed } : {}) }]);
+    const graded = reflex !== "neutral";
+    onChange([
+      ...entries,
+      { id: newId(), powerD: power, reflex, ...(speed && graded ? { speed } : {}), ...(width && graded ? { width } : {}) },
+    ]);
   };
   const isBracket = (e: LensEntry) =>
     est.status === "ok" && est.bracket !== null && est.source === "bracket" &&
@@ -59,16 +79,31 @@ export default function LensLogMeridian({
         <button type="button" onClick={() => step(0.25)} className="w-9 h-9 rounded-lg bg-gray-100 text-slate-700 font-bold">
           +
         </button>
+      </div>
+      <div className="grid grid-cols-2 gap-1.5">
         <select
           aria-label="Kecepatan refleks"
           value={speed ?? ""}
           onChange={(e) => setSpeed(e.target.value ? (Number(e.target.value) as ReflexSpeed) : null)}
-          className="ml-auto border border-gray-200 rounded-lg px-2 py-2 text-xs bg-white"
+          className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs bg-white"
         >
           <option value="">kecepatan —</option>
           {([1, 2, 3] as ReflexSpeed[]).map((s) => (
             <option key={s} value={s}>
               {SPEED_LABEL[s]}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Lebar refleks"
+          value={width ?? ""}
+          onChange={(e) => setWidth(e.target.value ? (Number(e.target.value) as ReflexSpeed) : null)}
+          className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs bg-white"
+        >
+          <option value="">lebar —</option>
+          {([1, 2, 3] as ReflexSpeed[]).map((s) => (
+            <option key={s} value={s}>
+              {WIDTH_LABEL[s]}
             </option>
           ))}
         </select>
@@ -97,7 +132,7 @@ export default function LensLogMeridian({
               <span className="font-mono font-semibold w-14">{formatSignedDisplay(e.powerD)}</span>
               <span>
                 {REFLEX_LABEL[e.reflex]}
-                {e.speed ? ` (${SPEED_LABEL[e.speed]})` : ""}
+                {entryNotes(e)}
               </span>
               <button
                 type="button"
@@ -114,15 +149,17 @@ export default function LensLogMeridian({
 
       <div className="text-xs rounded-lg bg-gray-50 border border-gray-100 px-2 py-1.5 text-slate-600" data-testid="neutral-estimate">
         {est.status === "empty" && "Catat lensa yang dicoba beserta refleksnya."}
-        {est.status === "need-against" && `Baru ada with (s.d. ${formatSignedDisplay(est.withMax)}) — tambah plus sampai muncul against.`}
-        {est.status === "need-with" && `Baru ada against (mulai ${formatSignedDisplay(est.againstMin)}) — kurangi plus sampai muncul with.`}
+        {est.status === "need-against" &&
+          `Baru ada with (s.d. ${formatSignedDisplay(est.withMax)}) — ${nextLensHint(est.withMax, true)} sampai muncul against.`}
+        {est.status === "need-with" &&
+          `Baru ada against (mulai ${formatSignedDisplay(est.againstMin)}) — ${nextLensHint(est.againstMin, false)} sampai muncul with.`}
         {est.status === "ok" && (
           <>
             <b className="text-slate-900">Estimasi netral {formatSignedDisplay(est.powerD)}</b>{" "}
             {est.source === "observed"
               ? "(netral teramati)"
               : `(bracket ${formatSignedDisplay(est.bracket!.withD)} ↔ ${formatSignedDisplay(est.bracket!.againstD)}, ${
-                  est.shifted ? "digeser ke refleks yang lebih cepat" : "titik tengah"
+                  est.shifted ? "digeser ke refleks yang lebih cepat/lebar" : "titik tengah"
                 })`}
             {est.inconsistent && (
               <span className="block text-red-600 font-semibold">⚠ Tidak konsisten: ada with pada lensa lebih plus daripada against. Cek ulang.</span>
