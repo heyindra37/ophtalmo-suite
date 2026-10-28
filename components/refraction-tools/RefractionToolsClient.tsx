@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import StreakWorkflowTab from "./StreakWorkflowTab";
+import StreakV2Tab from "./StreakV2Tab";
 import TransposeTab from "./TransposeTab";
 import SphericalEquivalentTab from "./SphericalEquivalentTab";
 import Disclaimer from "./Disclaimer";
 
 export default function RefractionToolsClient() {
-  const [tab, setTab] = useState<"streak" | "transpose" | "se">("streak");
+  const [tab, setTab] = useState<"streak" | "streak2" | "transpose" | "se">("streak");
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -27,7 +28,7 @@ export default function RefractionToolsClient() {
       </div>
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-6 py-8 flex flex-col gap-5">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setTab("streak")}
             className={`text-sm font-semibold px-4 py-2 rounded-lg border ${
@@ -37,6 +38,16 @@ export default function RefractionToolsClient() {
             }`}
           >
             Streak Workflow
+          </button>
+          <button
+            onClick={() => setTab("streak2")}
+            className={`text-sm font-semibold px-4 py-2 rounded-lg border ${
+              tab === "streak2"
+                ? "bg-teal-600 border-teal-600 text-white"
+                : "bg-white border-gray-200 text-slate-600"
+            }`}
+          >
+            Streak v2
           </button>
           <button
             onClick={() => setTab("transpose")}
@@ -60,7 +71,7 @@ export default function RefractionToolsClient() {
           </button>
         </div>
 
-        {tab === "streak" ? <StreakWorkflowTab /> : tab === "transpose" ? <TransposeTab /> : <SphericalEquivalentTab />}
+        {tab === "streak" ? <StreakWorkflowTab /> : tab === "streak2" ? <StreakV2Tab /> : tab === "transpose" ? <TransposeTab /> : <SphericalEquivalentTab />}
       </main>
 
       <Disclaimer />
