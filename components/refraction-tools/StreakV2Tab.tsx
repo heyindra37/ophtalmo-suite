@@ -26,6 +26,8 @@ import EyeResultBlock from "./EyeResultBlock";
 import OrthogonalityAlert from "./OrthogonalityAlert";
 import AnisometropiaBadge from "./AnisometropiaBadge";
 import CopyButton from "./CopyButton";
+import ShareBar from "./ShareBar";
+import type { StreakV2Snapshot } from "@/lib/refraction-tools/share";
 
 type Eye = "OD" | "OS";
 
@@ -196,6 +198,27 @@ export default function StreakV2Tab() {
   const [os, setOs] = useState<EyeV2State>(defaultEyeV2());
   const [cycloplegia, setCycloplegia] = useState<CycloplegiaStatus>("none");
   const [pediatric, setPediatric] = useState(false);
+  // Bumped when data is loaded from the phone so per-meridian steppers remount with the new log.
+  const [loadVersion, setLoadVersion] = useState(0);
+
+  const snapshot = (): StreakV2Snapshot => ({ v: 1, singleEyeOnly, onlyEye, cycloplegia, pediatric, od, os });
+  const loadSnapshot = (s: StreakV2Snapshot) => {
+    const base = defaultEyeV2();
+    const eye = (e: unknown): EyeV2State => {
+      const v = e as Partial<EyeV2State>;
+      return { ...base, ...v, arkBcva: { ...base.arkBcva, ...v.arkBcva }, reflexFlags: { ...base.reflexFlags, ...v.reflexFlags } };
+    };
+    setSingleEyeOnly(s.singleEyeOnly);
+    setOnlyEye(s.onlyEye);
+    setCycloplegia(s.cycloplegia as CycloplegiaStatus);
+    setPediatric(s.pediatric);
+    setOd(eye(s.od));
+    setOs(eye(s.os));
+    setLoadVersion((n) => n + 1);
+  };
+  const hasData = [od, os].some(
+    (e) => e.log1.length || e.log2.length || e.override1 || e.override2 || Object.values(e.arkBcva).some((r) => r.checked)
+  );
 
   const odResult = useMemo(() => computeEye(od), [od]);
   const osResult = useMemo(() => computeEye(os), [os]);
@@ -227,6 +250,8 @@ export default function StreakV2Tab() {
         Versi 2: catat setiap lensa yang dicoba beserta refleksnya. Bila netral tidak terlihat, netral diperkirakan dari bracket
         with ↔ against (titik tengah, digeser ke refleks yang lebih cepat/lebar). Versi 1 tetap tersedia di tab Streak Workflow.
       </p>
+      <ShareBar snapshot={snapshot} hasData={!!hasData} onLoad={loadSnapshot} />
+
       <div className="flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm text-slate-700">
           <input type="checkbox" checked={singleEyeOnly} onChange={(e) => setSingleEyeOnly(e.target.checked)} />
@@ -256,8 +281,8 @@ export default function StreakV2Tab() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {showOD && <EyeV2Panel eye="OD" value={od} onChange={setOd} />}
-        {showOS && <EyeV2Panel eye="OS" value={os} onChange={setOs} />}
+        {showOD && <EyeV2Panel key={`OD-${loadVersion}`} eye="OD" value={od} onChange={setOd} />}
+        {showOS && <EyeV2Panel key={`OS-${loadVersion}`} eye="OS" value={os} onChange={setOs} />}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
