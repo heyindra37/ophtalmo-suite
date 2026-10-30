@@ -60,9 +60,9 @@ function buildSectionCopyText(
   scenario: string | null,
   drugValues: Record<string, string>
 ): string {
-  const title = renderText(section.title, anchorDate, drugValues);
+  // Body only: the section heading is for the screen, not for the medical record.
   const items = section.items ? visibleItems(section.items, scenario) : [];
-  const lines: string[] = [`${t.name} — ${title}`];
+  const lines: string[] = [];
   if (items.length > 0) {
     for (const item of items) lines.push(`- ${renderText(itemText(item), anchorDate, drugValues)}`);
   } else if (section.text) {
