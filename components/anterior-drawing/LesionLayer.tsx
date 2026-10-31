@@ -31,6 +31,22 @@ function resample(points: Pt[], step: number): Pt[] {
   return out;
 }
 
+/** Points every `step` mm along a polyline, with the unit tangent there (both in mm, y up). */
+function walk(points: Pt[], step: number): { p: Pt; t: Pt }[] {
+  const out: { p: Pt; t: Pt }[] = [];
+  let carry = 0;
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1];
+    const b = points[i];
+    const len = Math.hypot(b.x - a.x, b.y - a.y);
+    if (len === 0) continue;
+    const t = { x: (b.x - a.x) / len, y: (b.y - a.y) / len };
+    for (let d = carry; d <= len; d += step) out.push({ p: { x: a.x + t.x * d, y: a.y + t.y * d }, t });
+    carry = (((carry - len) % step) + step) % step;
+  }
+  return out;
+}
+
 function PinShape({ def, at, proj }: { def: AnteriorDef; at: Pt; proj: Projection }) {
   const c = proj.toScreen(at);
   const r = PIN * proj.scale;
@@ -86,6 +102,42 @@ function PinShape({ def, at, proj }: { def: AnteriorDef; at: Pt; proj: Projectio
           <Circle x={c.x} y={c.y} radius={r * 0.45} fill="#FACC15" />
         </Group>
       );
+    case "three_fingers": {
+      // Hyperaemia: three red streaks fanning from the click (near a canthus) toward the limbus.
+      const len = Math.hypot(at.x, at.y) || 1;
+      const base = Math.atan2(at.y / len, -at.x / len); // screen angle pointing to the corneal centre
+      const L = r * 10;
+      return (
+        <Group>
+          {[-0.35, 0, 0.35].map((da, i) => {
+            const a = base + da;
+            const mid = { x: c.x + Math.cos(a) * L * 0.5 + Math.sin(a) * r * 0.4, y: c.y + Math.sin(a) * L * 0.5 - Math.cos(a) * r * 0.4 };
+            return (
+              <Line
+                key={i}
+                points={[c.x, c.y, mid.x, mid.y, c.x + Math.cos(a) * L, c.y + Math.sin(a) * L]}
+                stroke={def.color}
+                strokeWidth={Math.max(1.5, r * 0.3)}
+                tension={0.5}
+                lineCap="round"
+              />
+            );
+          })}
+        </Group>
+      );
+    }
+    case "suture_line": {
+      // A single suture: short radial bite with a perpendicular knot line.
+      const len = Math.hypot(at.x, at.y) || 1;
+      const u = { x: at.x / len, y: -at.y / len };
+      const v = { x: -u.y, y: u.x };
+      return (
+        <Group>
+          <Line points={[c.x - u.x * r * 1.6, c.y - u.y * r * 1.6, c.x + u.x * r * 1.6, c.y + u.y * r * 1.6]} stroke={def.color} strokeWidth={1.5} />
+          <Line points={[c.x - v.x * r, c.y - v.y * r, c.x + v.x * r, c.y + v.y * r]} stroke={def.color} strokeWidth={1.5} />
+        </Group>
+      );
+    }
     default:
       return <Circle x={c.x} y={c.y} radius={r * 0.6} fill={def.color} />;
   }
@@ -126,6 +178,60 @@ function AreaShape({ def, item, proj }: { def: AnteriorDef; item: DrawnItem; pro
           })}
         </Group>
       );
+    case "coil": {
+      // Chemosis: a red line of small repeated loops following the stroke (prolate cycloid).
+      const R = Math.max(0.35, (item.width ?? 1) * 0.35);
+      const pitch = R * 2.2;
+      const flatPts: number[] = [];
+      walk(item.points, 0.08).forEach(({ p, t }, i) => {
+        const th = (i * 0.08 * 2 * Math.PI) / pitch;
+        const n = { x: -t.y, y: t.x };
+        const q = { x: p.x - t.x * R * Math.sin(th) + n.x * R * Math.cos(th), y: p.y - t.y * R * Math.sin(th) + n.y * R * Math.cos(th) };
+        const sp = proj.toScreen(q);
+        flatPts.push(sp.x, sp.y);
+      });
+      return <Line points={flatPts} stroke={def.color} strokeWidth={1.5} lineJoin="round" />;
+    }
+    case "hatch_lines":
+      // Corneal oedema: short parallel black strokes along the drawn area.
+      return (
+        <Group>
+          {walk(item.points, 0.5).map(({ p }, i) => {
+            const s = proj.toScreen(p);
+            const d = w * 0.45;
+            return <Line key={i} points={[s.x - d, s.y + d, s.x + d, s.y - d]} stroke={def.color} strokeWidth={1.3} />;
+          })}
+        </Group>
+      );
+    case "dotted_block":
+      // Stromal haze: translucent grey block sprinkled with grey dots.
+      return (
+        <Group>
+          <Line {...common} stroke={def.color} strokeWidth={w} opacity={0.45} />
+          {walk(item.points, 0.3).flatMap(({ p }, i) =>
+            [0, 1].map((j) => {
+              const s = proj.toScreen(p);
+              const jx = Math.sin((i * 2 + j) * 12.9898) * w * 0.4;
+              const jy = Math.cos((i * 2 + j) * 78.233) * w * 0.4;
+              return <Circle key={`${i}-${j}`} x={s.x + jx} y={s.y + jy} radius={Math.max(1, w * 0.06)} fill="#6B7280" />;
+            })
+          )}
+        </Group>
+      );
+    case "suture_line": {
+      // Sutured wound: black line with perpendicular stitches about every 1 mm.
+      return (
+        <Group>
+          <Line {...common} stroke={def.color} strokeWidth={1.8} tension={0} />
+          {walk(item.points, 1).map(({ p, t }, i) => {
+            const s = proj.toScreen(p);
+            const d = 0.6 * proj.scale;
+            const v = { x: -t.y, y: -t.x }; // perpendicular, in screen coordinates (y down)
+            return <Line key={i} points={[s.x - v.x * d, s.y - v.y * d, s.x + v.x * d, s.y + v.y * d]} stroke={def.color} strokeWidth={1.5} />;
+          })}
+        </Group>
+      );
+    }
     case "line":
       return <Line {...common} stroke={def.color} strokeWidth={Math.max(1.5, w * 0.15)} />;
     default:
