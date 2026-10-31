@@ -53,7 +53,7 @@ export function structureOf(p: Pt, eye: Eye): Structure {
   const r = Math.hypot(p.x, p.y);
   if (r <= R_LIMBUS - 0.5) return "kornea";
   if (r <= R_LIMBUS + 0.5) return "limbus";
-  if (Math.abs(p.x) >= FISSURE_HALF_W - 1.5 && Math.abs(p.y) < 2.5) return isNasal(p.x, eye) ? "kantus medial" : "kantus lateral";
+  if (Math.abs(p.x) >= FISSURE_HALF_W - 2.5 && Math.abs(p.y) < 2.5) return isNasal(p.x, eye) ? "kantus medial" : "kantus lateral";
   if (p.y < upperLid(p.x) && p.y > lowerLid(p.x)) return "konjungtiva bulbi";
   return p.y > 0 ? "palpebra superior" : "palpebra inferior";
 }

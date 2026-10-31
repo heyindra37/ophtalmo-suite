@@ -31,6 +31,8 @@ export interface AnteriorDef {
   fill_opacity?: number;
   group: Group;
   measure?: boolean;
+  /** false = never prefix a pin count (e.g. hyperaemia placed once per canthus). */
+  count?: boolean;
 }
 
 export const GRADES = ["", "0", "0,5+", "1+", "2+", "3+", "4+"] as const;
@@ -125,12 +127,13 @@ function wherePhrase(def: AnteriorDef, items: DrawnItem[], eye: Eye): string {
 }
 
 export function lesionPhrase(def: AnteriorDef, items: DrawnItem[], eye: Eye): string {
-  const name = def.name.replace(/\s*\(.*\)$/, "").toLowerCase();
+  // Drop explanatory parentheses such as "(KP)", but keep a result marker like "(+)".
+  const name = def.name.replace(/\s*\((?!\+\)).*\)$/, "").toLowerCase();
   if (def.type === "level") {
     return `${name} setinggi ${fmtMm(levelHeight(items[items.length - 1].points[0]))} mm`;
   }
   const pins = items.filter((i) => i.kind === "pin").length;
-  const count = pins > 1 && pins === items.length ? `${pins} ` : "";
+  const count = def.count !== false && pins > 1 && pins === items.length ? `${pins} ` : "";
   const where = wherePhrase(def, items, eye);
   const size = def.measure && items.length === 1 && items[0].kind === "stroke" ? `, ${sizePhrase(items[0])}` : "";
   return `${count}${name}${where ? ` ${where}` : ""}${size}`;
