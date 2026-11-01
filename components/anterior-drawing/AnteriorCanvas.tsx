@@ -81,6 +81,7 @@ export function AnteriorCanvas({
   onPin,
   onStroke,
   onErase,
+  onActivate,
   stageRef,
 }: {
   size: number;
@@ -93,6 +94,8 @@ export function AnteriorCanvas({
   onPin?: (p: Pt) => void;
   onStroke?: (pts: Pt[]) => void;
   onErase?: (p: Pt) => void;
+  /** Fired at the start of every pointer-down, so a parent can make this eye the active one. */
+  onActivate?: () => void;
   stageRef?: Ref<Konva.Stage>;
 }) {
   const scale = size / (2 * EXTENT);
@@ -111,6 +114,7 @@ export function AnteriorCanvas({
   const down = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     const p = pointer(e.target.getStage());
     if (!p) return;
+    onActivate?.();
     if (tool === "erase") return onErase?.(p);
     if (tool === "pin") return onPin?.(p);
     drawing.current = [p];

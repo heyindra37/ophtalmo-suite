@@ -54,8 +54,8 @@ function normalizeState(raw: Partial<State>): State {
 
 type Action =
   | { type: "eye"; eye: Eye }
-  | { type: "add"; item: DrawnItem }
-  | { type: "remove"; uid: string }
+  | { type: "add"; item: DrawnItem; eye?: Eye }
+  | { type: "remove"; uid: string; eye?: Eye }
   | { type: "undo" }
   | { type: "clear" }
   | { type: "load"; state: State }
@@ -66,10 +66,15 @@ function reducer(s: State, a: Action): State {
   switch (a.type) {
     case "eye":
       return { ...s, eye: a.eye };
-    case "add":
-      return set([...s.lesions[s.eye], a.item]);
-    case "remove":
-      return set(s.lesions[s.eye].filter((i) => i.uid !== a.uid));
+    // add/remove name their eye explicitly so a stroke always lands on the canvas it was drawn on.
+    case "add": {
+      const e = a.eye ?? s.eye;
+      return { ...s, lesions: { ...s.lesions, [e]: [...s.lesions[e], a.item] } };
+    }
+    case "remove": {
+      const e = a.eye ?? s.eye;
+      return { ...s, lesions: { ...s.lesions, [e]: s.lesions[e].filter((i) => i.uid !== a.uid) } };
+    }
     case "undo":
       return set(s.lesions[s.eye].slice(0, -1));
     case "clear":
@@ -143,18 +148,22 @@ export default function AnteriorClient() {
     if (d) setTool(d.type === "area" ? "brush" : "pin");
   };
 
-  const addPin = (p: Pt) => dispatch({ type: "add", item: { uid: uid(), lesionId, kind: "pin", points: [p] } });
-  const addStroke = (pts: Pt[]) =>
+  const activate = (eye: Eye) => {
+    if (state.eye !== eye) dispatch({ type: "eye", eye });
+  };
+  const addPin = (eye: Eye) => (p: Pt) => dispatch({ type: "add", eye, item: { uid: uid(), lesionId, kind: "pin", points: [p] } });
+  const addStroke = (eye: Eye) => (pts: Pt[]) =>
     dispatch({
       type: "add",
+      eye,
       item:
         pts.length === 1 || def.type !== "area"
           ? { uid: uid(), lesionId, kind: pts.length === 1 ? "pin" : "stroke", points: pts }
           : { uid: uid(), lesionId, kind: "stroke", points: pts, width: brushWidth },
     });
-  const erase = (p: Pt) => {
-    const hit = nearestItem(items, p, 1);
-    if (hit) dispatch({ type: "remove", uid: hit.uid });
+  const erase = (eye: Eye) => (p: Pt) => {
+    const hit = nearestItem(state.lesions[eye], p, 1);
+    if (hit) dispatch({ type: "remove", eye, uid: hit.uid });
   };
 
   useEffect(() => {
@@ -186,13 +195,13 @@ export default function AnteriorClient() {
       setTimeout(() => setCopied(false), 2000);
     });
 
-  const canvasSize = Math.max(280, Math.min(canvasW, 640));
+  const canvasSize = Math.max(260, Math.min(canvasW, 560));
   const setInput = (patch: Partial<AnteriorInputs>) => dispatch({ type: "input", input: { ...input, ...patch } });
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4 flex-wrap">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4 flex-wrap">
           <Link href="/" className="text-teal-600 text-sm font-medium hover:underline">
             ← Kembali
           </Link>
@@ -215,29 +224,51 @@ export default function AnteriorClient() {
         </div>
       </div>
 
-      <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 flex flex-col gap-5">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 flex flex-col gap-5">
         <p className="text-xs text-slate-500">
           Gambar langsung seperti yang terlihat di slit lamp (pemeriksa menghadap pasien). Posisi jam, zona kornea, dan
-          ukuran (mm) dihitung otomatis. Hipopion/hifema: klik tinggi permukaan cairan.
+          ukuran (mm) dihitung otomatis. Hipopion/hifema: klik tinggi permukaan cairan. Sentuh kanvas OD atau OS untuk memilih mata yang digambar.
         </p>
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-5 items-start">
           <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-2 min-w-0">
-            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Segmen anterior {state.eye}</h2>
-            <div ref={canvasRef} className="w-full flex justify-center">
-              {canvasW > 0 && (
-                <AnteriorCanvas
-                  size={canvasSize}
-                  eye={state.eye}
-                  items={items}
-                  defs={DEFS}
-                  pupilSize={pupilSize(state.eye)}
-                  tool={tool}
-                  brushWidth={brushWidth}
-                  onPin={addPin}
-                  onStroke={addStroke}
-                  onErase={erase}
-                />
-              )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {(["OD", "OS"] as Eye[]).map((e, i) => (
+                <div
+                  key={e}
+                  ref={i === 0 ? canvasRef : undefined}
+                  data-testid={`pane-${e}`}
+                  data-active={state.eye === e}
+                  className={`flex flex-col gap-1 min-w-0 rounded-xl p-1.5 border-2 transition-colors ${
+                    state.eye === e ? "border-teal-500 bg-teal-50/40" : "border-transparent"
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => activate(e)}
+                    className="self-start text-xs font-semibold text-slate-500 uppercase tracking-wide hover:text-teal-700"
+                  >
+                    {e} — {e === "OD" ? "mata kanan" : "mata kiri"}
+                    {state.eye === e && <span className="ml-1.5 normal-case text-teal-700">· aktif</span>}
+                  </button>
+                  <div className="w-full flex justify-center">
+                    {canvasW > 0 && (
+                      <AnteriorCanvas
+                        size={canvasSize}
+                        eye={e}
+                        items={state.lesions[e]}
+                        defs={DEFS}
+                        pupilSize={pupilSize(e)}
+                        tool={tool}
+                        brushWidth={brushWidth}
+                        onPin={addPin(e)}
+                        onStroke={addStroke(e)}
+                        onErase={erase(e)}
+                        onActivate={() => activate(e)}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
             <p className="text-[11px] text-slate-400">N = nasal, T = temporal. Angka = posisi jam.</p>
           </section>
