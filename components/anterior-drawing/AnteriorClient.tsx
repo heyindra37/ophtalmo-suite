@@ -66,6 +66,7 @@ type Action =
   | { type: "remove"; uid: string; eye?: Eye }
   | { type: "undo" }
   | { type: "clear" }
+  | { type: "clearAll" }
   | { type: "load"; state: State }
   | { type: "input"; input: AnteriorInputs }
   | { type: "callouts"; on: boolean };
@@ -88,6 +89,9 @@ function reducer(s: State, a: Action): State {
       return set(s.lesions[s.eye].slice(0, -1));
     case "clear":
       return { ...set([]), inputs: { ...s.inputs, [s.eye]: emptyInputs() } };
+    // New patient: both eyes' drawings and exam inputs; display settings (callouts, active eye) stay.
+    case "clearAll":
+      return { ...s, lesions: { OD: [], OS: [] }, inputs: { OD: emptyInputs(), OS: emptyInputs() } };
     case "load":
       return a.state;
     case "input":
@@ -387,6 +391,12 @@ export default function AnteriorClient() {
                   className="flex-1 rounded-lg py-1.5 text-sm font-semibold bg-red-50 text-red-600 hover:bg-red-100"
                 >
                   Reset {state.eye}
+                </button>
+                <button
+                  onClick={() => confirm("Hapus semua gambar & isian OD dan OS?") && dispatch({ type: "clearAll" })}
+                  className="flex-1 rounded-lg py-1.5 text-sm font-semibold bg-red-50 text-red-600 hover:bg-red-100"
+                >
+                  Reset ODS
                 </button>
               </div>
             </section>

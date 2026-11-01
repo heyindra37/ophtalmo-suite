@@ -60,6 +60,7 @@ type Action =
   | { type: "add"; item: DrawnItem }
   | { type: "undo" }
   | { type: "clear" }
+  | { type: "clearAll" }
   | { type: "load"; state: State }
   | { type: "drMode"; on: boolean }
   | { type: "drInput"; input: DrInputs };
@@ -74,6 +75,10 @@ function reducer(s: State, a: Action): State {
       return { ...s, lesions: { ...s.lesions, [s.eye]: s.lesions[s.eye].slice(0, -1) } };
     case "clear":
       return { ...s, lesions: { ...s.lesions, [s.eye]: [] } };
+    // New patient: both eyes' drawings and DR ticks, so "tidak tampak retinopati" never carries over.
+    // The DR mode switch is a setting and stays.
+    case "clearAll":
+      return { ...s, lesions: { OD: [], OS: [] }, drInputs: { OD: emptyDrInputs(), OS: emptyDrInputs() } };
     case "load":
       return a.state;
     case "drMode":
@@ -357,6 +362,12 @@ export default function GeminiRetinalClient() {
                   className="flex-1 rounded-lg py-1.5 text-sm font-semibold bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-40"
                 >
                   Hapus {state.eye}
+                </button>
+                <button
+                  onClick={() => confirm("Hapus semua gambar OD dan OS?") && dispatch({ type: "clearAll" })}
+                  className="flex-1 rounded-lg py-1.5 text-sm font-semibold bg-red-50 text-red-600 hover:bg-red-100"
+                >
+                  Hapus ODS
                 </button>
               </div>
             </section>
