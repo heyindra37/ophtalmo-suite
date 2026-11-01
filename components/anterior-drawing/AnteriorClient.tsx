@@ -17,8 +17,10 @@ import {
   type DrawnItem,
   type Group,
 } from "@/lib/anterior-drawing/narrative";
-import { composeImage, downloadCanvas, type ExportScope, type ImageFormat } from "@/lib/gemini-retinal/exportImage";
+import { MARGIN as PAGE_MARGIN, composeImage, downloadCanvas, type ExportScope, type ImageFormat } from "@/lib/gemini-retinal/exportImage";
+import { layoutAll, legendEntries } from "@/lib/anterior-drawing/callouts";
 import { AnteriorCanvas } from "./AnteriorCanvas";
+import { LegendStage, makeMeasure } from "./Callouts";
 
 const CATEGORY_LABELS: Record<string, string> = {
   kornea: "Kornea",
@@ -30,16 +32,22 @@ const CATEGORY_LABELS: Record<string, string> = {
 const CATEGORIES = Object.entries(lesionConfig as Record<string, AnteriorDef[]>);
 const DEFS: AnteriorDef[] = CATEGORIES.flatMap(([, defs]) => defs);
 const LS_KEY = "anterior-drawing:v1";
+// Export renders its own 700 px stages, so labels are laid out again at that size.
+const EXPORT_SIZE = 700;
+const EXPORT_FS = 19;
+const EXPORT_LEGEND_FS = 17;
 const EXPORT_OPTS = { title: "Anterior Segment Drawing", subtitle: "pemeriksa menghadap pasien (slit lamp)", empty: "Belum ada temuan." };
 
 interface State {
   eye: Eye;
   lesions: Record<Eye, DrawnItem[]>;
   inputs: Record<Eye, AnteriorInputs>;
+  /** Callouts on the canvases and in exported images (the legend is always shown). */
+  showCallouts: boolean;
 }
 
 function initialState(): State {
-  return { eye: "OD", lesions: { OD: [], OS: [] }, inputs: { OD: emptyInputs(), OS: emptyInputs() } };
+  return { eye: "OD", lesions: { OD: [], OS: [] }, inputs: { OD: emptyInputs(), OS: emptyInputs() }, showCallouts: true };
 }
 
 function normalizeState(raw: Partial<State>): State {
@@ -59,7 +67,8 @@ type Action =
   | { type: "undo" }
   | { type: "clear" }
   | { type: "load"; state: State }
-  | { type: "input"; input: AnteriorInputs };
+  | { type: "input"; input: AnteriorInputs }
+  | { type: "callouts"; on: boolean };
 
 function reducer(s: State, a: Action): State {
   const set = (items: DrawnItem[]) => ({ ...s, lesions: { ...s.lesions, [s.eye]: items } });
@@ -83,6 +92,8 @@ function reducer(s: State, a: Action): State {
       return a.state;
     case "input":
       return { ...s, inputs: { ...s.inputs, [s.eye]: a.input } };
+    case "callouts":
+      return { ...s, showCallouts: a.on };
   }
 }
 
@@ -118,8 +129,10 @@ export default function AnteriorClient() {
   const [exportScope, setExportScope] = useState<ExportScope>("ODS");
   const exportOd = useRef<Konva.Stage>(null);
   const exportOs = useRef<Konva.Stage>(null);
+  const exportLegend = useRef<Konva.Stage>(null);
   const [hydrated, setHydrated] = useState(false);
   const [canvasRef, canvasW] = useWidth<HTMLDivElement>();
+  const [legendRef, legendW] = useWidth<HTMLDivElement>();
 
   useEffect(() => {
     try {
@@ -176,7 +189,10 @@ export default function AnteriorClient() {
           const text = buildAnteriorNarrative(state.lesions, DEFS, state.inputs, eyes);
           const when = new Date();
           downloadCanvas(
-            composeImage(maps as { eye: Eye; canvas: HTMLCanvasElement }[], text, when, EXPORT_OPTS),
+            composeImage(maps as { eye: Eye; canvas: HTMLCanvasElement }[], text, when, {
+              ...EXPORT_OPTS,
+              legend: exportLegend.current?.toCanvas({ pixelRatio: 1 }),
+            }),
             exporting,
             exportScope,
             when,
@@ -196,6 +212,20 @@ export default function AnteriorClient() {
     });
 
   const canvasSize = Math.max(260, Math.min(canvasW, 560));
+  const fs = Math.max(10, Math.round(canvasSize / 36));
+  const measure = useMemo(() => makeMeasure(fs), [fs]);
+  const layout = useMemo(
+    () => (state.showCallouts ? layoutAll(state.lesions, DEFS, canvasSize, fs, measure, ["OD", "OS"], 1) : null),
+    [state.showCallouts, state.lesions, canvasSize, fs, measure]
+  );
+  const legendDefs = useMemo(() => legendEntries(state.lesions, DEFS), [state.lesions]);
+  const exportEyes: Eye[] = exportScope === "ODS" ? ["OD", "OS"] : [exportScope];
+  const exportLayout = useMemo(
+    () => (exporting && state.showCallouts ? layoutAll(state.lesions, DEFS, EXPORT_SIZE, EXPORT_FS, makeMeasure(EXPORT_FS), exportEyes) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [exporting, state.showCallouts, state.lesions, exportScope]
+  );
+  const exportLegendDefs = useMemo(() => legendEntries(state.lesions, DEFS, exportEyes), [state.lesions, exportScope]); // eslint-disable-line react-hooks/exhaustive-deps
   const setInput = (patch: Partial<AnteriorInputs>) => dispatch({ type: "input", input: { ...input, ...patch } });
 
   return (
@@ -231,6 +261,15 @@ export default function AnteriorClient() {
         </p>
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-5 items-start">
           <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-2 min-w-0">
+            <label className="self-end flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer">
+              <input
+                type="checkbox"
+                className="accent-teal-600"
+                checked={state.showCallouts}
+                onChange={(e) => dispatch({ type: "callouts", on: e.target.checked })}
+              />
+              Callout (di layar &amp; gambar ekspor)
+            </label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {(["OD", "OS"] as Eye[]).map((e, i) => (
                 <div
@@ -238,6 +277,8 @@ export default function AnteriorClient() {
                   ref={i === 0 ? canvasRef : undefined}
                   data-testid={`pane-${e}`}
                   data-active={state.eye === e}
+                  data-callouts={layout?.perEye[e].map((c) => c.text).join(" | ") ?? ""}
+                  data-band-top={layout?.bandTop ?? 0}
                   className={`flex flex-col gap-1 min-w-0 rounded-xl p-1.5 border-2 transition-colors ${
                     state.eye === e ? "border-teal-500 bg-teal-50/40" : "border-transparent"
                   }`}
@@ -264,6 +305,10 @@ export default function AnteriorClient() {
                         onStroke={addStroke(e)}
                         onErase={erase(e)}
                         onActivate={() => activate(e)}
+                        callouts={layout?.perEye[e]}
+                        bandTop={layout?.bandTop}
+                        bandBottom={layout?.bandBottom}
+                        fontSize={fs}
                       />
                     )}
                   </div>
@@ -271,6 +316,12 @@ export default function AnteriorClient() {
               ))}
             </div>
             <p className="text-[11px] text-slate-400">N = nasal, T = temporal. Angka = posisi jam.</p>
+            {legendDefs.length > 0 && (
+              <h3 className="mt-1 border-t border-gray-100 pt-2 text-xs font-semibold text-slate-500 uppercase tracking-wide">Legenda</h3>
+            )}
+            <div ref={legendRef} className="w-full" data-testid="legend">
+              {legendW > 0 && legendDefs.length > 0 && <LegendStage defs={legendDefs} width={legendW} fontSize={12} />}
+            </div>
           </section>
 
           <div className="flex flex-col gap-4 min-w-0">
@@ -346,17 +397,29 @@ export default function AnteriorClient() {
 
         {exporting && (
           <div aria-hidden style={{ position: "fixed", left: -10000, top: 0 }}>
-            {(exportScope === "ODS" ? (["OD", "OS"] as Eye[]) : [exportScope]).map((e) => (
+            {exportEyes.map((e) => (
               <AnteriorCanvas
                 key={e}
-                size={700}
+                size={EXPORT_SIZE}
                 eye={e}
                 items={state.lesions[e]}
                 defs={DEFS}
                 pupilSize={pupilSize(e)}
+                callouts={exportLayout?.perEye[e]}
+                bandTop={exportLayout?.bandTop}
+                bandBottom={exportLayout?.bandBottom}
+                fontSize={EXPORT_FS}
                 stageRef={e === "OD" ? exportOd : exportOs}
               />
             ))}
+            {exportLegendDefs.length > 0 && (
+              <LegendStage
+                defs={exportLegendDefs}
+                width={EXPORT_SIZE * exportEyes.length + PAGE_MARGIN * (exportEyes.length - 1)}
+                fontSize={EXPORT_LEGEND_FS}
+                stageRef={exportLegend}
+              />
+            )}
           </div>
         )}
 
