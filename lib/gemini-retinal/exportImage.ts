@@ -3,7 +3,7 @@ export type ExportScope = "ODS" | "OD" | "OS";
 
 const EYE_LABEL: Record<"OD" | "OS", string> = { OD: "OD (mata kanan)", OS: "OS (mata kiri)" };
 
-const MARGIN = 40;
+export const MARGIN = 40;
 const HEADER = 96;
 const LABEL = 36;
 const LINE_HEIGHT = 26;
@@ -30,9 +30,15 @@ export function composeImage(
   maps: { eye: "OD" | "OS"; canvas: HTMLCanvasElement }[],
   narrative: string,
   when: Date,
-  opts: { title?: string; subtitle?: string; empty?: string } = {}
+  opts: { title?: string; subtitle?: string; empty?: string; legend?: HTMLCanvasElement; legendTitle?: string } = {}
 ): HTMLCanvasElement {
-  const { title = "Retinal Drawing", subtitle = "peta fundus menghadap pasien (Amsler-Dubois)", empty = "Belum ada lesi yang digambar." } = opts;
+  const {
+    title = "Retinal Drawing",
+    subtitle = "peta fundus menghadap pasien (Amsler-Dubois)",
+    empty = "Belum ada lesi yang digambar.",
+    legend,
+    legendTitle = "Legenda",
+  } = opts;
   const mapW = maps[0].canvas.width;
   const mapH = maps[0].canvas.height;
   const scope = maps.length === 2 ? "ODS" : maps[0].eye;
@@ -40,7 +46,9 @@ export function composeImage(
   const probe = document.createElement("canvas").getContext("2d")!;
   probe.font = `18px ${FONT}`;
   const lines = wrapLines(probe, narrative || empty, width - MARGIN * 2);
-  const height = HEADER + LABEL + mapH + MARGIN + lines.length * LINE_HEIGHT + MARGIN;
+  // Optional legend block (heading + canvas) between the maps and the narrative.
+  const legendBlock = legend ? 40 + legend.height : 0;
+  const height = HEADER + LABEL + mapH + MARGIN + legendBlock + lines.length * LINE_HEIGHT + MARGIN;
 
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -65,9 +73,16 @@ export function composeImage(
     ctx.drawImage(map, x, top);
   });
 
+  if (legend) {
+    ctx.fillStyle = "#0f766e";
+    ctx.font = `bold 20px ${FONT}`;
+    ctx.fillText(legendTitle, MARGIN, top + mapH + 30);
+    ctx.drawImage(legend, MARGIN, top + mapH + 40);
+  }
+  // Narrative style is set after the legend so the heading's bold teal does not leak into it.
   ctx.fillStyle = "#1e293b";
   ctx.font = `18px ${FONT}`;
-  let y = top + mapH + MARGIN;
+  let y = top + mapH + MARGIN + legendBlock;
   for (const line of lines) {
     ctx.fillText(line, MARGIN, y);
     y += LINE_HEIGHT;

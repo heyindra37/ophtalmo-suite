@@ -15,8 +15,8 @@
     { "id": "luka_insisi", "name": "Luka Insisi / Laserasi Kornea", "type": "area", "color": "#111827", "shape": "line", "group": "kornea", "measure": true }
   ],
   "bmd_iris": [
-    { "id": "hipopion", "name": "Hipopion (klik tinggi permukaan)", "type": "level", "color": "#FDE68A", "shape": "level", "group": "bmd" },
-    { "id": "hifema", "name": "Hifema (klik tinggi permukaan)", "type": "level", "color": "#DC2626", "shape": "level", "group": "bmd" },
+    { "id": "hipopion", "name": "Hipopion", "type": "level", "color": "#FDE68A", "shape": "level", "group": "bmd" },
+    { "id": "hifema", "name": "Hifema", "type": "level", "color": "#DC2626", "shape": "level", "group": "bmd" },
     { "id": "sinekia_anterior", "name": "Sinekia Anterior", "type": "point", "color": "#92400E", "shape": "solid_circle", "group": "iris" },
     { "id": "sinekia_posterior", "name": "Sinekia Posterior", "type": "point", "color": "#92400E", "shape": "synechia", "group": "iris" },
     { "id": "iridektomi", "name": "Iridektomi / Iridotomi", "type": "point", "color": "#111827", "shape": "triangle", "group": "iris" },

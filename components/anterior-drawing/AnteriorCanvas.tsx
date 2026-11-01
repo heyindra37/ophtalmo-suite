@@ -16,7 +16,9 @@ import {
   type Pt,
 } from "@/lib/anterior-drawing/geometry";
 import type { AnteriorDef, DrawnItem } from "@/lib/anterior-drawing/narrative";
+import type { PlacedCallout } from "@/lib/anterior-drawing/callouts";
 import { LesionNodes, type Projection } from "./LesionLayer";
+import { CalloutLayer } from "./Callouts";
 
 const OUTLINE = "#64748b";
 
@@ -81,6 +83,11 @@ export function AnteriorCanvas({
   onPin,
   onStroke,
   onErase,
+  onActivate,
+  callouts,
+  bandTop = 0,
+  bandBottom = 0,
+  fontSize = 11,
   stageRef,
 }: {
   size: number;
@@ -93,11 +100,20 @@ export function AnteriorCanvas({
   onPin?: (p: Pt) => void;
   onStroke?: (pts: Pt[]) => void;
   onErase?: (p: Pt) => void;
+  /** Fired at the start of every pointer-down, so a parent can make this eye the active one. */
+  onActivate?: () => void;
+  /** Callouts for this eye, laid out for `size`; they sit in bands above and below the drawing. */
+  callouts?: PlacedCallout[];
+  bandTop?: number;
+  bandBottom?: number;
+  fontSize?: number;
   stageRef?: Ref<Konva.Stage>;
 }) {
   const scale = size / (2 * EXTENT);
   const half = size / 2;
-  const proj: Projection = { scale, toScreen: (p) => ({ x: half + p.x * scale, y: half - p.y * scale }) };
+  const height = size + bandTop + bandBottom;
+  const cy = bandTop + half; // the drawing stays centred in its own square; callout bands sit outside it
+  const proj: Projection = { scale, toScreen: (p) => ({ x: half + p.x * scale, y: cy - p.y * scale }) };
   const drawing = useRef<Pt[] | null>(null);
   const liveLine = useRef<Konva.Line>(null);
   const interactive = !!tool;
@@ -105,12 +121,14 @@ export function AnteriorCanvas({
 
   const pointer = (stage: Konva.Stage | null): Pt | null => {
     const pos = stage?.getPointerPosition();
-    return pos ? { x: (pos.x - half) / scale, y: -(pos.y - half) / scale } : null;
+    return pos ? { x: (pos.x - half) / scale, y: -(pos.y - cy) / scale } : null;
   };
 
   const down = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     const p = pointer(e.target.getStage());
     if (!p) return;
+    onActivate?.();
+    if (Math.abs(p.y) > EXTENT) return; // a touch in a callout band is not a lesion
     if (tool === "erase") return onErase?.(p);
     if (tool === "pin") return onPin?.(p);
     drawing.current = [p];
@@ -121,7 +139,7 @@ export function AnteriorCanvas({
     if (!drawing.current) return;
     e.evt.preventDefault();
     const p = pointer(e.target.getStage());
-    if (!p) return;
+    if (!p || Math.abs(p.y) > EXTENT) return;
     const last = drawing.current[drawing.current.length - 1];
     if (Math.hypot(p.x - last.x, p.y - last.y) < 0.15) return;
     drawing.current.push(p);
@@ -140,7 +158,7 @@ export function AnteriorCanvas({
   return (
     <Stage
       width={size}
-      height={size}
+      height={height}
       ref={stageRef}
       {...(interactive
         ? { onMouseDown: down, onTouchStart: down, onMouseMove: move, onTouchMove: move, onMouseUp: up, onTouchEnd: up, onMouseLeave: up }
@@ -148,12 +166,13 @@ export function AnteriorCanvas({
       style={interactive ? { touchAction: "none", cursor: tool === "erase" ? "not-allowed" : "crosshair" } : undefined}
     >
       <Layer>
-        <Rect x={0} y={0} width={size} height={size} fill="#ffffff" listening={false} />
+        <Rect x={0} y={0} width={size} height={height} fill="#ffffff" listening={false} />
         <Anatomy proj={proj} eye={eye} pupilR={pupilR} />
         <LesionNodes items={items} defs={defs} proj={proj} />
+        {callouts && callouts.length > 0 && <CalloutLayer callouts={callouts} stageHeight={height} fontSize={fontSize} proj={proj} />}
         <Line ref={liveLine} points={[]} stroke="#0d9488" strokeWidth={(brushWidth ?? 1) * scale} opacity={0.5} lineCap="round" lineJoin="round" listening={false} />
-        <Text x={6} y={half - 6} text={nasalRight ? "T" : "N"} fontSize={13} fontStyle="bold" fill="#0f766e" listening={false} />
-        <Text x={size - 16} y={half - 6} text={nasalRight ? "N" : "T"} fontSize={13} fontStyle="bold" fill="#0f766e" listening={false} />
+        <Text x={6} y={cy - 6} text={nasalRight ? "T" : "N"} fontSize={13} fontStyle="bold" fill="#0f766e" listening={false} />
+        <Text x={size - 16} y={cy - 6} text={nasalRight ? "N" : "T"} fontSize={13} fontStyle="bold" fill="#0f766e" listening={false} />
       </Layer>
     </Stage>
   );
