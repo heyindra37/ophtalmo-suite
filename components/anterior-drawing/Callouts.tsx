@@ -6,6 +6,7 @@ import type Konva from "konva";
 import {
   calloutMetrics,
   calloutY,
+  leaderPath,
   legendLayout,
   legendSample,
   type PlacedCallout,
@@ -39,14 +40,20 @@ export function CalloutLayer({
   const placed = callouts.map((c) => {
     const y = calloutY(c, stageHeight, m);
     const a = proj.toScreen(c.anchor);
-    const ex = Math.min(Math.max(a.x, c.x + m.h / 2), c.x + c.w - m.h / 2);
-    return { c, y, a, ex, ey: c.band === "top" ? y + m.h : y };
+    return { c, y, a, path: leaderPath(c, stageHeight, m, a) };
   });
   return (
     <Group listening={false}>
-      {placed.map(({ c, a, ex, ey }) => (
+      {placed.map(({ c, a, path }) => (
         <Group key={`l-${c.key}`}>
-          <Line points={[ex, ey, a.x, a.y]} stroke={INK} strokeWidth={1} opacity={0.8} />
+          <Line
+            points={[path.p0.x, path.p0.y, path.c1.x, path.c1.y, path.c2.x, path.c2.y, path.p3.x, path.p3.y]}
+            bezier
+            stroke={INK}
+            strokeWidth={1}
+            opacity={0.8}
+            lineCap="round"
+          />
           <Circle x={a.x} y={a.y} radius={Math.max(2, fontSize * 0.25)} fill={INK} stroke="#ffffff" strokeWidth={1} />
         </Group>
       ))}

@@ -218,6 +218,142 @@ export interface CalloutLayout {
   metrics: CalloutMetrics;
 }
 
+/** Cubic Bézier from the callout box to its lesion, in stage px. */
+export interface LeaderPath {
+  p0: Pt;
+  c1: Pt;
+  c2: Pt;
+  p3: Pt;
+}
+
+const LEADER_SHIFT = 0.3; // the line may leave the box this fraction of its width off-centre, toward the lesion
+const LEADER_BOW = 0.1; // sideways offset of the control points, as a fraction of the line length
+
+/**
+ * A leader line is a gentle arc, not a plumb line: it leaves the facing edge of the box a little toward
+ * the lesion and bows sideways. Every line bows the same way, so neighbours stay roughly parallel.
+ * Very short lines stay straight.
+ */
+export function leaderPath(c: PlacedCallout, stageHeight: number, m: CalloutMetrics, anchorPx: Pt): LeaderPath {
+  const y = calloutY(c, stageHeight, m);
+  const cx = c.x + c.w / 2;
+  const reach = LEADER_SHIFT * c.w;
+  const p0 = { x: cx + Math.max(-reach, Math.min(reach, anchorPx.x - cx)), y: c.band === "top" ? y + m.h : y };
+  const vx = anchorPx.x - p0.x;
+  const vy = anchorPx.y - p0.y;
+  const len = Math.hypot(vx, vy);
+  const bow = len < 4 * m.fs ? 0 : Math.min(LEADER_BOW * len, 2.5 * m.fs);
+  const nx = len ? (-vy / len) * bow : 0;
+  const ny = len ? (vx / len) * bow : 0;
+  return {
+    p0,
+    c1: { x: p0.x + vx / 3 + nx, y: p0.y + vy / 3 + ny },
+    c2: { x: p0.x + (2 * vx) / 3 + nx, y: p0.y + (2 * vy) / 3 + ny },
+    p3: anchorPx,
+  };
+}
+
+export function leaderPoint(p: LeaderPath, t: number): Pt {
+  const u = 1 - t;
+  const a = u * u * u;
+  const b = 3 * u * u * t;
+  const c = 3 * u * t * t;
+  const d = t * t * t;
+  return { x: a * p.p0.x + b * p.c1.x + c * p.c2.x + d * p.p3.x, y: a * p.p0.y + b * p.c1.y + c * p.c2.y + d * p.p3.y };
+}
+
+interface Rect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+const SAMPLES = 16;
+
+/** Whether the arc passes through the rectangle; the two ends are skipped (one sits on its own box). */
+function pathHitsRect(p: LeaderPath, r: Rect, pad = 2): boolean {
+  for (let i = 1; i < SAMPLES; i++) {
+    const q = leaderPoint(p, i / SAMPLES);
+    if (q.x >= r.x - pad && q.x <= r.x + r.w + pad && q.y >= r.y - pad && q.y <= r.y + r.h + pad) return true;
+  }
+  return false;
+}
+
+interface Geometry {
+  size: number;
+  stageHeight: number;
+  bandTop: number;
+  m: CalloutMetrics;
+}
+
+const anchorPx = (c: PlacedCallout, g: Geometry): Pt => ({
+  x: g.size / 2 + c.anchor.x * (g.size / (2 * EXTENT)),
+  y: g.bandTop + g.size / 2 - c.anchor.y * (g.size / (2 * EXTENT)),
+});
+const rectOf = (c: PlacedCallout, g: Geometry): Rect => ({ x: c.x, y: calloutY(c, g.stageHeight, g.m), w: c.w, h: g.m.h });
+const pathOf = (c: PlacedCallout, g: Geometry) => leaderPath(c, g.stageHeight, g.m, anchorPx(c, g));
+
+/** Leader lines that run through some other callout's box, summed over the listed eyes. */
+export function countLeaderHits(layout: CalloutLayout, size: number, eyes: Eye[] = ["OD", "OS"]): number {
+  const g: Geometry = { size, stageHeight: size + layout.bandTop + layout.bandBottom, bandTop: layout.bandTop, m: layout.metrics };
+  let n = 0;
+  for (const eye of eyes) {
+    const list = layout.perEye[eye];
+    for (const c of list) for (const o of list) if (o !== c && pathHitsRect(pathOf(c, g), rectOf(o, g))) n++;
+  }
+  return n;
+}
+
+/**
+ * Nudges boxes whose leader line crosses another box: tries other x positions along the same band and
+ * other rows of it, keeps whichever crosses least (ties go to the smallest move), and leaves a box alone
+ * when nothing beats where it is. Bands keep their row count, so the canvas height does not change.
+ */
+function refineEye(list: PlacedCallout[], g: Geometry): PlacedCallout[] {
+  const out = list.map((c) => ({ ...c }));
+  const step = Math.max(4, Math.round(g.m.fs * 0.6));
+  const rowsIn = (band: "top" | "bottom") => Math.max(0, ...out.filter((o) => o.band === band).map((o) => o.row + 1));
+  const crossings = (self: PlacedCallout, others: PlacedCallout[]) => {
+    const own = pathOf(self, g);
+    const box = rectOf(self, g);
+    let n = 0;
+    for (const o of others) {
+      if (pathHitsRect(own, rectOf(o, g))) n++;
+      if (pathHitsRect(pathOf(o, g), box)) n++;
+    }
+    return n;
+  };
+
+  for (let pass = 0; pass < 3; pass++) {
+    let moved = false;
+    const order = out.map((c, i) => ({ i, n: crossings(c, out.filter((o) => o !== c)) })).filter((e) => e.n > 0).sort((a, b) => b.n - a.n);
+    for (const { i } of order) {
+      const cur = out[i];
+      const others = out.filter((o) => o !== cur);
+      const before = crossings(cur, others);
+      if (before === 0) continue;
+      let best: { c: PlacedCallout; n: number; move: number } | null = null;
+      for (let row = 0; row < rowsIn(cur.band); row++) {
+        const mates = others.filter((o) => o.band === cur.band && o.row === row);
+        for (let x = g.m.pad; x + cur.w <= g.size - g.m.pad + 0.5; x += step) {
+          if (mates.some((o) => x < o.x + o.w + g.m.gap && o.x < x + cur.w + g.m.gap)) continue;
+          const cand = { ...cur, row, x };
+          const n = crossings(cand, others);
+          const move = Math.abs(x - cur.x) + 40 * Math.abs(row - cur.row);
+          if (n < before && (!best || n < best.n || (n === best.n && move < best.move))) best = { c: cand, n, move };
+        }
+      }
+      if (best) {
+        out[i] = best.c;
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+  return out;
+}
+
 /** Lays out the listed eyes at one size and gives them common band heights, so the canvases stay level. */
 export function layoutAll(
   lesions: Record<Eye, DrawnItem[]>,
@@ -227,7 +363,9 @@ export function layoutAll(
   measure: (t: string) => number,
   eyes: Eye[] = ["OD", "OS"],
   /** Rows kept free in each band even when empty, so the first lesion does not shift the drawing. */
-  minRows = 0
+  minRows = 0,
+  /** Second pass that moves boxes so leader lines avoid other boxes; off only for comparison in tests. */
+  refine = true
 ): CalloutLayout {
   const m = calloutMetrics(fs);
   const perEye: Record<Eye, PlacedCallout[]> = { OD: [], OS: [] };
@@ -239,7 +377,13 @@ export function layoutAll(
     rowsTop = Math.max(rowsTop, r.rowsTop);
     rowsBottom = Math.max(rowsBottom, r.rowsBottom);
   }
-  return { perEye, bandTop: bandPx(rowsTop, m), bandBottom: bandPx(rowsBottom, m), metrics: m };
+  const bandTop = bandPx(rowsTop, m);
+  const bandBottom = bandPx(rowsBottom, m);
+  if (refine) {
+    const g: Geometry = { size, stageHeight: size + bandTop + bandBottom, bandTop, m };
+    for (const eye of eyes) perEye[eye] = refineEye(perEye[eye], g);
+  }
+  return { perEye, bandTop, bandBottom, metrics: m };
 }
 
 /** Lesion types drawn in any of the listed eyes, in config order: one legend for both eyes. */
