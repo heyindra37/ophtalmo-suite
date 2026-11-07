@@ -156,8 +156,14 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
         <div><label class="fl">Jam Tidur</label><input type="time" id="sleep" value="21:00" oninput="onTimeChange()"></div>
       </div>
       <div class="g3" style="margin-top:14px">
-        <div><label class="fl">Tanggal Mulai Regimen</label><input type="date" id="start-date" oninput="onStartDateChange()" title="Dipakai untuk menghitung tanggal tiap tahap tapering"></div>
+        <div><label class="fl" id="lbl-start">Tanggal Mulai Regimen</label><input type="date" id="start-date" oninput="onStartDateChange()" title="Dipakai untuk menghitung tanggal tiap tahap tapering"></div>
         <div><label class="fl">Tanggal Kontrol</label><input type="date" id="control-date" oninput="onControlDateChange()" title="Dipakai untuk menghitung kebutuhan obat (tab Kebutuhan) sampai kontrol berikutnya"></div>
+      </div>
+      <div style="margin-top:12px">
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="postop" onchange="onPostopChange()" style="margin-top:3px">
+          <span><strong>Mode post-op</strong> — teks EMR singkat berupa kalimat: “Operasi tanggal …”, lalu tiap obat dengan tahapannya. Tanggal Mulai Regimen dipakai sebagai tanggal operasi.</span>
+        </label>
       </div>
       <div id="span-notice" class="notice g">✓ Waktu aktif: <strong>15 jam 0 menit</strong> (06:00 – 21:00)</div>
       <div class="g3" style="margin-top:14px">
@@ -281,7 +287,7 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <div class="card-title" style="margin-bottom:0">📋 Output EMR <span style="font-size:12px;font-weight:400;color:var(--slate)">(singkat — untuk rekam medis)</span></div>
       </div>
-      <div style="font-size:12px;color:var(--slate);margin-bottom:10px">Format: <code>[Nama obat], diteteskan di [mata], jam tetes: [jam]</code> — salep: <code>dioleskan … jam oles</code>; obat bertapering ditulis per tahap beserta tanggalnya</div>
+      <div id="emr-short-hint" style="font-size:12px;color:var(--slate);margin-bottom:10px">Format: <code>[Nama obat], diteteskan di [mata], jam tetes: [jam]</code> — salep: <code>dioleskan … jam oles</code>; obat bertapering ditulis per tahap beserta tanggalnya</div>
       <div id="emr-short" class="emr-box" style="min-height:unset"></div>
       <div style="display:flex;align-items:center;gap:12px;margin-top:10px">
         <button class="btn btn-p" onclick="copyEMR('short')">📋 Copy Output EMR</button>
@@ -413,12 +419,13 @@ const EYE_F={OD:'Mata Kanan',OS:'Mata Kiri',OU:'Kedua Mata'};
 const FREQ_OPTS=[
   {v:-1,l:'Tiap jam selama bangun (q1h)'},
   {v:12,l:'Tiap 2 jam selama bangun (q2h) — mis. Lyterres trauma kimia'},
+  {v:18,l:'Tiap 3 jam selama bangun (q3h)'},
   {v:1, l:'1× / hari (q.d.)'},
   {v:2, l:'2× / hari (b.i.d.)'},
   {v:3, l:'3× / hari (t.i.d.)'},
   {v:4, l:'4× / hari (q.i.d.)'},
-  {v:6, l:'6× / hari (q4h)'},
-  {v:8, l:'8× / hari (q3h)'},
+  {v:6, l:'6× / hari'},
+  {v:8, l:'8× / hari'},
 ];
 /* Auto-deteksi kelas obat dari substring nama (INN + ejaan Indonesia + beberapa merek umum).
    Dipakai HANYA untuk warning duplikasi kelas — bukan sumber kebenaran, tidak disimpan. */
@@ -462,7 +469,7 @@ function renderClassWarnings(){
     if(html){el.innerHTML=html;el.classList.remove('hidden');}else{el.innerHTML='';el.classList.add('hidden');}
   });
 }
-const FREQ_LATIN={1:'q.d.',2:'b.i.d.',3:'t.i.d.',4:'q.i.d.',6:'q4h',8:'q3h',12:'q2h'};
+const FREQ_LATIN={1:'q.d.',2:'b.i.d.',3:'t.i.d.',4:'q.i.d.',12:'q2h',18:'q3h'};
 
 /* Kemasan tetes mata — dipakai untuk hitung kebutuhan botol/minidose sampai tanggal kontrol.
    Kapasitas = volume(mL) x 20 tetes/mL (drop factor standar farmasi), dibulatkan sesuai kemasan riil. */
@@ -496,6 +503,7 @@ let schedulingMode='interval'; // 'interval' | 'insert'
 /* Mesin multi-hari: tanggal mulai regimen + hari ke-berapa yang sedang dilihat (0 = hari mulai). */
 let startDate=new Date().toISOString().slice(0,10); // 'YYYY-MM-DD'
 let controlDate=''; // 'YYYY-MM-DD', dipakai untuk hitung kebutuhan obat sampai kontrol
+let postopMode=false; // true → teks EMR singkat berformat kalimat post-op
 let viewDayOffset=0;
 
 function getMinGap(){
@@ -526,6 +534,14 @@ function onStartDateChange(){
   if(!$('tab-schedule').classList.contains('hidden'))renderAll();
   if(!$('tab-kebutuhan').classList.contains('hidden'))renderKebutuhan();
 }
+function syncPostopUI(){
+  const cb=$('postop');if(cb)cb.checked=postopMode;
+  const lb=$('lbl-start');if(lb)lb.textContent=postopMode?'Tanggal Operasi (hari ke-1 regimen)':'Tanggal Mulai Regimen';
+}
+function onPostopChange(){
+  postopMode=$('postop').checked;syncPostopUI();
+  if($('tab-setup').classList.contains('hidden'))renderAll();
+}
 function onControlDateChange(){
   controlDate=$('control-date').value||'';
   if(!$('tab-kebutuhan').classList.contains('hidden'))renderKebutuhan();
@@ -538,7 +554,7 @@ function dateForOffset(offset){
   return dt;
 }
 function fmtDate(dt){return dt.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});}
-function freqShort(freq){if(freq===-1)return'q1h';if(freq===12)return'q2h';return FREQ_LATIN[freq]||freq+'×/hari';}
+function freqShort(freq){if(freq===-1)return'q1h';if(freq===12)return'q2h';if(freq===18)return'q3h';return FREQ_LATIN[freq]||freq+'×/hari';}
 function anyTaper(){return drugs.some(d=>Array.isArray(d.phases)&&d.phases.length>0);}
 /* Hari terakhir yang masih menampilkan transisi/stop tapering (batas navigasi). */
 function maxTaperDay(){let mx=0;drugs.forEach(d=>{if(!Array.isArray(d.phases)||!d.phases.length)return;let sum=0;d.phases.forEach(ph=>{if(ph.days!=null)sum+=ph.days;});mx=Math.max(mx,sum);});return mx;}
@@ -572,12 +588,14 @@ function resolveFreq(freq){
   const{span}=getSpan();
   if(freq===-1)return Math.max(1,Math.floor(span/60));
   if(freq===12)return Math.max(1,Math.floor(span/120));
+  if(freq===18)return Math.max(1,Math.floor(span/180));
   return freq;
 }
 /** Interval antar tetes target (menit) untuk tampilan & edukasi — q1h/q2h tetap 60/120, bukan span÷n */
 function intervalHintMinutes(freq,span,rf){
   if(freq===-1)return 60;
   if(freq===12)return 120;
+  if(freq===18)return 180;
   return computeFriendlyInterval(span,rf);
 }
 /* Grid "jam rapi" mengikuti jarak minimal antar obat (min-gap) yang dikonfigurasi user,
@@ -653,7 +671,7 @@ function saveRecord(showMsg=false){
       const evs=sched.filter(e=>e.d.id===d.id).map(e=>toTime(e.t));
       return{...d,times:evs};
     }),
-    rawState:{drugs:JSON.parse(JSON.stringify(drugs)),wake:$('wake').value,sleep:$('sleep').value,pat,minGap:getMinGap(),schedulingMode:schedulingMode,startDate:startDate,controlDate:controlDate,conflictResolutions:JSON.parse(JSON.stringify(conflictResolutions))},
+    rawState:{drugs:JSON.parse(JSON.stringify(drugs)),wake:$('wake').value,sleep:$('sleep').value,pat,minGap:getMinGap(),schedulingMode:schedulingMode,startDate:startDate,controlDate:controlDate,postop:postopMode,conflictResolutions:JSON.parse(JSON.stringify(conflictResolutions))},
   };
   const db=loadDB();
   db.unshift(record);
@@ -705,6 +723,7 @@ function loadRecordToInput(rec){
   $('start-date').value=startDate;
   controlDate=rs.controlDate||'';
   $('control-date').value=controlDate;
+  postopMode=!!rs.postop;syncPostopUI();
   viewDayOffset=0;
   conflictResolutions=Array.isArray(rs.conflictResolutions)?rs.conflictResolutions.slice():[];
   drugs=JSON.parse(JSON.stringify(rs.drugs)).map(migrateDrug);
@@ -754,6 +773,7 @@ function exportExcel(){
       const evTimes=(r.drugSnapshot&&r.drugSnapshot[di])?r.drugSnapshot[di].times.join(', '):'';
       const freqLabel=d.freq===-1?`q1h (${d.resolvedFreq}×/hari)`:
         d.freq===12?`q2h (${d.resolvedFreq}×/hari selama bangun)`:
+        d.freq===18?`q3h (${d.resolvedFreq}×/hari selama bangun)`:
         (FREQ_LATIN[d.resolvedFreq]||d.resolvedFreq+'×/hari')+` (${d.resolvedFreq}×/hari)`;
       const modeLab=d.mode==='fix'?'Jam Tetap':d.mode==='alternate'?'Selang-seling':'Otomatis';
       detRows.push([ri+1,r.savedAt.replace('T',' '),r.patientName,di+1,d.name||'(tanpa nama)',EYE_F[d.eye],freqLabel,modeLab,evTimes,d.note||'']);
@@ -796,7 +816,7 @@ function exportCSV(){
   db.forEach(r=>{
     r.drugs.forEach((d,di)=>{
       const evTimes=(r.drugSnapshot&&r.drugSnapshot[di])?r.drugSnapshot[di].times.join(' | '):'';
-      const freqLabel=d.freq===-1?`q1h(${d.resolvedFreq}x)`:d.freq===12?`q2h(${d.resolvedFreq}x)`:d.resolvedFreq+'x/hari';
+      const freqLabel=d.freq===-1?`q1h(${d.resolvedFreq}x)`:d.freq===12?`q2h(${d.resolvedFreq}x)`:d.freq===18?`q3h(${d.resolvedFreq}x)`:d.resolvedFreq+'x/hari';
       const modeLab2=d.mode==='fix'?'Jam Tetap':d.mode==='alternate'?'Selang-seling':'Otomatis';
       rows.push([r.savedAt.replace('T',' '),r.patientName,r.wake,r.sleep,di+1,d.name,EYE_F[d.eye],freqLabel,modeLab2,evTimes,d.note||'']);
     });
@@ -1024,6 +1044,8 @@ function buildRawSlots(){
         for(let i=0;i<rf;i++)rtList.push(wm+i*60);
       }else if(d.freq===12){
         for(let i=0;i<rf;i++)rtList.push(wm+i*120);
+      }else if(d.freq===18){
+        for(let i=0;i<rf;i++)rtList.push(wm+i*180);
       }else{
         const ivl=computeFriendlyInterval(span,rf);
         for(let i=0;i<rf;i++)rtList.push(wm+i*ivl);
@@ -1423,7 +1445,7 @@ function renderDrugList(){
   $('drug-list').innerHTML=drugs.map((d,idx)=>{
     const c=COLORS[idx%5];
     const rf=resolveFreq(d.freq);
-    const isQ1h=d.freq===-1,isQ2h=d.freq===12,isFix=d.mode==='fix',isAlt=d.mode==='alternate';
+    const isQ1h=d.freq===-1,isQ2h=d.freq===12,isQ3h=d.freq===18,isFix=d.mode==='fix',isAlt=d.mode==='alternate';
     const hasTaper=Array.isArray(d.phases)&&d.phases.length>0;
     const cls=detectClass(d.name);
     d.form=d.form||'tetes';
@@ -1492,6 +1514,7 @@ function renderDrugList(){
     else if(!isFix){
       if(isQ1h)infoNote=`<span class="q1h-badge">⚡ q1h – ${rf}× tetes/hari</span>`;
       else if(isQ2h)infoNote=`<span class="q1h-badge">⏱ q2h – ${rf}× selama bangun</span>`;
+      else if(isQ3h)infoNote=`<span class="q1h-badge">⏱ q3h – ${rf}× selama bangun</span>`;
       else if(span>0)infoNote=`<span style="font-size:12px;color:var(--slate)">Interval: tiap ~${ivl>=60?Math.floor(ivl/60)+'j '+(ivl%60?ivl%60+'m':''):ivl+'m'}</span>`;
     }
     const fixBlock=isFix?`<div class="fix-times"><span style="font-size:12px;font-weight:600;color:var(--fix-tx);margin-right:4px">📌 Jam tetap:</span>
@@ -1640,10 +1663,10 @@ function renderAll(){
     const evs=sched.filter(e=>e.d.id===d.id);
     const ivl=intervalHintMinutes(rd.freq,span,rf);
     const ivlStr=ivl>=60?`${Math.floor(ivl/60)}j${ivl%60?' '+ivl%60+'m':''}`:ivl+'m';
-    const isFix=rd.mode==='fix',isQ1h=rd.freq===-1,isQ2h=rd.freq===12,isAlt=rd.mode==='alternate';
+    const isFix=rd.mode==='fix',isQ1h=rd.freq===-1,isQ2h=rd.freq===12,isQ3h=rd.freq===18,isAlt=rd.mode==='alternate';
     const formTag=rd.form&&rd.form!=='tetes'?` <span style="font-size:10px;color:#6d28d9">(${rd.form})</span>`:'';
     const freqLine=isAlt?'<span class="alt-badge">🔀 Selang-seling tiap jam</span>':
-      (isFix?'<span class="fix-badge">📌 Jam Tetap</span>':isQ1h?'<span class="q1h-badge">⚡ q1h</span>':isQ2h?'<span class="q1h-badge">⏱ q2h</span>':rf+'× / hari · tiap ~'+ivlStr);
+      (isFix?'<span class="fix-badge">📌 Jam Tetap</span>':isQ1h?'<span class="q1h-badge">⚡ q1h</span>':isQ2h?'<span class="q1h-badge">⏱ q2h</span>':isQ3h?'<span class="q1h-badge">⏱ q3h</span>':rf+'× / hari · tiap ~'+ivlStr);
     return `<div class="sum-card" style="border-top-color:${c.dot}">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
         <div style="width:10px;height:10px;border-radius:50%;background:${c.dot};flex-shrink:0"></div>
@@ -1726,6 +1749,8 @@ function renderAll(){
 
   // EMR text – dua versi
   const emrShort=genEMRShort(sched);
+  const hint=$('emr-short-hint');
+  if(hint)hint.innerHTML=postopMode?'Format post-op: <code>Operasi tanggal [tanggal]</code>, lalu satu butir per obat — nama, “Teteskan/Oleskan …”, tiap tahap berikutnya “Mulai tanggal …”, dan “sampai kontrol tanggal …” pada tahap terakhir':'Format: <code>[Nama obat], diteteskan di [mata], jam tetes: [jam]</code> — salep: <code>dioleskan … jam oles</code>; obat bertapering ditulis per tahap beserta tanggalnya';
   const emrLong=genEMRLong(sched,slots,pat,span);
   $('emr-short').textContent=emrShort;
   $('emr-long').textContent=emrLong;
@@ -1748,7 +1773,7 @@ function fmtShortRange(a,b){
   if(ay===by)return `${a.getDate()} ${MONTH_SHORT[am]}–${b.getDate()} ${MONTH_SHORT[bm]} ${by}`;
   return `${fmtShortDate(a)}–${fmtShortDate(b)}`;
 }
-function freqEMR(freq){if(freq===-1)return'tiap jam';if(freq===12)return'tiap 2 jam';return freq+'× sehari';}
+function freqEMR(freq){if(freq===-1)return'tiap jam';if(freq===12)return'tiap 2 jam';if(freq===18)return'tiap 3 jam';return freq+'× sehari';}
 function taperEMRLines(d){
   const lines=[];let acc=0;
   d.phases.forEach(ph=>{
@@ -1759,7 +1784,45 @@ function taperEMRLines(d){
   if(d.phases[d.phases.length-1].days!=null)lines.push(`- Stop mulai ${fmtShortDate(dateForOffset(acc))}`);
   return lines;
 }
+/* ── Mode post-op: kalimat per obat, mis.
+   "Operasi tanggal 1 November" / "- Opexa tetes mata. Teteskan tiap 2 jam selama bangun. Mulai tanggal 4 November,
+   teteskan tiap 3 jam selama bangun. Mulai tanggal 6 November sampai kontrol tanggal 12 November, teteskan sehari 4 kali" */
+const MONTH_LONG=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+function fmtLongDate(dt,refYear){return `${dt.getDate()} ${MONTH_LONG[dt.getMonth()]}${dt.getFullYear()!==refYear?' '+dt.getFullYear():''}`;}
+function freqPhrase(freq){
+  if(freq===-1)return'tiap jam selama bangun';
+  if(freq===12)return'tiap 2 jam selama bangun';
+  if(freq===18)return'tiap 3 jam selama bangun';
+  return `sehari ${freq} kali`;
+}
+function postopDrugLine(d,refYear){
+  const salep=d.form==='salep',verb=salep?'Oleskan':'Teteskan';
+  const formWord=salep?'salep':d.form==='gel'?'gel':'tetes';
+  const nm=(d.name||'Obat').trim();
+  const eyeSfx=d.eye==='OD'?' kanan':d.eye==='OS'?' kiri':'';
+  // Jangan menggandakan kata sediaan bila sudah ada di nama obat (mis. "Salep Kloramfenikol").
+  const label=new RegExp(formWord,'i').test(nm)?(eyeSfx?`${nm} mata${eyeSfx}`:nm):`${nm} ${formWord} mata${eyeSfx}`;
+  const ph=(Array.isArray(d.phases)&&d.phases.length)?d.phases:[{days:null,freq:d.freq}];
+  const partner=d.mode==='alternate'?drugs.find(x=>x.id===d.altWith):null;
+  const phrase=f=>d.mode==='alternate'&&ph.length===1?`selang-seling tiap jam dengan ${(partner&&partner.name)||'obat pasangan'}`:freqPhrase(f);
+  let ctl='';
+  if(controlDate){const [y,m,dd]=controlDate.split('-').map(Number);ctl=` tanggal ${fmtLongDate(new Date(y,(m||1)-1,dd||1),refYear)}`;}
+  const parts=[];let acc=0;
+  ph.forEach((p,i)=>{
+    if(i===0)parts.push(`${verb} ${phrase(p.freq)}`);
+    else parts.push(`Mulai tanggal ${fmtLongDate(dateForOffset(acc),refYear)}${p.days==null?` sampai kontrol${ctl}`:''}, ${verb.toLowerCase()} ${phrase(p.freq)}`);
+    if(p.days!=null)acc+=p.days;
+  });
+  if(ph.length>1&&ph[ph.length-1].days!=null)parts.push(`Mulai tanggal ${fmtLongDate(dateForOffset(acc),refYear)}, obat dihentikan`);
+  return `- ${label}. ${parts.join('. ')}`;
+}
+function genEMRPostop(){
+  const op=dateForOffset(0),refYear=op.getFullYear();
+  const head=`Operasi tanggal ${fmtLongDate(op,new Date().getFullYear())}`;
+  return [head,...drugs.map(d=>postopDrugLine(d,refYear))].join('\n');
+}
 function genEMRShort(sched){
+  if(postopMode)return genEMRPostop();
   const blocks=drugs.map(d=>{
     const salep=d.form==='salep';
     const head=`${d.name||'Obat'}, ${salep?'dioleskan':'diteteskan'} di ${EYE_F[d.eye]}`;
@@ -1792,6 +1855,7 @@ function genEMRLong(sched,slots,pat,span){
       if(isAlt)freqLabel='Selang-seling tiap jam dengan obat pasangan (ulkus kornea, dll.)';
       else if(rd.freq===-1)freqLabel=`q1h (tiap jam, ${rf}×/hari)`;
       else if(rd.freq===12)freqLabel=`q2h (tiap 2 jam, ${rf}× selama bangun)`;
+      else if(rd.freq===18)freqLabel=`q3h (tiap 3 jam, ${rf}× selama bangun)`;
       else freqLabel=(FREQ_LATIN[rf]||rf+'×/hari')+` (${rf}×/hari)`;
       const formLabel=d.form==='salep'?'Salep (dioleskan terakhir, di jam tidur)':d.form==='gel'?'Gel':'Tetes';
       return[`${i+1}. ${d.name||'Obat '+(i+1)} – ${EYE_F[d.eye]}`,
