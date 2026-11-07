@@ -26,14 +26,6 @@ const apps = [
     route: "/templat-klinis",
   },
   {
-    icon: "🦠",
-    name: "Viral Keratitis Dx",
-    description:
-      "Diagnosis banding keratitis viral berbasis checklist temuan klinis — HSV epitel/stromal, VZV/HZO, adenoviral EKC, dan mpox.",
-    status: "Live" as const,
-    route: "/keratitis-differential",
-  },
-  {
     icon: "🔴",
     name: "Worth Four Dot Test",
     description:
@@ -59,7 +51,7 @@ const apps = [
   },
   {
     icon: "💊",
-    name: "OcuDrop Scheduler",
+    name: "Penjadwal Tetes Mata",
     description:
       "Penjadwal otomatis tetes mata: distribusi dosis merata, deteksi konflik waktu, dan output jadwal siap cetak untuk pasien.",
     status: "Live" as const,

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "OcuDrop Scheduler — Ophthalmology Suite" };
+export const metadata = { title: "Penjadwal Tetes Mata — Ophthalmology Suite" };
 
 export default function OcuDropPage() {
   return (
@@ -9,9 +9,9 @@ export default function OcuDropPage() {
         <Link href="/" className="text-teal-600 hover:text-teal-800 text-sm font-medium">
           ← Kembali
         </Link>
-        <span className="text-slate-700 text-sm font-semibold">OcuDrop Scheduler</span>
+        <span className="text-slate-700 text-sm font-semibold">Penjadwal Tetes Mata</span>
       </div>
-      <iframe src="/ocu-drop.html" className="flex-1 w-full border-0" title="OcuDrop Scheduler" />
+      <iframe src="/ocu-drop.html" className="flex-1 w-full border-0" title="Penjadwal Tetes Mata" />
     </div>
   );
 }

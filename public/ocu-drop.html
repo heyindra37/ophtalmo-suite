@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OcuDrop Scheduler – Penjadwal Obat Tetes Mata</title>
+<title>Penjadwal Tetes Mata</title>
 <link rel="manifest" id="manifest-link">
 <meta name="theme-color" content="#0f172a">
 <!-- SheetJS for Excel export -->
@@ -128,7 +128,7 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
 <header>
   <div class="logo">💧</div>
   <div style="flex:1">
-    <div style="color:#fff;font-size:15px;font-weight:600">OcuDrop Scheduler</div>
+    <div style="color:#fff;font-size:15px;font-weight:600">Penjadwal Tetes Mata</div>
     <div style="color:var(--muted);font-size:11px">Penjadwal Otomatis Obat Tetes Mata</div>
   </div>
   <div id="db-count-badge" style="background:rgba(139,92,246,.25);color:#c4b5fd;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:600;cursor:pointer" onclick="showTab('db')">
@@ -281,7 +281,7 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <div class="card-title" style="margin-bottom:0">📋 Output EMR <span style="font-size:12px;font-weight:400;color:var(--slate)">(singkat — untuk rekam medis)</span></div>
       </div>
-      <div style="font-size:12px;color:var(--slate);margin-bottom:10px">Format: <code>[Nama obat], diteteskan di [mata], jam tetes: [jam]</code></div>
+      <div style="font-size:12px;color:var(--slate);margin-bottom:10px">Format: <code>[Nama obat], diteteskan di [mata], jam tetes: [jam]</code> — salep: <code>dioleskan … jam oles</code>; obat bertapering ditulis per tahap beserta tanggalnya</div>
       <div id="emr-short" class="emr-box" style="min-height:unset"></div>
       <div style="display:flex;align-items:center;gap:12px;margin-top:10px">
         <button class="btn btn-p" onclick="copyEMR('short')">📋 Copy Output EMR</button>
@@ -777,7 +777,7 @@ function exportExcel(){
   styleHeader(ws3,tlRows[0].length);
   XLSX.utils.book_append_sheet(wb,ws3,'Timeline');
 
-  XLSX.writeFile(wb,`OcuDrop_Data_${new Date().toISOString().slice(0,10)}.xlsx`);
+  XLSX.writeFile(wb,`PenjadwalTetesMata_Data_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
 function styleHeader(ws,ncols){
@@ -804,7 +804,7 @@ function exportCSV(){
   const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\r\n');
   const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`OcuDrop_Data_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download=`PenjadwalTetesMata_Data_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 }
 
@@ -812,7 +812,7 @@ function backupJSON(){
   const db=loadDB();
   const blob=new Blob([JSON.stringify({version:2,exportedAt:nowISO(),records:db},null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`OcuDrop_Backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.download=`PenjadwalTetesMata_Backup_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
 }
 
@@ -1283,6 +1283,44 @@ function setPhase(id,idx,key,val){const d=drugs.find(x=>x.id===id);if(!d||!d.pha
 function togglePhaseOngoing(id,idx,checked){const d=drugs.find(x=>x.id===id);if(!d||!d.phases||!d.phases[idx])return;
   d.phases[idx].days=checked?null:7;
   renderDrugList();if(!$('tab-schedule').classList.contains('hidden'))renderAll();}
+/* ── Tapering off: turun satu anak tangga per tahap sampai 1× sehari, lalu STOP ──
+   Hasilnya hanya mengisi d.phases (semua tahap berhingga), jadi Kartu, EMR, navigasi hari,
+   dan Kebutuhan memakai jalur tapering yang sudah ada. Tahap tetap bisa diedit manual. */
+const TAPER_LADDER=[-1,12,8,6,4,3,2,1];
+const taperDraft={}; // id obat → {start, days} selama panel terbuka
+function taperOffPhases(start,days){
+  const i=TAPER_LADDER.indexOf(start);
+  return TAPER_LADDER.slice(i<0?TAPER_LADDER.indexOf(4):i).map(f=>({days,freq:f}));
+}
+function openTaperOff(id){const d=drugs.find(x=>x.id===id);if(!d)return;
+  taperDraft[id]={start:TAPER_LADDER.includes(d.freq)?d.freq:4,days:7};renderDrugList();}
+function closeTaperOff(id){delete taperDraft[id];renderDrugList();}
+function setTaperDraft(id,key,val){const t=taperDraft[id];if(!t)return;
+  const next=key==='start'?+val:(()=>{const n=parseInt(val,10);return Number.isFinite(n)&&n>=1?Math.min(n,365):7;})();
+  if(t[key]===next)return; // tanpa perubahan: jangan render ulang (menghindari render bersarang saat blur)
+  t[key]=next;
+  renderDrugList();}
+function applyTaperOff(id){const d=drugs.find(x=>x.id===id),t=taperDraft[id];if(!d||!t)return;
+  d.phases=taperOffPhases(t.start,t.days);delete taperDraft[id];
+  renderDrugList();if(!$('tab-schedule').classList.contains('hidden'))renderAll();}
+function taperOffPanel(d){
+  const t=taperDraft[d.id];if(!t)return'';
+  const ph=taperOffPhases(t.start,t.days);
+  const sel=TAPER_LADDER.map(v=>{const o=FREQ_OPTS.find(x=>x.v===v);return `<option value="${v}" ${t.start===v?'selected':''}>${o?o.l:v}</option>`;}).join('');
+  return `<div style="margin-top:8px;border:1px dashed #f59e0b66;border-radius:8px;padding:8px 10px;background:#fffbeb">
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <span style="font-size:12px;font-weight:700;color:#b45309">📉 Tapering off</span>
+      <span style="font-size:12px;color:var(--slate)">mulai dari</span>
+      <select onchange="setTaperDraft(${d.id},'start',this.value)" style="padding:5px 8px;font-size:12px;max-width:230px">${sel}</select>
+      <span style="font-size:12px;color:var(--slate)">tiap tahap</span>
+      <input type="number" min="1" max="365" value="${t.days}" onchange="setTaperDraft(${d.id},'days',this.value)" style="width:64px;padding:5px 8px;font-size:12px">
+      <span style="font-size:12px;color:var(--slate)">hari</span>
+      <button class="btn btn-p" style="padding:4px 12px;font-size:12px" onclick="applyTaperOff(${d.id})">Buat</button>
+      <button class="btn" style="padding:4px 10px;font-size:12px" onclick="closeTaperOff(${d.id})">Batal</button>
+    </div>
+    <div style="font-size:11px;color:var(--slate);margin-top:6px">${ph.map(p=>freqEMR(p.freq)).join(' → ')} → stop · total ${ph.length*t.days} hari. Tahap bisa diedit setelah dibuat.${d.phases&&d.phases.length?' <strong>Tahap yang ada sekarang akan diganti.</strong>':''}</div>
+  </div>`;
+}
 
 function loadTemplates(){try{return JSON.parse(localStorage.getItem(TPL_KEY)||'[]');}catch{return[];}}
 function saveTemplates(a){localStorage.setItem(TPL_KEY,JSON.stringify(a));}
@@ -1353,7 +1391,7 @@ function copyTemplateTxt(tid){
   if(!t)return;
   const g=t.minGap!=null?t.minGap:10;
   const lines=[
-    `OcuDrop — Template: ${t.name}`,
+    `Penjadwal Tetes Mata — Template: ${t.name}`,
     `Disalin: ${new Date().toLocaleString('id-ID')}`,
     `Jam bangun – tidur: ${t.wake||'-'} – ${t.sleep||'-'}`,
     `Jarak antar obat berbeda: ${g} menit`,
@@ -1420,9 +1458,16 @@ function renderDrugList(){
           ${d.phases.length>1?`<button class="btn btn-danger" style="padding:2px 7px;font-size:11px" onclick="removePhase(${d.id},${pi})">✕</button>`:''}
         </div>`;
       }).join('')}
-      <button class="btn" style="padding:4px 10px;font-size:12px" onclick="addPhase(${d.id})">+ Tahap</button>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <button class="btn" style="padding:4px 10px;font-size:12px" onclick="addPhase(${d.id})">+ Tahap</button>
+        ${isAlt?'':`<button class="btn" style="padding:4px 10px;font-size:12px" onclick="openTaperOff(${d.id})">📉 Atur ulang otomatis (tapering off)</button>`}
+      </div>
+      ${taperOffPanel(d)}
       <div style="font-size:11px;color:var(--slate);margin-top:6px">Frekuensi utama di atas dinonaktifkan saat tapering aktif — atur per tahap di sini. Tanggal tiap tahap dihitung dari <strong>Tanggal Mulai</strong>.</div>
-    </div>`:`<button class="btn" style="padding:5px 11px;font-size:12px;margin-top:8px" onclick="enableTaper(${d.id})">📉 Aktifkan Tapering (jadwal berubah per minggu)</button>`;
+    </div>`:`<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+      <button class="btn" style="padding:5px 11px;font-size:12px" onclick="enableTaper(${d.id})">📉 Aktifkan Tapering (jadwal berubah per minggu)</button>
+      ${isAlt?'':`<button class="btn" style="padding:5px 11px;font-size:12px" onclick="openTaperOff(${d.id})">📉 Tapering off (turun bertahap sampai stop)</button>`}
+    </div>${taperOffPanel(d)}`;
     const eyeSel=`<select onchange="upDrug(${d.id},'eye',this.value)" style="padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--navy);font-family:inherit;outline:none">
       ${['OD','OS','OU'].map(e=>`<option value="${e}" ${d.eye===e?'selected':''}>${e==='OD'?'👁 Kanan (OD)':e==='OS'?'👁 Kiri (OS)':'👁👁 Kedua Mata'}</option>`).join('')}</select>`;
     const modeToggle=`<div class="mode-toggle" style="flex-wrap:wrap;max-width:100%">
@@ -1689,12 +1734,40 @@ function renderAll(){
   if(!$('tab-kebutuhan').classList.contains('hidden'))renderKebutuhan();
 }
 
-/* ── Output EMR Singkat: 1 baris per obat ── */
+/* ── Output EMR Singkat ──
+   Obat tanpa tapering: 1 baris (+ jam untuk hari yang sedang dilihat).
+   Obat bertapering: 1 blok, 1 baris "- " per tahap dengan tanggal (EMR tidak punya bullet otomatis).
+   Salep: "dioleskan" / "jam oles"; tetes dan gel: "diteteskan" / "jam tetes". */
+const MONTH_SHORT=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+function fmtShortDate(dt){return `${dt.getDate()} ${MONTH_SHORT[dt.getMonth()]} ${dt.getFullYear()}`;}
+/* "5–11 Nov 2026", "29 Okt–4 Nov 2026", "30 Des 2026–5 Jan 2027"; satu hari → "5 Nov 2026". */
+function fmtShortRange(a,b){
+  const ay=a.getFullYear(),am=a.getMonth(),by=b.getFullYear(),bm=b.getMonth();
+  if(ay===by&&am===bm&&a.getDate()===b.getDate())return fmtShortDate(a);
+  if(ay===by&&am===bm)return `${a.getDate()}–${b.getDate()} ${MONTH_SHORT[bm]} ${by}`;
+  if(ay===by)return `${a.getDate()} ${MONTH_SHORT[am]}–${b.getDate()} ${MONTH_SHORT[bm]} ${by}`;
+  return `${fmtShortDate(a)}–${fmtShortDate(b)}`;
+}
+function freqEMR(freq){if(freq===-1)return'tiap jam';if(freq===12)return'tiap 2 jam';return freq+'× sehari';}
+function taperEMRLines(d){
+  const lines=[];let acc=0;
+  d.phases.forEach(ph=>{
+    const start=dateForOffset(acc);
+    if(ph.days==null){lines.push(`- ${freqEMR(ph.freq)}, mulai ${fmtShortDate(start)}, berlanjut sampai kontrol`);}
+    else{lines.push(`- ${freqEMR(ph.freq)}, ${fmtShortRange(start,dateForOffset(acc+ph.days-1))} (${ph.days} hari)`);acc+=ph.days;}
+  });
+  if(d.phases[d.phases.length-1].days!=null)lines.push(`- Stop mulai ${fmtShortDate(dateForOffset(acc))}`);
+  return lines;
+}
 function genEMRShort(sched){
-  return drugs.map(d=>{
+  const blocks=drugs.map(d=>{
+    const salep=d.form==='salep';
+    const head=`${d.name||'Obat'}, ${salep?'dioleskan':'diteteskan'} di ${EYE_F[d.eye]}`;
+    if(Array.isArray(d.phases)&&d.phases.length)return{multi:true,text:[head+':',...taperEMRLines(d)].join('\n')};
     const evs=sched.filter(e=>e.d.id===d.id).map(e=>toTime(e.t));
-    return `${d.name||'Obat'}, diteteskan di ${EYE_F[d.eye]}, jam tetes: ${evs.join(', ')}`;
-  }).join('\n');
+    return{multi:false,text:`${head}, ${salep?'jam oles':'jam tetes'}: ${evs.join(', ')}`};
+  });
+  return blocks.map(b=>b.text).join(blocks.some(b=>b.multi)?'\n\n':'\n');
 }
 
 /* ── Output Edukasi Lengkap ── */
@@ -1720,7 +1793,7 @@ function genEMRLong(sched,slots,pat,span){
       else if(rd.freq===-1)freqLabel=`q1h (tiap jam, ${rf}×/hari)`;
       else if(rd.freq===12)freqLabel=`q2h (tiap 2 jam, ${rf}× selama bangun)`;
       else freqLabel=(FREQ_LATIN[rf]||rf+'×/hari')+` (${rf}×/hari)`;
-      const formLabel=d.form==='salep'?'Salep (diteteskan terakhir, di jam tidur)':d.form==='gel'?'Gel':'Tetes';
+      const formLabel=d.form==='salep'?'Salep (dioleskan terakhir, di jam tidur)':d.form==='gel'?'Gel':'Tetes';
       return[`${i+1}. ${d.name||'Obat '+(i+1)} – ${EYE_F[d.eye]}`,
         `   Sediaan  : ${formLabel}`,
         ...(hasTaper?['   TAPERING:',...taperPlanLines(d).map(l=>'     - '+l)]:[
@@ -1728,7 +1801,7 @@ function genEMRLong(sched,slots,pat,span){
           `   Mode     : ${isFix?'JAM TETAP (ditentukan dokter)':isAlt?'Selang-seling jam':'Otomatis (dihitung dari jam bangun/tidur)'}`,
           ...(isFix||isAlt?[]:[`   Interval : tiap ~${ivl} menit (~${(ivl/60).toFixed(1)} jam)`]),
         ]),
-        `   Jam tetes: ${evs.length?evs.join(', '):'(stop pada hari yang ditampilkan)'}`,
+        `   ${d.form==='salep'?'Jam oles ':'Jam tetes'}: ${evs.length?evs.join(', '):'(stop pada hari yang ditampilkan)'}`,
         ...(d.note?[`   Catatan  : ${d.note}`]:[]),];
     }),'',
     (taperOn?`TIMELINE HARIAN (contoh untuk ${fmtDate(dateForOffset(viewDayOffset))}, Hari ke-${viewDayOffset+1}):`:'TIMELINE HARIAN:'),
@@ -1760,7 +1833,7 @@ renderTemplateList();
 updateDBBadge();
 
 // PWA manifest
-const mf={name:'OcuDrop Scheduler',short_name:'OcuDrop',start_url:'.',display:'standalone',
+const mf={name:'Penjadwal Tetes Mata',short_name:'Tetes Mata',start_url:'.',display:'standalone',
   background_color:'#0f172a',theme_color:'#0f172a',
   icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💧</text></svg>',sizes:'any',type:'image/svg+xml'}]};
 $('manifest-link').href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/json'}));
