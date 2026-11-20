@@ -60,6 +60,11 @@ input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,1
 .drug-header{display:grid;grid-template-columns:26px minmax(160px,1fr) 110px 90px 150px auto;gap:10px;align-items:center;padding:12px 14px;background:var(--bg)}
 .d-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
 .drug-footer{padding:10px 14px;border-top:1px solid var(--border);background:var(--card);display:flex;flex-direction:column;gap:10px}
+.application-sites{min-width:0;border:1px solid var(--border);border-radius:8px;padding:8px 12px}
+.application-sites legend{padding:0 4px;font-size:12px;font-weight:600;color:var(--slate)}
+.application-site-options{display:flex;flex-wrap:wrap;gap:8px 16px}
+.application-site-options label{display:flex;align-items:baseline;gap:6px;font-size:13px;cursor:pointer}
+.application-site-options input{accent-color:var(--teal)}
 .mode-toggle{display:flex;border-radius:20px;border:1px solid var(--border);overflow:hidden;width:fit-content;background:var(--bg)}
 .mode-toggle button{border:none;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:var(--slate);transition:background .12s,color .12s;border-radius:0;white-space:nowrap}
 .mode-toggle button.on-auto{background:var(--teal);color:#fff}
@@ -75,7 +80,7 @@ input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,1
 .tl-spine{display:flex;flex-direction:column;align-items:center;padding-top:11px}
 .tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:2px solid var(--card)}
 .tl-line{width:2px;flex-grow:1;min-height:16px;background:var(--border);margin-top:2px}
-.pill{display:flex;align-items:center;gap:7px;padding:5px 12px;border-radius:20px;border:1px solid transparent;margin:2px}
+.pill{display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:5px 12px;border-radius:20px;border:1px solid transparent;margin:2px}
 .pill-eye{font-size:11px;background:white;padding:1px 7px;border-radius:12px;color:var(--slate)}
 .sum-card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);border-top-width:3px;padding:14px 16px}
 .pt-card{background:var(--card);border-radius:var(--r);border:2px solid var(--border);padding:28px;max-width:460px;margin:0 auto}
@@ -206,7 +211,7 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
     </div>
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div class="card-title" style="margin-bottom:0">💊 Daftar Obat Tetes</div>
+        <div class="card-title" style="margin-bottom:0">💊 Daftar Obat</div>
         <button class="btn" onclick="addDrug()">+ Tambah Obat</button>
       </div>
       <div id="drug-list"></div>
@@ -256,7 +261,7 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
     <div class="pt-card" id="print-area">
       <div class="pt-card-hdr">
         <div style="font-size:28px;margin-bottom:8px">💧</div>
-        <div style="font-size:18px;font-weight:700;letter-spacing:.4px">JADWAL OBAT TETES MATA</div>
+        <div style="font-size:18px;font-weight:700;letter-spacing:.4px">JADWAL OBAT MATA</div>
         <div id="card-date" style="font-size:12px;color:var(--slate);margin-top:4px"></div>
         <div id="card-pat" style="font-size:15px;font-weight:600;color:var(--teal);margin-top:8px"></div>
       </div>
@@ -265,7 +270,7 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
       <div id="card-daynote" style="font-size:12px;color:var(--slate);margin-bottom:8px"></div>
       <div id="card-rows"></div>
       <div class="notice y" style="margin-top:16px;font-size:12px">
-        ⚠️ <strong>Penting:</strong> Tunggu minimal <strong id="card-gap-txt">15 menit</strong> antara obat tetes berbeda (pada mata yang sama). Teteskan sesuai urutan yang tertera.
+        ⚠️ <strong>Penting:</strong> Tunggu minimal <strong id="card-gap-txt">15 menit</strong> antara obat berbeda pada mata yang sama. Gunakan obat sesuai urutan yang tertera.
       </div>
     </div>
     <div class="flex-r no-print" style="margin-top:14px;max-width:460px;margin-left:auto;margin-right:auto">
@@ -281,7 +286,6 @@ footer.site-ft{text-align:center;padding:20px 16px 28px;font-size:12px;color:var
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <div class="card-title" style="margin-bottom:0">📋 Output EMR <span style="font-size:12px;font-weight:400;color:var(--slate)">(singkat — untuk rekam medis)</span></div>
       </div>
-      <div style="font-size:12px;color:var(--slate);margin-bottom:10px">Format: <code>[Nama obat], diteteskan di [mata], jam tetes: [jam]</code></div>
       <div id="emr-short" class="emr-box" style="min-height:unset"></div>
       <div style="display:flex;align-items:center;gap:12px;margin-top:10px">
         <button class="btn btn-p" onclick="copyEMR('short')">📋 Copy Output EMR</button>
@@ -410,6 +414,21 @@ const COLORS=[
 ];
 const EYE_S={OD:'Kanan (OD)',OS:'Kiri (OS)',OU:'Kedua Mata'};
 const EYE_F={OD:'Mata Kanan',OS:'Mata Kiri',OU:'Kedua Mata'};
+const APPLICATION_SITES=[
+  {id:'eyeball',label:'bola mata'},
+  {id:'upper-lid',label:'kelopak mata atas'},
+  {id:'lower-lid',label:'kelopak mata bawah'},
+  {id:'lump',label:'benjolan'},
+  {id:'upper-margin',label:'pinggir kelopak mata atas'},
+  {id:'lower-margin',label:'pinggir kelopak mata bawah'},
+  {id:'both-margins',label:'pinggir kelopak mata atas dan bawah'},
+  {id:'surrounding-skin',label:'kulit sekitar kelopak yang kemerahan atau terdapat bruntus'},
+];
+const DRUG_FORMS={
+  tetes:{label:'Tetes',icon:'💧'},
+  gel:{label:'Gel',icon:'🧴'},
+  salep:{label:'Salep',icon:'🩹'},
+};
 const FREQ_OPTS=[
   {v:-1,l:'Tiap jam selama bangun (q1h)'},
   {v:12,l:'Tiap 2 jam selama bangun (q2h) — mis. Lyterres trauma kimia'},
@@ -417,6 +436,7 @@ const FREQ_OPTS=[
   {v:2, l:'2× / hari (b.i.d.)'},
   {v:3, l:'3× / hari (t.i.d.)'},
   {v:4, l:'4× / hari (q.i.d.)'},
+  {v:5, l:'5× / hari'},
   {v:6, l:'6× / hari (q4h)'},
   {v:8, l:'8× / hari (q3h)'},
 ];
@@ -482,10 +502,27 @@ const toTime=m=>`${String(Math.floor((m/60)%24)).padStart(2,'0')}:${String(Math.
 const nowDate=()=>new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'});
 const nowISO=()=>new Date().toISOString().slice(0,16);
 
+function isApplied(d){return d.form==='gel'||d.form==='salep';}
+function normalizeApplicationSites(ids){
+  return Array.isArray(ids)?APPLICATION_SITES.map(site=>site.id).filter(id=>ids.includes(id)):[];
+}
+function usageInstruction(d){
+  const eye=EYE_F[d.eye];
+  if(!isApplied(d))return `Teteskan di ${eye}`;
+  const ids=normalizeApplicationSites(d.applicationSites);
+  const bothMargins=ids.includes('both-margins');
+  const locations=APPLICATION_SITES
+    .filter(site=>ids.includes(site.id)&&!(bothMargins&&['upper-margin','lower-margin'].includes(site.id)))
+    .map(site=>'di '+site.label);
+  if(!locations.length)return `Oleskan sesuai petunjuk (${eye})`;
+  const sites=locations.length===1?locations[0]:locations.slice(0,-1).join(', ')+' dan '+locations.at(-1);
+  return `Oleskan ${sites} (${eye})`;
+}
+
 /* ══════════════════════════════════════════════════
    APP STATE
 ══════════════════════════════════════════════════ */
-let drugs=[{id:1,name:'Antibiotik Tetes',eye:'OD',freq:4,note:'',mode:'auto',fixTimes:['06:00'],altWith:null,altLeadId:null,form:'tetes',phases:[],kemasan:'minidose'}];
+let drugs=[{id:1,name:'Antibiotik Tetes',eye:'OD',freq:4,note:'',mode:'auto',fixTimes:['06:00'],altWith:null,altLeadId:null,form:'tetes',applicationSites:[],phases:[],kemasan:'minidose'}];
 let uid=2;
 let selectedIds=new Set();
 /** @type {{pairKey:string,firstId:number,t:number}[]} */
@@ -688,6 +725,7 @@ function migrateDrug(d){
     altWith:d.altWith??null,altLeadId:d.altLeadId??null,
     // Field baru (multi-hari & sediaan) — record lama tidak punya, isi default aditif:
     form:d.form==='gel'||d.form==='salep'?d.form:'tetes',
+    applicationSites:normalizeApplicationSites(d.applicationSites),
     phases:Array.isArray(d.phases)?d.phases.map(p=>({days:p.days??null,freq:p.freq??(d.freq??4),mode:p.mode||d.mode||'auto',fixTimes:Array.isArray(p.fixTimes)?p.fixTimes.slice():undefined})):[],
     kemasan:KEMASAN_OPTS.some(k=>k.v===d.kemasan)?d.kemasan:'minidose',
   };
@@ -1183,8 +1221,8 @@ function onTimeChange(){
 }
 
 function addDrug(){
-  if(drugs.length>=8)return alert('Maksimal 8 obat tetes.');
-  drugs.push({id:uid++,name:'',eye:'OU',freq:4,note:'',mode:'auto',fixTimes:['06:00','12:00','18:00','21:00'],altWith:null,altLeadId:null,form:'tetes',phases:[],kemasan:'minidose'});
+  if(drugs.length>=8)return alert('Maksimal 8 obat.');
+  drugs.push({id:uid++,name:'',eye:'OU',freq:4,note:'',mode:'auto',fixTimes:['06:00','12:00','18:00','21:00'],altWith:null,altLeadId:null,form:'tetes',applicationSites:[],phases:[],kemasan:'minidose'});
   renderDrugList();
 }
 function removeDrug(id){
@@ -1257,6 +1295,12 @@ function setFixTime(id,idx,val){const d=drugs.find(d=>d.id===id);if(!d)return;wh
 
 /* ── Sediaan & Tapering ── */
 function setForm(id,v){const d=drugs.find(x=>x.id===id);if(!d)return;d.form=(v==='gel'||v==='salep')?v:'tetes';renderDrugList();if(!$('tab-schedule').classList.contains('hidden'))renderAll();}
+function setApplicationSite(id,site,checked){
+  const d=drugs.find(drug=>drug.id===id);
+  if(!d)return;
+  const sites=d.applicationSites;
+  d.applicationSites=checked?normalizeApplicationSites([...sites,site]):sites.filter(id=>id!==site);
+}
 function setKemasan(id,v){
   const d=drugs.find(x=>x.id===id);if(!d)return;
   d.kemasan=KEMASAN_OPTS.some(k=>k.v===v)?v:'minidose';
@@ -1300,6 +1344,7 @@ function saveTemplate(){
       name:d.name,eye:d.eye,freq:d.freq,note:d.note,mode:d.mode,
       fixTimes:(d.fixTimes||[]).slice(),
       form:d.form||'tetes',
+      applicationSites:d.applicationSites.slice(),
       kemasan:d.kemasan||'minidose',
       phases:Array.isArray(d.phases)?JSON.parse(JSON.stringify(d.phases)):[],
       altPartnerIdx:d.mode==='alternate'?drugs.findIndex(x=>x.id===d.altWith):-1,
@@ -1325,6 +1370,7 @@ function applyTemplate(tid){
     mode:row.mode||'auto',
     fixTimes:(row.fixTimes&&row.fixTimes.length)?row.fixTimes.slice():['08:00'],
     form:(row.form==='gel'||row.form==='salep')?row.form:'tetes',
+    applicationSites:normalizeApplicationSites(row.applicationSites),
     kemasan:KEMASAN_OPTS.some(k=>k.v===row.kemasan)?row.kemasan:'minidose',
     phases:Array.isArray(row.phases)?JSON.parse(JSON.stringify(row.phases)):[],
     altWith:null,
@@ -1397,7 +1443,16 @@ function renderDrugList(){
     const freqSel=`<select onchange="setFreq(${d.id},this.value)" ${freqDisabled?'disabled':''} style="padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:${freqDisabled?'#f1f5f9':'var(--card)'};color:var(--navy);font-family:inherit;outline:none;width:100%">
       ${FREQ_OPTS.map(o=>`<option value="${o.v}" ${d.freq===o.v?'selected':''}>${o.l}</option>`).join('')}</select>`;
     const formSel=`<select onchange="setForm(${d.id},this.value)" title="Bentuk sediaan" style="padding:9px 8px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--navy);font-family:inherit;outline:none">
-      ${[['tetes','💧 Tetes'],['gel','🧴 Gel'],['salep','🩹 Salep']].map(([v,l])=>`<option value="${v}" ${d.form===v?'selected':''}>${l}</option>`).join('')}</select>`;
+      ${Object.entries(DRUG_FORMS).map(([value,form])=>`<option value="${value}" ${d.form===value?'selected':''}>${form.icon} ${form.label}</option>`).join('')}</select>`;
+    const applicationSites=isApplied(d)?`<fieldset class="application-sites">
+      <legend>Lokasi pengolesan (bisa pilih beberapa)</legend>
+      <div class="application-site-options">
+        ${APPLICATION_SITES.map(site=>`<label>
+          <input type="checkbox" ${d.applicationSites.includes(site.id)?'checked':''}
+            onchange="setApplicationSite(${d.id},'${site.id}',this.checked)">Di ${site.label}
+        </label>`).join('')}
+      </div>
+    </fieldset>`:'';
     const clsBadge=cls?`<span style="font-size:10px;font-weight:600;color:#6d28d9;background:#ede9fe;border-radius:10px;padding:1px 8px;white-space:nowrap">${esc(cls)}</span>`:'';
     const ointmentHint=(isTypicallyOintment(d.name)&&d.form!=='salep')
       ?`<button type="button" onclick="setForm(${d.id},'salep')" style="font-size:11px;color:#92400e;background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:3px 10px;cursor:pointer">🩹 Biasanya salep — pakai Salep?</button>`
@@ -1457,7 +1512,7 @@ function renderDrugList(){
     return `<div class="drug-block" style="border-color:${c.dot}40">
       <div class="drug-header" style="background:${c.dot}0d">
         <div class="d-num" style="background:${c.dot}">${idx+1}</div>
-        <input type="text" value="${esc(d.name)}" placeholder="Nama obat tetes ${idx+1}" oninput="upDrug(${d.id},'name',this.value)" style="font-size:14px;background:var(--card)">
+        <input type="text" value="${esc(d.name)}" placeholder="Nama obat ${idx+1}" oninput="upDrug(${d.id},'name',this.value)" style="font-size:14px;background:var(--card)">
         ${eyeSel}${formSel}${freqSel}
         ${drugs.length>1?`<button class="btn btn-danger" onclick="removeDrug(${d.id})" style="padding:5px 10px">✕</button>`:'<div></div>'}
       </div>
@@ -1466,6 +1521,7 @@ function renderDrugList(){
         ${altBlock}
         ${fixBlock}
         ${taperBlock}
+        ${applicationSites}
         ${d.form!=='salep'?`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <span style="font-size:11px;color:var(--slate)">📦 Kemasan (untuk hitung kebutuhan):</span>
           <select onchange="setKemasan(${d.id},this.value)" style="padding:5px 8px;font-size:12px;max-width:220px">
@@ -1621,8 +1677,8 @@ function renderAll(){
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 16px;flex:1">
         ${slot.evs.map(ev=>{const c=COLORS[ev.di%5];return`<div class="pill" style="background:${c.chip};border-color:${c.dot}30">
-          <span style="font-size:13px;font-weight:600;color:${c.label}">💧 ${esc(ev.d.name)||'Obat '+(ev.di+1)}</span>
-          <span class="pill-eye">${EYE_F[ev.d.eye]}</span>
+          <span style="font-size:13px;font-weight:600;color:${c.label}">${DRUG_FORMS[ev.d.form].icon} ${esc(ev.d.name)||'Obat '+(ev.di+1)}</span>
+          <span class="pill-eye">${esc(isApplied(ev.d)?usageInstruction(ev.d):EYE_F[ev.d.eye])}</span>
           ${ev.fixed?'<span class="fix-badge" style="font-size:10px;padding:1px 6px">📌</span>':''}
           ${ev.conflict?`<span class="conflict-warn">⚠ jarak &lt;${getMinGap()}m</span>`:''}
           ${ev.d.note?`<span style="font-size:10px;color:var(--slate);font-style:italic">${esc(ev.d.note)}</span>`:''}
@@ -1667,14 +1723,14 @@ function renderAll(){
       </div>`;
     }).join('');
     ct.innerHTML=`<div style="font-size:14px;font-weight:700;color:var(--teal);margin-bottom:8px;border-bottom:1px solid #e2e8f0;padding-bottom:4px">📉 RENCANA TAPERING (per tanggal)</div>${rows}`;
-    $('card-daynote').innerHTML=`<strong>Contoh jam tetes</strong> untuk ${fmtDate(dateForOffset(viewDayOffset))} (Hari ke-${viewDayOffset+1}). Frekuensi berubah sesuai tahapan di atas.`;
+    $('card-daynote').innerHTML=`<strong>Contoh jam penggunaan</strong> untuk ${fmtDate(dateForOffset(viewDayOffset))} (Hari ke-${viewDayOffset+1}). Frekuensi berubah sesuai tahapan di atas.`;
   }else{ct.classList.add('hidden');$('card-daynote').innerHTML='';}
   $('card-rows').innerHTML=slots.map(slot=>`<div class="sched-row">
     <div class="sched-t">${slot.time}</div>
-    <div style="flex:1">${slot.evs.map(ev=>{const c=COLORS[ev.di%5];return`<div style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:3px">
-      <span style="color:${c.dot}">💧</span>
+    <div style="flex:1">${slot.evs.map(ev=>{const c=COLORS[ev.di%5];return`<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;margin-bottom:3px">
+      <span style="color:${c.dot}">${DRUG_FORMS[ev.d.form].icon}</span>
       <span style="font-weight:600">${esc(ev.d.name)||'Obat '+(ev.di+1)}</span>
-      <span style="font-size:11px;color:var(--slate)">${EYE_F[ev.d.eye]}</span>
+      <span style="font-size:11px;color:var(--slate)">${esc(isApplied(ev.d)?usageInstruction(ev.d):EYE_F[ev.d.eye])}</span>
       ${ev.d.note?`<span style="font-size:11px;color:var(--slate);font-style:italic">– ${esc(ev.d.note)}</span>`:''}
     </div>`;}).join('')}</div>
   </div>`).join('');
@@ -1693,7 +1749,10 @@ function renderAll(){
 function genEMRShort(sched){
   return drugs.map(d=>{
     const evs=sched.filter(e=>e.d.id===d.id).map(e=>toTime(e.t));
-    return `${d.name||'Obat'}, diteteskan di ${EYE_F[d.eye]}, jam tetes: ${evs.join(', ')}`;
+    const name=(d.name||'Obat')+(isApplied(d)?` (${DRUG_FORMS[d.form].label})`:'');
+    const timeLabel=isApplied(d)?'jam oles':'jam tetes';
+    const note=d.note.trim();
+    return `${name}, ${usageInstruction(d)}, ${timeLabel}: ${evs.join(', ')}${note?`; Catatan: ${note}`:''}`;
   }).join('\n');
 }
 
@@ -1702,7 +1761,7 @@ function genEMRLong(sched,slots,pat,span){
   const wake=$('wake').value,slp=$('sleep').value;
   const date=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
   const taperOn=anyTaper();
-  const lines=['=== JADWAL OBAT TETES MATA ===',
+  const lines=['=== JADWAL OBAT MATA ===',
     ...(pat?['Pasien : '+pat]:[]),'Tanggal: '+date,
     ...(taperOn?['Tanggal mulai regimen: '+fmtDate(dateForOffset(0))]:[]),
     `Jam aktif: ${wake} – ${slp} (${Math.floor(span/60)} jam)`,
@@ -1719,22 +1778,24 @@ function genEMRLong(sched,slots,pat,span){
       if(isAlt)freqLabel='Selang-seling tiap jam dengan obat pasangan (ulkus kornea, dll.)';
       else if(rd.freq===-1)freqLabel=`q1h (tiap jam, ${rf}×/hari)`;
       else if(rd.freq===12)freqLabel=`q2h (tiap 2 jam, ${rf}× selama bangun)`;
-      else freqLabel=(FREQ_LATIN[rf]||rf+'×/hari')+` (${rf}×/hari)`;
-      const formLabel=d.form==='salep'?'Salep (diteteskan terakhir, di jam tidur)':d.form==='gel'?'Gel':'Tetes';
+      else freqLabel=FREQ_LATIN[rf]?`${FREQ_LATIN[rf]} (${rf}×/hari)`:`${rf}×/hari`;
+      const timeLabel=isApplied(d)?'Jam oles':'Jam tetes';
+      const note=d.note.trim();
       return[`${i+1}. ${d.name||'Obat '+(i+1)} – ${EYE_F[d.eye]}`,
-        `   Sediaan  : ${formLabel}`,
+        `   Sediaan  : ${DRUG_FORMS[d.form].label}`,
+        `   Cara pakai: ${usageInstruction(d)}`,
         ...(hasTaper?['   TAPERING:',...taperPlanLines(d).map(l=>'     - '+l)]:[
           `   Frekuensi: ${freqLabel}`,
           `   Mode     : ${isFix?'JAM TETAP (ditentukan dokter)':isAlt?'Selang-seling jam':'Otomatis (dihitung dari jam bangun/tidur)'}`,
-          ...(isFix||isAlt?[]:[`   Interval : tiap ~${ivl} menit (~${(ivl/60).toFixed(1)} jam)`]),
+          ...(isFix||isAlt||d.form==='salep'?[]:[`   Interval : tiap ~${ivl} menit (~${(ivl/60).toFixed(1)} jam)`]),
         ]),
-        `   Jam tetes: ${evs.length?evs.join(', '):'(stop pada hari yang ditampilkan)'}`,
-        ...(d.note?[`   Catatan  : ${d.note}`]:[]),];
+        `   ${timeLabel}: ${evs.length?evs.join(', '):'(stop pada hari yang ditampilkan)'}`,
+        ...(note?[`   Catatan  : ${note}`]:[]),];
     }),'',
     (taperOn?`TIMELINE HARIAN (contoh untuk ${fmtDate(dateForOffset(viewDayOffset))}, Hari ke-${viewDayOffset+1}):`:'TIMELINE HARIAN:'),
     ...slots.map(sl=>`  ${sl.time}  →  ${sl.evs.map(ev=>(ev.d.name||'Obat '+(ev.di+1))+' ('+EYE_S[ev.d.eye]+')').join(' + ')}`),
-    '','⚠ Tunggu min. '+getMinGap()+' menit antara obat tetes berbeda (pada mata yang sama).',
-    '⚠ Tetes sesuai urutan yang tertera di jadwal.',
+    '','⚠ Tunggu min. '+getMinGap()+' menit antara obat berbeda pada mata yang sama.',
+    '⚠ Gunakan obat sesuai urutan yang tertera di jadwal.',
     ...(taperOn?['⚠ Frekuensi berubah sesuai tahapan tapering di atas — ikuti tanggalnya.']:[]),];
   return lines.join('\n');
 }
