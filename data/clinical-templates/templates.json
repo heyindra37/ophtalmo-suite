@@ -146,5 +146,56 @@
         ]
       }
     ]
+  },
+  {
+    "id": "indikasi-mrs-optic-neuritis-retrobulbar",
+    "name": "Indikasi MRS – Optic Neuritis Retrobulbar",
+    "category": "Indikasi MRS BPJS",
+    "sections": [
+      {
+        "title": "Indikasi Rawat Inap",
+        "ordered": true,
+        "items": [
+          "Penurunan tajam penglihatan akut akibat neuritis optik retrobulbar, dengan risiko gangguan fungsi penglihatan yang bermakna.",
+          "Memerlukan terapi pulse methylprednisolone intravena dosis tinggi selama 3–5 hari, dengan pengawasan klinis selama pemberian terapi.",
+          "Memerlukan pemantauan respons terapi dan kemungkinan efek samping kortikosteroid dosis tinggi, meliputi visus, tekanan darah, glukosa darah, serta tekanan intraokular sesuai indikasi klinis."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "indikasi-mrs-hifema-traumatika",
+    "name": "Indikasi MRS – Hifema Traumatika",
+    "category": "Indikasi MRS BPJS",
+    "sections": [
+      {
+        "title": "Indikasi Rawat Inap",
+        "ordered": true,
+        "items": [
+          {
+            "text": "Pasien memerlukan bedrest dengan elevasi kepala 30–45° dan pembatasan aktivitas fisik untuk mengurangi risiko perdarahan ulang (rebleeding) yang dapat memperburuk kondisi mata.",
+            "emphasis": "rebleeding"
+          },
+          "Pasien mendapatkan terapi antifibrinolitik tranexamic acid intravena yang ditujukan untuk mengurangi risiko rebleeding, disertai pemantauan respons dan efek samping terapi.",
+          "Pasien memerlukan monitoring ketat visus, tekanan intraokular, dan perkembangan hifema untuk mendeteksi secara dini rebleeding, glaukoma sekunder, serta corneal blood staining yang dapat mengancam fungsi penglihatan."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "indikasi-mrs-open-globe-injury",
+    "name": "Indikasi MRS – Open Globe Injury",
+    "category": "Indikasi MRS BPJS",
+    "sections": [
+      {
+        "title": "Indikasi Rawat Inap",
+        "ordered": true,
+        "items": [
+          "Pasien memerlukan tindakan operasi penjahitan ruptur kornea/korneosklera/korneosklerakonjungtiva dengan anestesi umum untuk mengembalikan integritas bola mata, disertai atau tanpa injeksi antibiotik intrakameral/intravitreal sesuai indikasi.",
+          "Pasien memerlukan monitoring ketat hari pertama pascaoperasi untuk mengevaluasi kondisi luka, kedalaman bilik mata depan, visus, serta tanda-tanda endoftalmitis dan komplikasi pascaoperasi lainnya, sehingga apabila ditemukan komplikasi dapat segera diberikan penanganan yang sesuai.",
+          "Pasien memerlukan terapi antibiotik intravena untuk profilaksis endoftalmitis pascatrauma, disertai pembatasan aktivitas fisik dan perlindungan bola mata pascaoperasi guna mencegah kerusakan luka dan komplikasi lebih lanjut."
+        ]
+      }
+    ]
   }
 ]
