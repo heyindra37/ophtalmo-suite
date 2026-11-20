@@ -9,6 +9,7 @@ import { renderFieldPlaceholders } from "@/lib/clinical-templates/fieldEngine";
 import CorpalFormCard from "@/components/clinical-templates/CorpalFormCard";
 
 const templates = templatesData as ClinicalTemplate[];
+const MRS_BPJS_CATEGORY = "Indikasi MRS BPJS";
 
 const CORPAL_ENTRY = { id: "__corpal-generator", name: "Edukasi Pasca Ekstraksi Corpal", category: "Pasca Tindakan" };
 
@@ -33,6 +34,17 @@ function renderText(text: string, anchorDate: string, drugValues: Record<string,
   return result;
 }
 
+function renderItem(item: string | ClinicalTemplateItem, anchorDate: string, drugValues: Record<string, string>) {
+  const text = renderText(itemText(item), anchorDate, drugValues);
+  const emphasis = typeof item === "string" ? undefined : item.emphasis;
+  if (!emphasis) return text;
+
+  const index = text.indexOf(emphasis);
+  if (index < 0) return text;
+
+  return <>{text.slice(0, index)}<em>{emphasis}</em>{text.slice(index + emphasis.length)}</>;
+}
+
 function buildCopyText(
   t: ClinicalTemplate,
   anchorDate: string,
@@ -45,7 +57,10 @@ function buildCopyText(
     const items = section.items ? visibleItems(section.items, scenario) : [];
     if (items.length > 0) {
       lines.push("", `${title}:`);
-      for (const item of items) lines.push(`- ${renderText(itemText(item), anchorDate, drugValues)}`);
+      items.forEach((item, index) => {
+        const marker = section.ordered ? `${index + 1}.` : "-";
+        lines.push(`${marker} ${renderText(itemText(item), anchorDate, drugValues)}`);
+      });
     } else if (section.text) {
       lines.push("", `${title}: ${renderText(section.text, anchorDate, drugValues)}`);
     }
@@ -64,7 +79,10 @@ function buildSectionCopyText(
   const items = section.items ? visibleItems(section.items, scenario) : [];
   const lines: string[] = [];
   if (items.length > 0) {
-    for (const item of items) lines.push(`- ${renderText(itemText(item), anchorDate, drugValues)}`);
+    items.forEach((item, index) => {
+      const marker = section.ordered ? `${index + 1}.` : "-";
+      lines.push(`${marker} ${renderText(itemText(item), anchorDate, drugValues)}`);
+    });
   } else if (section.text) {
     lines.push(renderText(section.text, anchorDate, drugValues));
   }
@@ -199,19 +217,20 @@ function TemplateCard({ template }: { template: ClinicalTemplate }) {
               const items = section.items ? visibleItems(section.items, scenario) : [];
               const hasNoContentForScenario = !!section.items && section.items.length > 0 && items.length === 0;
               if (items.length === 0 && !section.text && !hasNoContentForScenario) return null;
+              const List = section.ordered ? "ol" : "ul";
               return (
                 <div key={si}>
                   <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-1.5">
                     {renderText(section.title, anchorDate, drugValues)}
                   </p>
                   {items.length > 0 ? (
-                    <ul className="list-disc pl-5 flex flex-col gap-1">
+                    <List className={`${section.ordered ? "list-decimal" : "list-disc"} pl-5 flex flex-col gap-1`}>
                       {items.map((item, i) => (
                         <li key={i} className="text-sm text-slate-700 leading-relaxed">
-                          {renderText(itemText(item), anchorDate, drugValues)}
+                          {renderItem(item, anchorDate, drugValues)}
                         </li>
                       ))}
-                    </ul>
+                    </List>
                   ) : hasNoContentForScenario ? (
                     <p className="text-sm text-slate-400 italic">
                       Instruksi untuk skenario ini belum tersedia untuk titik waktu ini.
@@ -265,6 +284,8 @@ export default function ClinicalTemplatesClient() {
     );
   }, [query]);
 
+  const mrsTemplates = filtered.filter((template) => template.category === MRS_BPJS_CATEGORY);
+
   const showCorpal = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return true;
@@ -308,9 +329,19 @@ export default function ClinicalTemplatesClient() {
           ) : (
             <>
               {showCorpal && <CorpalFormCard />}
-              {filtered.map((t) => (
+              {filtered.filter((t) => t.category !== MRS_BPJS_CATEGORY).map((t) => (
                 <TemplateCard key={t.id} template={t} />
               ))}
+              {mrsTemplates.length > 0 && (
+                <section aria-labelledby="indikasi-mrs-bpjs" className="flex flex-col gap-3">
+                  <h2 id="indikasi-mrs-bpjs" className="mt-3 text-lg font-bold text-slate-900">
+                    {MRS_BPJS_CATEGORY}
+                  </h2>
+                  {mrsTemplates.map((template) => (
+                    <TemplateCard key={template.id} template={template} />
+                  ))}
+                </section>
+              )}
             </>
           )}
         </div>

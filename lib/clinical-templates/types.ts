@@ -1,5 +1,6 @@
 export interface ClinicalTemplateItem {
   text: string;
+  emphasis?: string;
   /** Only shown when this scenario is selected. Omit to show for every scenario. */
   scenario?: string;
 }
@@ -8,6 +9,7 @@ export interface ClinicalTemplateSection {
   /** May contain {{date+N}} / {{date-N}} placeholders when the template has a generator. */
   title: string;
   items?: (string | ClinicalTemplateItem)[];
+  ordered?: boolean;
   /** May contain {{date+N}} / {{date-N}} placeholders when the template has a generator. */
   text?: string;
 }
