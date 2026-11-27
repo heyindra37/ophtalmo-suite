@@ -341,6 +341,17 @@ export default function GeminiRetinalClient() {
                   </select>
                 </div>
               </label>
+              <p className="text-xs leading-relaxed text-slate-600">
+                Ragu menentukan jenis lesi?{" "}
+                <a
+                  href="https://gamma.app/docs/Retinopati-Diabetik-Panduan-Saku-Praktik-9jkw48go5tagw1z"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-teal-700 underline underline-offset-2 hover:text-teal-900"
+                >
+                  Buka panduan retinopati diabetik
+                </a>
+              </p>
               {tool === "brush" && (
                 <label className="text-xs text-slate-500">
                   Ukuran brush
