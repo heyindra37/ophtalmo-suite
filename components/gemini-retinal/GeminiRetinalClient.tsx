@@ -8,7 +8,7 @@ import { buildNarrative, type DrawnItem, type LesionDef } from "@/lib/gemini-ret
 import { GlobalMapCanvas, ViewportCanvas } from "./Canvases";
 import type Konva from "konva";
 import { composeImage, downloadCanvas, type ExportScope, type ImageFormat } from "@/lib/gemini-retinal/exportImage";
-import { QUADRANTS4, drImpression, emptyDrInputs, gradeDr, type DrInputs, type DrResult } from "@/lib/gemini-retinal/drGrading";
+import { QUADRANTS4, drImpression, drPlacementError, emptyDrInputs, gradeDr, type DrInputs, type DrResult } from "@/lib/gemini-retinal/drGrading";
 
 const CATEGORY_LABELS: Record<string, string> = {
   vascular_diabetic: "Vaskular / Diabetik",
@@ -109,6 +109,7 @@ export default function GeminiRetinalClient() {
   const [lesionId, setLesionId] = useState(DEFS[0].id);
   const [tool, setTool] = useState<"pin" | "brush">(DEFS[0].type === "area" ? "brush" : "pin");
   const [brushWidth, setBrushWidth] = useState(0.06);
+  const [placementError, setPlacementError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState<ImageFormat | null>(null);
   const [exportScope, setExportScope] = useState<ExportScope>("ODS");
@@ -154,19 +155,21 @@ export default function GeminiRetinalClient() {
   const onh = onhPointer(state.eye, gaze);
 
   const pickLesion = (id: string) => {
+    setPlacementError(null);
     setLesionId(id);
     const d = DEFS.find((x) => x.id === id);
     if (d) setTool(d.type === "area" ? "brush" : "pin");
   };
 
-  const addPin = (p: Pt) => dispatch({ type: "add", item: { uid: uid(), lesionId, kind: "pin", points: [p] } });
-  const addStroke = (pts: Pt[]) =>
-    dispatch({
-      type: "add",
-      item: pts.length === 1
-        ? { uid: uid(), lesionId, kind: "pin", points: pts }
-        : { uid: uid(), lesionId, kind: "stroke", points: pts, width: brushWidth },
-    });
+  const addLesion = (points: Pt[]) => {
+    const error = drPlacementError(lesionId, points, state.eye);
+    setPlacementError(error);
+    if (error) return;
+    const item: DrawnItem = points.length === 1
+      ? { uid: uid(), lesionId, kind: "pin", points }
+      : { uid: uid(), lesionId, kind: "stroke", points, width: brushWidth };
+    dispatch({ type: "add", item });
+  };
 
   // The OD/OS maps used for export are mounted only while exporting, then captured after paint.
   useEffect(() => {
@@ -233,7 +236,10 @@ export default function GeminiRetinalClient() {
             {(["OD", "OS"] as Eye[]).map((e) => (
               <button
                 key={e}
-                onClick={() => dispatch({ type: "eye", eye: e })}
+                onClick={() => {
+                  setPlacementError(null);
+                  dispatch({ type: "eye", eye: e });
+                }}
                 className={`px-4 py-1.5 text-sm rounded-lg font-semibold ${
                   state.eye === e ? "bg-teal-600 text-white" : "bg-gray-100 text-slate-600 hover:bg-gray-200"
                 }`}
@@ -292,11 +298,12 @@ export default function GeminiRetinalClient() {
                     defs={DEFS}
                     tool={tool}
                     brushWidth={brushWidth}
-                    onPin={addPin}
-                    onStroke={addStroke}
+                    onPin={(p) => addLesion([p])}
+                    onStroke={addLesion}
                   />
                 )}
               </div>
+              {placementError && <p role="status" className="self-start text-sm text-red-700">{placementError}</p>}
             </section>
 
             <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-3">
@@ -324,7 +331,7 @@ export default function GeminiRetinalClient() {
                   >
                     {CATEGORIES.map(([cat, defs]) => (
                       <optgroup key={cat} label={CATEGORY_LABELS[cat] ?? cat}>
-                        {defs.map((d) => (
+                        {defs.filter((d) => !d.legacy).map((d) => (
                           <option key={d.id} value={d.id}>
                             {d.name}
                           </option>
@@ -499,9 +506,9 @@ function DrPanel({
         <span className={`text-sm font-bold px-3 py-1 rounded-full border ${result.grade === "none" && !result.confirmedNone ? "bg-gray-100 text-gray-600 border-gray-200" : GRADE_STYLE[result.grade]}`} data-testid="dr-grade">
           {result.label}
         </span>
-        {result.dmeSuspect && (
+        {(result.dmeMarked || result.dmeSuspect) && (
           <span className="text-xs font-semibold px-2 py-1 rounded-full bg-sky-50 text-sky-800 border border-sky-200">
-            Curiga DME — konfirmasi OCT
+            {result.dmeMarked ? "Macular Edema" : "Curiga DME — konfirmasi OCT"}
           </span>
         )}
         <span className="ml-auto text-xs text-slate-500">
@@ -555,7 +562,8 @@ function DrPanel({
             NVE ≥ ½ disc area
           </label>
           <p className="text-[11px] text-slate-400 mt-1">
-            NV yang digambar ≤1 diameter papil dari diskus otomatis dihitung NVD, selebihnya NVE. Venous beading & IRMA dihitung per kuadran dari gambar.
+            Pilih NVD untuk diskus optikus dan area hingga 1 diameter papil dari tepinya. Pilih NVE untuk area di luar batas tersebut.
+            Venous beading &amp; IRMA dihitung per kuadran dari gambar.
           </p>
         </div>
       </div>

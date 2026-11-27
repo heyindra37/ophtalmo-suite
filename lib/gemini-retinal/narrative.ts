@@ -7,6 +7,7 @@ export interface LesionDef {
   color: string;
   shape?: string;
   fill_opacity?: number;
+  legacy?: boolean;
 }
 
 export interface DrawnItem {
@@ -20,6 +21,8 @@ export interface DrawnItem {
 const NARRATIVE_LABEL: Record<string, string> = {
   retinal_detachment: "retinal detachment",
   nve: "NVE/NVD",
+  nvd: "NVD",
+  nve_elsewhere: "NVE",
   erm: "epiretinal membrane",
   vitritis: "vitritis",
   floaters: "floaters",
@@ -86,6 +89,9 @@ function zonePhrase(zones: Set<Zone>): string {
 }
 
 export function lesionSentence(def: LesionDef, items: DrawnItem[], eye: Eye): string | null {
+  if (def.id === "nvd" && items.some((item) => item.points.length)) {
+    return "Tampak NVD pada atau dalam 1 diameter papil dari tepi diskus optikus.";
+  }
   const sectors = new Set<Sector>();
   const zones = new Set<Zone>();
   let macula = false;
