@@ -107,8 +107,16 @@ function PinShape({ def, at, proj, k }: { def: LesionDef; at: Pt; proj: Projecti
       );
     }
     case "solid_circle":
-      // Dot/blot haemorrhage: kept small so many can be placed without merging into blobs.
       return <Circle key={k} x={c.x} y={c.y} radius={Math.max(2, r * 0.45)} fill={def.color} />;
+    case "blot_hge":
+      return <Ellipse key={k} x={c.x} y={c.y} radiusX={Math.max(3, r * 0.9)} radiusY={Math.max(2.5, r * 0.7)} fill={def.color} />;
+    case "branching_lines":
+      return (
+        <Group key={k} x={c.x} y={c.y} rotation={proj.rotateDeg ?? 0}>
+          <Line points={[-r, r / 2, 0, 0, r, -r / 2]} stroke={def.color} strokeWidth={1.5} lineCap="round" />
+          <Line points={[-r / 2, -r, 0, 0, r / 2, r]} stroke={def.color} strokeWidth={1.5} lineCap="round" />
+        </Group>
+      );
     default:
       return <Circle key={k} x={c.x} y={c.y} radius={r * 0.8} fill={def.color} />;
   }
@@ -184,7 +192,7 @@ function AreaShape({ def, item, proj }: { def: LesionDef; item: DrawnItem; proj:
     case "branching_lines":
       return (
         <Group>
-          <Line points={flat(pts)} stroke={def.color} strokeWidth={Math.max(1.5, w * 0.2)} lineCap="round" tension={0.3} />
+          <Line points={flat(pts)} stroke={def.color} strokeWidth={Math.max(1.5, w * 0.2)} lineCap="round" lineJoin="round" />
           {resample(item.points, 0.04).map((p, i) => {
             const s = proj.toScreen(p);
             const d = w * 0.45;

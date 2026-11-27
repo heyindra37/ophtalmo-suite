@@ -12,7 +12,22 @@
       "name": "Dot/Blot Hemorrhage",
       "type": "point",
       "color": "#FF0000",
+      "shape": "solid_circle",
+      "legacy": true
+    },
+    {
+      "id": "dot_hge",
+      "name": "Dot Hemorrhage",
+      "type": "point",
+      "color": "#B91C1C",
       "shape": "solid_circle"
+    },
+    {
+      "id": "blot_hge",
+      "name": "Blot Hemorrhage",
+      "type": "point",
+      "color": "#991B1B",
+      "shape": "blot_hge"
     },
     {
       "id": "flame_hge",
@@ -40,7 +55,29 @@
       "name": "NVE / NVD",
       "type": "area",
       "color": "#FF0000",
+      "shape": "branching_lines",
+      "legacy": true
+    },
+    {
+      "id": "nvd",
+      "name": "NVD (Neovascularization of the Disc)",
+      "type": "area",
+      "color": "#BE185D",
       "shape": "branching_lines"
+    },
+    {
+      "id": "nve_elsewhere",
+      "name": "NVE (Neovascularization Elsewhere)",
+      "type": "area",
+      "color": "#DC2626",
+      "shape": "branching_lines"
+    },
+    {
+      "id": "macular_edema",
+      "name": "Macular Edema",
+      "type": "area",
+      "color": "#7C3AED",
+      "fill_opacity": 0.35
     },
     {
       "id": "irma",
